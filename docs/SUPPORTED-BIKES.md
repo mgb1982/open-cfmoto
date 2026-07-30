@@ -20,7 +20,7 @@ Community reports welcome in [Discord](https://discord.gg/xRt5yZy2U) so we can k
 | | |
 | --- | --- |
 | **Confirmed** | **CFMoto** · **Voge** · **Moto Morini** · **Morbidelli** · **GOES** / **Gladiator** (CFORCE rebadges) |
-| **Same Carbit / EasyConnect path — try Connect** | **Zontes** · **Benelli** · **QJ Motor** · other TFT dashes with a pairing QR |
+| **Same Carbit / EasyConnect path — try Connect** | **Zontes** · **Benelli** · **QJ Motor** · **Longjia** · other TFT dashes with a pairing QR |
 
 **📸 Dash showcase:** **[SHOWCASE.md](SHOWCASE.md)** — curated Android Auto photos from the community
 (one hero shot per confirmed model). Add yours in Discord `#confirmed-working`.
@@ -73,6 +73,7 @@ promote models to “confirmed.”
 | **Benelli** | e.g. TRK 702 / 702X class — SoftAP SSID/password or QR when shown |
 | **QJ Motor** | **600SX / 550SX (2026) testing**; Fort 4.0 and other EasyConnect TFTs |
 | **Morbidelli** (formerly MBP) | **T1002VX confirmed**; other T1002V-class with Carbit dash welcome |
+| **Longjia** | e.g. **V-Bob 650** — Europe often uses **MotoFUN** / **Carbit Ride**. Unconfirmed; try Connect (or Mirror) if the dash shows a pairing QR. Close the official companion app first so it does not hold the link ports. |
 
 ---
 

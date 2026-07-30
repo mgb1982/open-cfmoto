@@ -5,7 +5,7 @@
 ### Wireless Android Auto on Carbit / EasyConnect dashes (CFMoto MotoPlay and siblings) — no root, no PC.
 
 **CFMoto** · **Voge** · **Moto Morini** · **Morbidelli** · **Zontes** · **Benelli** · **QJ Motor** ·
-**GOES** / **Gladiator** · and other brands with a MotoPlay / EasyConnect pairing QR
+**Longjia** · **GOES** / **Gladiator** · and other brands with a MotoPlay / EasyConnect pairing QR
 
 [Supported bikes](docs/SUPPORTED-BIKES.md) · [Dash showcase](docs/SHOWCASE.md) — real Android Auto photos from the community
 
@@ -128,7 +128,7 @@ Try Connect when the dash shows a pairing QR; report results in Discord:
 
 **Voge** (DS800 Rally confirmed) · **Moto Morini** (X-Cape 649 / 700 / Seiemmezzo confirmed; MotoFun) · **Zontes** ·
 **Benelli** (e.g. TRK 702 / 702X) · **QJ Motor** (e.g. Fort 4.0) · **Morbidelli** / MBP (**T1002VX**
-confirmed)
+confirmed) · **Longjia** (e.g. V-Bob 650; MotoFUN / Carbit Ride — unconfirmed, try if QR present)
 
 ### Full CFMoto list (summary)
 
