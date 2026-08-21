@@ -32,6 +32,7 @@ class BikeProfileSelectTest {
     @Test
     fun xcape1200StillsIsOverrideOnly() {
         assertTrue(Xcape1200StillsProfile.yunmoJpegStills)
+        assertEquals(10, Xcape1200StillsProfile.videoFrameRate)
         assertFalse(MoriniMlSoftApProfile.yunmoJpegStills)
         assertFalse(LegacyCfdl16Profile.yunmoJpegStills)
         assertFalse(Xcape1200StillsProfile.matchesModelId("21333"))

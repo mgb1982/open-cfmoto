@@ -755,7 +755,7 @@ object Xcape1200StillsProfile : BikeProfile {
     override val aaVideo = AaVideoSpec(AaResolution.LANDSCAPE_800x480, dpi = 160)
     override val forceBaseline: Boolean get() = false
     override val videoBitrate: Int get() = 2_000_000
-    override val videoFrameRate: Int get() = 8
+    override val videoFrameRate: Int get() = 10
     override val videoIFrameIntervalSec: Int get() = 2
     override val yunmoJpegStills: Boolean get() = true
 

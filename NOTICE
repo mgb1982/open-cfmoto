@@ -54,6 +54,12 @@ headunit-revived — AGPL-3.0
   (andreknieriem) — and their respective contributors. Licensed under AGPL-3.0.
   Upstream: https://github.com/andreknieriem/headunit-revived
 
+MOTO-HUB — AGPL-3.0
+  X-Cape 1200 JPEG still pacing (latest-wins slot, quality ladder, ack-based
+  send window) is adapted from MOTO-HUB CORE 1.1.85 `JpegDisplaySource`.
+  Copyright (C) 2026 Vincenzo Buonomano and the MOTO-HUB contributors.
+  Upstream: https://github.com/vincenzobpt/MOTO-HUB
+
 --------------------------------------------------------------------------------
 Project lineage (prior open-cfmoto forks studied / built upon)
 --------------------------------------------------------------------------------

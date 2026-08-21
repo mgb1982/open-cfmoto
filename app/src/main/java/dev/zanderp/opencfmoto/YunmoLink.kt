@@ -401,44 +401,53 @@ class YunmoLink(
     }
 
     private fun jpegSendLoop(out: OutputStream, encW: Int, encH: Int, port: Int) {
-        var idlePolls = 0
         val cap = jpegCapturer
         if (cap == null) {
             log("[YUNMO] JPEG capturer missing")
             return
         }
-        log("[YUNMO] JPEG stills send loop ${encW}x${encH}")
+        val periodMs = (1000L / BikeProfileHolder.active.videoFrameRate.coerceIn(4, 15)).coerceAtLeast(1L)
+        log("[YUNMO] JPEG stills send loop ${encW}x${encH} tick=${periodMs}ms")
         while (running) {
-            if (!waitForSendWindow(false)) break
-            val jpeg = cap.poll(1500)
-            if (jpeg == null) {
-                idlePolls++
-                if (idlePolls == 1 || idlePolls % 4 == 0) {
-                    log("[YUNMO] waiting for JPEG stills (poll#$idlePolls)…")
+            val tickStart = System.currentTimeMillis()
+            val jpeg = cap.latest()
+            val accepted = if (jpeg != null && stillsWindowHasRoom()) {
+                val id = frameId.get()
+                try {
+                    YunmoFrame.write(out, YunmoFrame.encodeJpegEx(jpeg, id))
+                    frameId.incrementAndGet()
+                    framesSent++
+                    lastFrameAt = System.currentTimeMillis()
+                    if (framesSent == 1) {
+                        ConnectionState.set(Phase.STREAMING, "Yunmo :$port ${encW}x${encH} JPEG")
+                        log("[YUNMO] first JPEG still out (${jpeg.size}b, id=$id)")
+                    }
+                    onFrameSent?.invoke()
+                    true
+                } catch (e: Exception) {
+                    log("[YUNMO] JPEG send failed: ${e.message}")
+                    break
                 }
-                continue
+            } else {
+                false
             }
-            idlePolls = 0
-            if (!running) break
-            val id = frameId.getAndIncrement()
-            val wire = YunmoFrame.encodeJpegEx(jpeg, id)
-            try {
-                YunmoFrame.write(out, wire)
-                framesSent++
-                lastFrameAt = System.currentTimeMillis()
-                if (framesSent == 1) {
-                    ConnectionState.set(Phase.STREAMING, "Yunmo :$port ${encW}x${encH} JPEG")
-                    log("[YUNMO] first JPEG still out (${jpeg.size}b, id=$id)")
-                } else if (framesSent % 60 == 0) {
-                    log("[YUNMO] stills sent=$framesSent last=${jpeg.size}b id=$id")
-                }
-                onFrameSent?.invoke()
-            } catch (e: Exception) {
-                log("[YUNMO] JPEG send failed: ${e.message}")
-                break
+            if (jpeg != null) cap.noteOffer(accepted, if (accepted) jpeg.size else 0)
+            val remain = periodMs - (System.currentTimeMillis() - tickStart)
+            if (remain > 0) {
+                try { Thread.sleep(remain) } catch (_: InterruptedException) {}
             }
         }
         if (running) ConnectionState.set(Phase.ERROR, "Yunmo stills link dropped")
+    }
+
+    /**
+     * Stills window is frameId vs last ack — not "unacked since last ack".
+     * This HU acks about every second still; counting since-ack looked full when it was not.
+     */
+    private fun stillsWindowHasRoom(): Boolean {
+        val next = frameId.get()
+        val inFlight = if (lastAckedId < 0) next else next - lastAckedId.coerceAtLeast(0)
+        return inFlight < YunmoFrame.SEND_WINDOW
     }
 
     private fun sendLoop(
