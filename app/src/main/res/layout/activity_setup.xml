@@ -784,11 +784,28 @@
                         android:text="@string/setup_cl_c450" />
                 </LinearLayout>
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profile_xcape1200"
+                    style="@style/Widget.OpenCfMoto.Segment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/setup_xcape_1200" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/setup_use_legacy_for_cfdl16_450sr_style_non_touch_dash"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/setup_xcape1200_hint"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />

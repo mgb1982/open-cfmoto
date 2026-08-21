@@ -308,6 +308,40 @@ class VideoPipeline(
     }
 
     /**
+     * X-Cape 1200 stills: point the compositor at an [ImageReader] surface and skip H.264.
+     * Other bikes never call this — they keep [configureBikeCanvas].
+     */
+    fun configureStillsOutput(surface: Surface, w: Int, h: Int) {
+        if (!compositor) return
+        if (codec != null) {
+            try { codec?.stop() } catch (_: Exception) {}
+            try { codec?.release() } catch (_: Exception) {}
+            codec = null
+            try { inputSurface?.release() } catch (_: Exception) {}
+            inputSurface = null
+            encoderW = 0
+            encoderH = 0
+            codecConfig = null
+            frameQueue.clear()
+        }
+        val src = BikeProfileHolder.aaVideo
+        val fit = VideoPrefs.fit(context)
+        val power = VideoPrefs.power(context)
+        val margins = BikeProfileHolder.aaContentMargins
+        val usableW = (src.width - margins.marginW).coerceIn(16, src.width)
+        val usableH = (src.height - margins.marginH).coerceIn(16, src.height)
+        aaCompositor?.setFrameCap(power.fps)
+        aaCompositor?.setSourceCrop(usableW.toFloat() / src.width, usableH.toFloat() / src.height)
+        aaCompositor?.setOutput(surface, w, h, usableW, usableH, fit)
+        encoderW = w
+        encoderH = h
+        log(
+            "[VIDEO] stills canvas ${w}x$h; AA source ${src.width}x${src.height} " +
+                "usable ${usableW}x$usableH → fit=$fit",
+        )
+    }
+
+    /**
      * Mirror the phone (whole display or a single app on Android 14+) into the bike encoder.
      *
      * Capture goes into an [AaCompositor] SurfaceTexture so [onCapturedContentResize] can retarget

@@ -329,7 +329,9 @@
     <string name="setup_1000_mt_x">1000 MT-X</string>
     <string name="setup_800nk_adv">800NK Adv</string>
     <string name="setup_cl_c450">CL‑C450</string>
+    <string name="setup_xcape_1200">X-Cape 1200</string>
     <string name="setup_use_legacy_for_cfdl16_450sr_style_non_touch_dash">Use Legacy for CFDL16 / 450SR-style non-touch dashes if Auto picks the wrong bike. 800NK Adv = CFDL26 touch 720×712. Applies next Connect (Stop first if projecting).</string>
+    <string name="setup_xcape1200_hint">X-Cape 1200: pick that profile so the TFT gets still images. Leave Auto for every other bike.</string>
     <string name="setup_handlebar">Handlebar</string>
     <string name="setup_double_tap_delay">Double-tap delay</string>
     <string name="setup_300_ms_balanced_recommended">300 ms — balanced (recommended)</string>
@@ -382,6 +384,7 @@
     <string name="pref_profile_cfdl26_land">CFDL26 landscape touch</string>
     <string name="pref_profile_cfdl26_port">CFDL26 portrait (handlebar-primary)</string>
     <string name="pref_profile_clc450">544×512 near-square</string>
+    <string name="pref_profile_xcape1200">X-Cape 1200 — JPEG stills on Yunmo</string>
     <string name="pref_map_theme_day">Day (light)</string>
     <string name="pref_map_theme_night">Night (dark)</string>
     <string name="pref_dbltap_fast">200 ms — snappier singles</string>

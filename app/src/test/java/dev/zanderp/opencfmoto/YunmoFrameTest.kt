@@ -76,6 +76,18 @@ class YunmoFrameTest {
     }
 
     @Test
+    fun encodeJpegEx_mediaType0AndFrameId() {
+        val jpeg = ByteArray(40) { (it + 3).toByte() }
+        val wire = YunmoFrame.encodeJpegEx(jpeg, frameId = 7)
+        assertEquals(29, wire[4].toInt() and 0xFF)
+        assertEquals(0, wire[14].toInt())
+        assertEquals(YunmoFrame.MEDIA_TYPE_JPEG, wire[15].toInt())
+        assertEquals(7, wire[16].toInt() and 0xFF)
+        assertEquals(40, wire[8].toInt() and 0xFF)
+        assertEquals(3, wire[40].toInt())
+    }
+
+    @Test
     fun defaultEndpoint_isSoftAp8200() {
         assertEquals("192.168.4.1", YunmoFrame.DEFAULT_HOST)
         assertEquals(8200, YunmoFrame.DEFAULT_PORT)
@@ -108,9 +120,9 @@ class YunmoFrameTest {
         assertEquals(2048, dim.mapsW)
         assertEquals(928, dim.mapsH)
         val (ew, eh) = YunmoFrame.encodeSizeFrom(dim, 800, 480)
-        // Ride MO maps size (reported×2); raw 1024×464 ACKs but paints black (vc43).
-        assertEquals(2048, ew)
-        assertEquals(928, eh)
+        // Live canvas is the reported size (OEM NaviVirtualDisplay), not reported×2.
+        assertEquals(1024, ew)
+        assertEquals(464, eh)
     }
 
     @Test

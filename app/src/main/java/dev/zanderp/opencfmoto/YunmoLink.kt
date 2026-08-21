@@ -37,6 +37,8 @@ class YunmoLink(
     @Volatile private var sock: Socket? = null
     @Volatile private var video: VideoPipeline? = null
     @Volatile private var ownsVideo = false
+    @Volatile private var jpegCapturer: YunmoJpegCapturer? = null
+    @Volatile private var jpegStills = false
     @Volatile var framesSent: Int = 0
         private set
     @Volatile var lastFrameAt: Long = 0L
@@ -92,7 +94,8 @@ class YunmoLink(
         framesSent = 0
         lastAckedId = -1
         unackedSinceAck = 0
-        oemMapMode = true
+        jpegStills = BikeProfileHolder.active.yunmoJpegStills
+        oemMapMode = !jpegStills
         mapNavMode = false
         mapNavConfirmed = false
         pendingMapExchange = false
@@ -164,14 +167,32 @@ class YunmoLink(
             }
         log(
             "[YUNMO] encode canvas ${encW}x${encH}$dimNote; " +
-                "OEM map header (no frameId/w/h in media hdr)",
+                if (jpegStills) "JPEG stills (media type 0 + frameId)"
+                else "OEM map header (no frameId/w/h in media hdr)",
         )
 
         // FREE_RIDE / no AA → Wi‑Fi OEM MapNaviType start; AA shared → mirror state 7.
-        val preferMapNav = GpxSession.active || AaVideoBridge.pipeline == null
+        val preferMapNav = jpegStills || GpxSession.active || AaVideoBridge.pipeline == null
         mapNavMode = preferMapNav
         try {
-            if (preferMapNav) {
+            if (jpegStills) {
+                mapNavConfirmed = true
+                pendingMapExchange = false
+                frameId.set(0)
+                unackedSinceAck = 0
+                for (attempt in 1..3) {
+                    if (!running) break
+                    YunmoFrame.write(
+                        out,
+                        YunmoFrame.encodeSimple(
+                            YunmoFrame.CMD_DISPLAY,
+                            byteArrayOf(YunmoFrame.DISP_MAP_NAVI.toByte()),
+                        ),
+                    )
+                    log("[YUNMO] map-nav requested (A0 cmd=6), attempt $attempt/3")
+                    try { Thread.sleep(400) } catch (_: InterruptedException) {}
+                }
+            } else if (preferMapNav) {
                 // Ride MO Wi‑Fi startup (vc58): MapNaviType is chosen locally — no initial 160/[6].
                 // Bind-equivalent: ResetFrameID → start combined LiveThread / VirtualDisplay.
                 // 160/[5|6]+pending 0x33 is only for later mode exchange.
@@ -208,16 +229,23 @@ class YunmoLink(
 
         attachVideo(encW, encH)
         try { Thread.sleep(if (preferMapNav) 500 else 150) } catch (_: InterruptedException) {}
-        video?.requestKeyframe(
-            if (preferMapNav) "yunmo-after-map-navi-type-start" else "yunmo-after-start-mirror",
-        )
+        if (!jpegStills) {
+            video?.requestKeyframe(
+                if (preferMapNav) "yunmo-after-map-navi-type-start" else "yunmo-after-start-mirror",
+            )
+        }
         ConnectionState.set(
             Phase.PXC_CONNECTING,
-            "Yunmo :$port ${encW}x${encH}" + if (preferMapNav) " map-nav" else " mirror",
+            "Yunmo :$port ${encW}x${encH}" + when {
+                jpegStills -> " JPEG stills"
+                preferMapNav -> " map-nav"
+                else -> " mirror"
+            },
         )
 
         sendThread = thread(name = "yunmo-send", isDaemon = true) {
-            sendLoop(out, encW, encH, metaW, metaH, port)
+            if (jpegStills) jpegSendLoop(out, encW, encH, port)
+            else sendLoop(out, encW, encH, metaW, metaH, port)
         }
         return true
     }
@@ -370,6 +398,47 @@ class YunmoLink(
                 }
             }
         }
+    }
+
+    private fun jpegSendLoop(out: OutputStream, encW: Int, encH: Int, port: Int) {
+        var idlePolls = 0
+        val cap = jpegCapturer
+        if (cap == null) {
+            log("[YUNMO] JPEG capturer missing")
+            return
+        }
+        log("[YUNMO] JPEG stills send loop ${encW}x${encH}")
+        while (running) {
+            if (!waitForSendWindow(false)) break
+            val jpeg = cap.poll(1500)
+            if (jpeg == null) {
+                idlePolls++
+                if (idlePolls == 1 || idlePolls % 4 == 0) {
+                    log("[YUNMO] waiting for JPEG stills (poll#$idlePolls)…")
+                }
+                continue
+            }
+            idlePolls = 0
+            if (!running) break
+            val id = frameId.getAndIncrement()
+            val wire = YunmoFrame.encodeJpegEx(jpeg, id)
+            try {
+                YunmoFrame.write(out, wire)
+                framesSent++
+                lastFrameAt = System.currentTimeMillis()
+                if (framesSent == 1) {
+                    ConnectionState.set(Phase.STREAMING, "Yunmo :$port ${encW}x${encH} JPEG")
+                    log("[YUNMO] first JPEG still out (${jpeg.size}b, id=$id)")
+                } else if (framesSent % 60 == 0) {
+                    log("[YUNMO] stills sent=$framesSent last=${jpeg.size}b id=$id")
+                }
+                onFrameSent?.invoke()
+            } catch (e: Exception) {
+                log("[YUNMO] JPEG send failed: ${e.message}")
+                break
+            }
+        }
+        if (running) ConnectionState.set(Phase.ERROR, "Yunmo stills link dropped")
     }
 
     private fun sendLoop(
@@ -607,6 +676,8 @@ class YunmoLink(
         sock = null
         sendThread = null
         recvThread = null
+        try { jpegCapturer?.stop() } catch (_: Exception) {}
+        jpegCapturer = null
         if (ownsVideo) {
             try { video?.stop(abandonNavigation = false) } catch (_: Exception) {}
         }
@@ -616,6 +687,28 @@ class YunmoLink(
 
     private fun attachVideo(width: Int, height: Int) {
         val shared = AaVideoBridge.pipeline
+        if (jpegStills && shared != null) {
+            video = shared
+            ownsVideo = false
+            val fps = BikeProfileHolder.active.videoFrameRate.coerceIn(4, 15)
+            val cap = YunmoJpegCapturer(width, height, fps, log)
+            cap.start()
+            val surf = cap.surface
+            if (surf == null) {
+                log("[YUNMO] JPEG ImageReader surface missing")
+                cap.stop()
+                return
+            }
+            jpegCapturer = cap
+            try {
+                shared.configureStillsOutput(surf, width, height)
+                shared.setFrameCap(fps)
+                log("[YUNMO] AA compositor → JPEG stills ${width}x${height} @${fps}fps")
+            } catch (e: Exception) {
+                log("[YUNMO] configureStillsOutput failed: ${e.message}")
+            }
+            return
+        }
         if (shared != null) {
             video = shared
             ownsVideo = false

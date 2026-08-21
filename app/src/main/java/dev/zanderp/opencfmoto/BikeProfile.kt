@@ -129,6 +129,12 @@ interface BikeProfile {
      * [ScreenMargins]. 800NK Advanced blanks the MotoPlay pull-down with a top inset.
      */
     val defaultMargins: IntArray get() = intArrayOf(0, 0, 0, 0)
+
+    /**
+     * Yunmo SoftAP: send JPEG stills (cmd 29, media type 0) instead of H.264.
+     * Opt-in only via Setup ▸ X-Cape 1200 — Auto never selects this.
+     */
+    val yunmoJpegStills: Boolean get() = false
 }
 
 /** Registry + selection. Never returns null — falls back to the legacy (BIKE A) profile. */
@@ -727,6 +733,34 @@ object MoriniMlSoftApProfile : BikeProfile {
         if (!info.optBoolean("supportScreenTouch", false)) s += 1
         return s
     }
+
+    override fun buildClientInfoReply(info: JSONObject, huid: String?, phoneUuid: String): JSONObject =
+        basePhoneClientInfo(huid, phoneUuid, advertisedSupportFunction)
+
+    override fun handleUnknownControl(
+        tag: String, frame: PxcFrame, out: OutputStream, log: (String) -> Unit,
+    ): Boolean = Cfdl26PortraitProfile.handleUnknownControl(tag, frame, out, log)
+}
+
+/**
+ * X-Cape 1200 Yunmo stills — **Setup override only**. The HU paints JPEG stills, not H.264.
+ * Never scored from CLIENT_INFO / QR so Auto and every other bike stay on the existing path.
+ */
+object Xcape1200StillsProfile : BikeProfile {
+    override val name = "X-Cape 1200 (JPEG stills)"
+    override val requiresSockServerAuth = false
+    override val supportsScreenTouch = false
+    override val advertisedSupportFunction = 128
+    override val panelSize = 1024 to 464
+    override val aaVideo = AaVideoSpec(AaResolution.LANDSCAPE_800x480, dpi = 160)
+    override val forceBaseline: Boolean get() = false
+    override val videoBitrate: Int get() = 2_000_000
+    override val videoFrameRate: Int get() = 8
+    override val videoIFrameIntervalSec: Int get() = 2
+    override val yunmoJpegStills: Boolean get() = true
+
+    override fun matchesModelId(modelId: String): Boolean = false
+    override fun score(info: JSONObject): Int = 0
 
     override fun buildClientInfoReply(info: JSONObject, huid: String?, phoneUuid: String): JSONObject =
         basePhoneClientInfo(huid, phoneUuid, advertisedSupportFunction)

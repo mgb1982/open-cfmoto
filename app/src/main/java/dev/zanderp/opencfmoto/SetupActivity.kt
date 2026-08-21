@@ -139,6 +139,7 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.profile_1000mtx).setOnClickListener { setProfileOverride(ProfileOverride.CFDL26_PORT) }
         findViewById<MaterialButton>(R.id.profile_nk_adv).setOnClickListener { setProfileOverride(ProfileOverride.NK_ADV) }
         findViewById<MaterialButton>(R.id.profile_clc450).setOnClickListener { setProfileOverride(ProfileOverride.CLC450) }
+        findViewById<MaterialButton>(R.id.profile_xcape1200).setOnClickListener { setProfileOverride(ProfileOverride.XCAPE_1200) }
         findViewById<MaterialButton>(R.id.btn_screen_margins).setOnClickListener { ScreenMarginsActivity.start(this) }
         findViewById<MaterialButton>(R.id.btn_custom_resolution).setOnClickListener { CustomResolutionActivity.start(this) }
         findViewById<MaterialButton>(R.id.transport_auto).setOnClickListener { setTransport(WifiTransport.AUTO) }
@@ -450,7 +451,8 @@ class SetupActivity : AppCompatActivity() {
             R.id.profile_800mt to ProfileOverride.CFDL26_LAND,
             R.id.profile_1000mtx to ProfileOverride.CFDL26_PORT,
             R.id.profile_nk_adv to ProfileOverride.NK_ADV,
-            R.id.profile_clc450 to ProfileOverride.CLC450)
+            R.id.profile_clc450 to ProfileOverride.CLC450,
+            R.id.profile_xcape1200 to ProfileOverride.XCAPE_1200)
         val transport = AppSettings.transport(this)
         findViewById<android.widget.TextView>(R.id.transport_desc).text = transport.label
         highlight(transport,

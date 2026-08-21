@@ -61,7 +61,7 @@ Riders have projected Android Auto with these (US + international as noted):
 | **Moto Morini X-Cape 649** | Community-confirmed (also styled Xcape 649) |
 | **Moto Morini X-Cape 700** | Community-confirmed |
 | **Moto Morini Seiemmezzo** | Community-confirmed (incl. 2026) — MotoFun / EasyConnect QR |
-| **Moto Morini X-Cape 1200** | SoftAP / Yunmo joins; **TFT paint experimental** (2.0.7 vc50+ map-nav/split IDR) — Discord `#xcape-1200` |
+| **Moto Morini X-Cape 1200** | SoftAP / Yunmo joins. **2.0.14-pre:** Setup ▸ bike profile **X-Cape 1200** (JPEG stills). Auto stays on the old H.264 path. Discord `#xcape-1200` |
 | **Benelli TRK 702 / 702X** | Manual SSID/pwd or QR when shown; grant Nearby devices / Bluetooth for AA |
 | **Rieju 307** | Community-confirmed (2026-08) — Connect + AA on dash; try Fit/Stretch if letterboxed — Discord `#rieju-307` |
 | **Zontes 125X** | Community-confirmed (2026-08) — Carbit / EasyConnect QR |

@@ -69,6 +69,7 @@ object YunmoFrame {
     }
 
     /** Ride MO map path: SPS/PPS → media type 15; IDR → 5; P → 1. Legacy mirror used 2. */
+    const val MEDIA_TYPE_JPEG: Int = 0
     const val MEDIA_TYPE_P: Int = 1
     const val MEDIA_TYPE_IDR: Int = 5
     const val MEDIA_TYPE_CODEC_CONFIG: Int = 15
@@ -307,6 +308,34 @@ object YunmoFrame {
         for (b in h264) sum += b.toInt() and 0xFF
         putLe(out, 12, sum and 0xFFFF, 2)
 
+        return out
+    }
+
+    /**
+     * JPEG still on the same cmd-29 / Trans_Ins_Ex wrapper. Media type 0 + frameId at
+     * subheader[8]; no width/height. X-Cape 1200 paints these and ignores H.264.
+     */
+    fun encodeJpegEx(jpeg: ByteArray, frameId: Int): ByteArray {
+        val padded = ((jpeg.size + 31) / 32) * 32
+        val total = padded + 40
+        val out = ByteArray(total)
+        System.arraycopy(jpeg, 0, out, 40, jpeg.size)
+
+        out[0] = SYNC; out[1] = SYNC; out[2] = SYNC; out[3] = SYNC
+        out[4] = CMD_H264_EX.toByte()
+        val blocks = (padded + 32) / 32
+        out[5] = (blocks shr 8).toByte()
+        out[6] = blocks.toByte()
+        out[7] = ((out[5].toInt() and 0xFF) + (out[6].toInt() and 0xFF)).toByte()
+
+        out[8 + 6] = 0
+        out[8 + 7] = MEDIA_TYPE_JPEG.toByte()
+        putLe(out, 8 + 8, frameId, 4)
+
+        putLe(out, 8, jpeg.size, 4)
+        var sum = 0
+        for (b in jpeg) sum += b.toInt() and 0xFF
+        putLe(out, 12, sum and 0xFFFF, 2)
         return out
     }
 

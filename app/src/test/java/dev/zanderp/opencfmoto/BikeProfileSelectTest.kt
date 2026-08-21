@@ -30,6 +30,16 @@ class BikeProfileSelectTest {
     }
 
     @Test
+    fun xcape1200StillsIsOverrideOnly() {
+        assertTrue(Xcape1200StillsProfile.yunmoJpegStills)
+        assertFalse(MoriniMlSoftApProfile.yunmoJpegStills)
+        assertFalse(LegacyCfdl16Profile.yunmoJpegStills)
+        assertFalse(Xcape1200StillsProfile.matchesModelId("21333"))
+        assertEquals(Xcape1200StillsProfile, ProfileOverride.XCAPE_1200.resolve())
+        assertEquals(null, ProfileOverride.AUTO.resolve())
+    }
+
+    @Test
     fun portraitMtxStaysNonTouch() {
         assertFalse(Cfdl26PortraitProfile.supportsScreenTouch)
         assertTrue(Cfdl26LandscapeProfile.supportsScreenTouch)
