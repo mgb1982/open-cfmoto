@@ -326,8 +326,24 @@ class VideoPipeline(
             val metrics = context.resources.displayMetrics
             val density = metrics.densityDpi.coerceAtLeast(160)
             // Start the capture buffer at the physical display size; app-capture resize updates it.
-            val initW = metrics.widthPixels.coerceAtLeast(width).let { it - (it % 2) }
-            val initH = metrics.heightPixels.coerceAtLeast(height).let { it - (it % 2) }
+            // If Setup locked landscape/portrait but the phone has not finished rotating, swap so
+            // a portrait buffer is not letterboxed into a wide dash (1080×2436 → 170px strip).
+            var initW = metrics.widthPixels.coerceAtLeast(width).let { it - (it % 2) }
+            var initH = metrics.heightPixels.coerceAtLeast(height).let { it - (it % 2) }
+            val beforeW = initW
+            val beforeH = initH
+            when (VideoPrefs.mirrorShape(context, width, height)) {
+                MirrorShape.LANDSCAPE -> if (initH > initW) {
+                    val t = initW; initW = initH; initH = t
+                }
+                MirrorShape.PORTRAIT -> if (initW > initH) {
+                    val t = initW; initW = initH; initH = t
+                }
+                null -> Unit
+            }
+            if (initW != beforeW || initH != beforeH) {
+                log("[VIDEO] mirror buffer ${beforeW}x$beforeH → ${initW}x$initH (orientation lock)")
+            }
 
             val scaler = AaCompositor(log).also { it.start(initW, initH) }
             mirrorScaler = scaler

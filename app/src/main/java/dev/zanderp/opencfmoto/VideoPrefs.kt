@@ -88,6 +88,23 @@ enum class MatchAspectMode(val label: String) {
 }
 
 /**
+ * Phone rotation while **mirroring** (MediaProjection). A portrait phone on a landscape dash
+ * (typical 800×384) letterboxes to a ~170px-wide strip. Locking landscape fills the TFT.
+ *
+ * [MATCH_DASH] (default) uses the last measured / profile panel: wide → landscape, tall → portrait.
+ * [FOLLOW] leaves the phone as the rider holds it.
+ */
+enum class MirrorOrientation(val label: String, @StringRes val labelRes: Int) {
+    MATCH_DASH("Match dash (recommended)", R.string.pref_mirror_orient_dash),
+    FOLLOW("Follow phone", R.string.pref_mirror_orient_follow),
+    LANDSCAPE("Landscape", R.string.pref_mirror_orient_land),
+    PORTRAIT("Portrait", R.string.pref_mirror_orient_port),
+}
+
+/** Target shape for the mirror VirtualDisplay (null = use current display metrics). */
+enum class MirrorShape { LANDSCAPE, PORTRAIT }
+
+/**
  * Video/projection preferences. Each setting is **per bike** (scoped via [BikeScope] to the selected
  * bike in the garage): a portrait 1000 MT-X can keep Fit + portrait HD while a landscape 800MT keeps
  * Fill + SD, and switching the active bike switches its settings. When no bike is selected — or a bike
@@ -99,6 +116,7 @@ object VideoPrefs {
     private const val KEY_FIT = "screen_fit"
     private const val KEY_POWER = "power_mode"
     private const val KEY_RESOLUTION = "resolution_mode"
+    private const val KEY_MIRROR_ORIENT = "mirror_orientation"
 
     // Match panel aspect (AA margins): Auto uses DashMemory / profile panel size for every bike.
     private const val KEY_MATCH_MODE = "match_aspect_mode"
@@ -149,6 +167,33 @@ object VideoPrefs {
 
     fun setResolution(ctx: Context, mode: ResolutionMode) {
         BikeScope.putString(prefs(ctx), ctx, KEY_RESOLUTION, mode.name)
+    }
+
+    fun mirrorOrientation(ctx: Context): MirrorOrientation {
+        val name = BikeScope.getString(prefs(ctx), ctx, KEY_MIRROR_ORIENT, MirrorOrientation.MATCH_DASH.name)
+        return runCatching { MirrorOrientation.valueOf(name!!) }.getOrDefault(MirrorOrientation.MATCH_DASH)
+    }
+
+    fun setMirrorOrientation(ctx: Context, mode: MirrorOrientation) {
+        BikeScope.putString(prefs(ctx), ctx, KEY_MIRROR_ORIENT, mode.name)
+    }
+
+    /**
+     * Shape to lock the phone / capture buffer to, or null to follow the current display.
+     * [canvasW]/[canvasH] are the bike encoder size when known (mirror pipeline).
+     */
+    fun mirrorShape(ctx: Context, canvasW: Int = 0, canvasH: Int = 0): MirrorShape? {
+        return when (mirrorOrientation(ctx)) {
+            MirrorOrientation.FOLLOW -> null
+            MirrorOrientation.LANDSCAPE -> MirrorShape.LANDSCAPE
+            MirrorOrientation.PORTRAIT -> MirrorShape.PORTRAIT
+            MirrorOrientation.MATCH_DASH -> {
+                val panel = detectedPanelSize(ctx)
+                val w = if (canvasW > 0) canvasW else panel?.first ?: 800
+                val h = if (canvasH > 0) canvasH else panel?.second ?: 480
+                if (w >= h) MirrorShape.LANDSCAPE else MirrorShape.PORTRAIT
+            }
+        }
     }
 
     fun matchAspectMode(ctx: Context): MatchAspectMode {

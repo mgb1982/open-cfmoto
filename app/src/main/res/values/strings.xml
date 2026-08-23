@@ -290,6 +290,10 @@
     <string name="setup_balanced">Balanced</string>
     <string name="setup_sharper">Sharper</string>
     <string name="setup_screen_fit">Screen fit</string>
+    <string name="setup_mirror_orientation">Mirror orientation</string>
+    <string name="setup_mirror_orientation_desc">While mirroring, lock the phone so the dash fills. Match dash uses the last measured / profile panel (wide TFT → landscape). Follow phone leaves the phone as you hold it.</string>
+    <string name="setup_match_dash">Match dash</string>
+    <string name="setup_follow_phone">Follow phone</string>
     <string name="setup_fill_edge_to_edge_crops_a_little">Fill — edge to edge (crops a little)</string>
     <string name="setup_fill">Fill</string>
     <string name="setup_fit">Fit</string>
@@ -576,9 +580,14 @@
     <string name="pref_res_land_hd">Landscape · 1280×720 (HD)</string>
     <string name="pref_res_port_sd">Portrait · 720×1280</string>
     <string name="pref_res_port_hd">Portrait · 1080×1920 (HD)</string>
+    <string name="pref_mirror_orient_dash">Match dash (recommended)</string>
+    <string name="pref_mirror_orient_follow">Follow phone</string>
+    <string name="pref_mirror_orient_land">Landscape</string>
+    <string name="pref_mirror_orient_port">Portrait</string>
     <string name="pref_hold_ignored">Ignored while Hold detection is Off</string>
     <string name="setup_toast_video_quality">Video quality: %1$s</string>
     <string name="setup_toast_screen_fit">Screen fit: %1$s</string>
+    <string name="setup_toast_mirror_orient">Mirror orientation: %1$s</string>
     <string name="setup_toast_power_mode">Power mode: %1$s</string>
     <string name="setup_toast_resolution">Resolution: %1$s</string>
     <string name="setup_toast_map_theme">Map theme: %1$s</string>

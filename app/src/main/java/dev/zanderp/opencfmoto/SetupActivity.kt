@@ -36,6 +36,7 @@ class SetupActivity : AppCompatActivity() {
     private lateinit var step2Btn: MaterialButton
     private lateinit var qualityDesc: TextView
     private lateinit var fitDesc: TextView
+    private lateinit var mirrorOrientDesc: TextView
     private lateinit var powerDesc: TextView
     private lateinit var resDesc: TextView
     private lateinit var themeDesc: TextView
@@ -72,6 +73,7 @@ class SetupActivity : AppCompatActivity() {
         step2Btn = findViewById(R.id.step2_btn)
         qualityDesc = findViewById(R.id.quality_desc)
         fitDesc = findViewById(R.id.fit_desc)
+        mirrorOrientDesc = findViewById(R.id.mirror_orient_desc)
         powerDesc = findViewById(R.id.power_desc)
         resDesc = findViewById(R.id.res_desc)
         themeDesc = findViewById(R.id.theme_desc)
@@ -95,6 +97,18 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.fit_fill).setOnClickListener { setFit(ScreenFit.FILL) }
         findViewById<MaterialButton>(R.id.fit_fit).setOnClickListener { setFit(ScreenFit.FIT) }
         findViewById<MaterialButton>(R.id.fit_stretch).setOnClickListener { setFit(ScreenFit.STRETCH) }
+        findViewById<MaterialButton>(R.id.mirror_orient_dash).setOnClickListener {
+            setMirrorOrientation(MirrorOrientation.MATCH_DASH)
+        }
+        findViewById<MaterialButton>(R.id.mirror_orient_follow).setOnClickListener {
+            setMirrorOrientation(MirrorOrientation.FOLLOW)
+        }
+        findViewById<MaterialButton>(R.id.mirror_orient_land).setOnClickListener {
+            setMirrorOrientation(MirrorOrientation.LANDSCAPE)
+        }
+        findViewById<MaterialButton>(R.id.mirror_orient_port).setOnClickListener {
+            setMirrorOrientation(MirrorOrientation.PORTRAIT)
+        }
         findViewById<MaterialButton>(R.id.power_auto).setOnClickListener { setPower(PowerMode.AUTO) }
         findViewById<MaterialButton>(R.id.power_smooth).setOnClickListener { setPower(PowerMode.SMOOTH) }
         findViewById<MaterialButton>(R.id.power_balanced).setOnClickListener { setPower(PowerMode.BALANCED) }
@@ -229,6 +243,12 @@ class SetupActivity : AppCompatActivity() {
         toast(getString(R.string.setup_toast_screen_fit, getString(f.labelRes)))
     }
 
+    private fun setMirrorOrientation(m: MirrorOrientation) {
+        VideoPrefs.setMirrorOrientation(this, m)
+        refreshOptions()
+        toast(getString(R.string.setup_toast_mirror_orient, getString(m.labelRes)))
+    }
+
     private fun setPower(m: PowerMode) {
         VideoPrefs.setPower(this, m)
         refreshOptions()
@@ -357,6 +377,7 @@ class SetupActivity : AppCompatActivity() {
     private fun refreshOptions() {
         val quality = VideoPrefs.get(this)
         val fit = VideoPrefs.fit(this)
+        val mirrorOrient = VideoPrefs.mirrorOrientation(this)
         val power = VideoPrefs.power(this)
         val res = VideoPrefs.resolution(this)
         val theme = NightPrefs.theme(this)
@@ -365,6 +386,8 @@ class SetupActivity : AppCompatActivity() {
         val hold = ButtonTimingPrefs.longPress(this)
         qualityDesc.text = getString(quality.labelRes)
         fitDesc.text = getString(fit.labelRes)
+        mirrorOrientDesc.text = getString(R.string.setup_mirror_orientation_desc) +
+            "\n" + getString(mirrorOrient.labelRes)
         powerDesc.text = getString(power.labelRes)
         resDesc.text = getString(res.labelRes)
         themeDesc.text = getString(theme.labelRes)
@@ -394,6 +417,11 @@ class SetupActivity : AppCompatActivity() {
             R.id.fit_fill to ScreenFit.FILL,
             R.id.fit_fit to ScreenFit.FIT,
             R.id.fit_stretch to ScreenFit.STRETCH)
+        highlight(mirrorOrient,
+            R.id.mirror_orient_dash to MirrorOrientation.MATCH_DASH,
+            R.id.mirror_orient_follow to MirrorOrientation.FOLLOW,
+            R.id.mirror_orient_land to MirrorOrientation.LANDSCAPE,
+            R.id.mirror_orient_port to MirrorOrientation.PORTRAIT)
         highlight(power,
             R.id.power_auto to PowerMode.AUTO,
             R.id.power_smooth to PowerMode.SMOOTH,

@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             // Mirror path (screen projection already armed): connect straight away.
             applyProfile(qr)
+            MirrorOrientationLock.apply(this)
             ConnectionState.set(Phase.MIRRORING, BikeMemory.lastBikeName(this) ?: qr.ssid)
             joinWifi(qr, gateOnAaSteady = false)
             // Same as startMirrorLink: single-app capture needs the shared app visible.
@@ -163,6 +164,7 @@ class MainActivity : AppCompatActivity() {
             ProjectionHolder.projection?.let { try { it.stop() } catch (_: Exception) {} }
             ProjectionHolder.projection = null
             try { ProjectionService.stop(this) } catch (_: Exception) {}
+            MirrorOrientationLock.clear(this)
         }
         if (clearMap) {
             try { GpxSession.clear() } catch (_: Exception) {}
@@ -341,6 +343,7 @@ class MainActivity : AppCompatActivity() {
     ) { result ->
         if (result.resultCode != RESULT_OK || result.data == null) {
             log("screen-capture consent declined")
+            MirrorOrientationLock.clear(this)
             return@registerForActivityResult
         }
         // FGS of type mediaProjection must be RUNNING before getMediaProjection() on API 34+.
@@ -362,8 +365,9 @@ class MainActivity : AppCompatActivity() {
                         androidx.appcompat.app.AlertDialog.Builder(this@MainActivity)
                             .setTitle(R.string.main_mirror_ready_title)
                             .setMessage(
-                                "Entire screen — best for riding; phone stays awake while mirroring. " +
-                                    "Uses Setup ▸ Screen fit (Fit = whole UI + bars).\n\n" +
+                                "Entire screen — best for riding. " +
+                                    "Uses Setup ▸ Screen fit and Setup ▸ Mirror orientation " +
+                                    "(Match dash rotates the phone so the TFT fills).\n\n" +
                                     "Single app — that app must stay on screen; Android sends no frames " +
                                     "in the background. Prefer GPX / Tracks or Android Auto for pocket use.\n\n" +
                                     "Bike touch does not drive mirrored apps. Continue connects and " +
@@ -375,12 +379,14 @@ class MainActivity : AppCompatActivity() {
                     } catch (e: Exception) {
                         log("getMediaProjection failed: $e")
                         ProjectionService.stop(this@MainActivity)
+                        MirrorOrientationLock.clear(this@MainActivity)
                     }
                 } else if (tries++ < maxTries) {
                     logView.postDelayed(this, 100)
                 } else {
                     log("foreground service did not start within 5s — aborting mirror")
                     ProjectionService.stop(this@MainActivity)
+                    MirrorOrientationLock.clear(this@MainActivity)
                 }
             }
         }
@@ -1465,6 +1471,7 @@ class MainActivity : AppCompatActivity() {
         }
         log("→ Mirror: cast phone screen to dash")
         pendingAaStart = false
+        MirrorOrientationLock.apply(this)
         ensureLocationPermission()
         try {
             val mpm = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -1654,6 +1661,7 @@ class MainActivity : AppCompatActivity() {
             // Drop AA / Map / old PXC; keep the MediaProjection token we just armed.
             tearDownForModeSwitch(clearMap = true, clearMirror = false)
             applyProfile(saved)
+            MirrorOrientationLock.apply(this)
             ConnectionState.set(Phase.MIRRORING, BikeMemory.lastBikeName(this) ?: saved.ssid)
             joinWifi(saved, gateOnAaSteady = false)
             // Single-app MediaProjection only emits while the shared app is visible. Leaving this
