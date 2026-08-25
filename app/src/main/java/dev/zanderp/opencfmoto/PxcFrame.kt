@@ -85,7 +85,8 @@ data class PxcFrame(val cmd: Int, val payload: ByteArray) {
         // apply the 0x10601 ack body — empty ack → epoch/1970 on Morini/Voge. Reply with phone time.
         const val CMD_HU_TIME_SYNC         = 0x10600
         const val CMD_HU_TIME_SYNC_ACK     = 0x10601
-        // ECP_C2P_QUERY_TIME — bike asks for wall clock (often empty). Empty 0x10451 → 1970/00:00.
+        // ECP_C2P_QUERY_TIME — bike asks for wall clock (often empty). Empty 0x10451 → 1970/00:00
+        // on many HUs. Zontes 125X (channel 21340) gets the OEM JSON; everyone else stays empty.
         const val CMD_HU_QUERY_TIME        = 0x10450
         const val CMD_HU_QUERY_TIME_ACK    = 0x10451
 

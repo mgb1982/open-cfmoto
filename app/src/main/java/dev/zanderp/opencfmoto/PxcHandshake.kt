@@ -70,8 +70,11 @@ class PxcHandshake(
             }
             // First-class: never empty-ack 0x10600 (→ 1970 / 00:00 on Morini/Voge/QJ).
             // Echo-only (2.0.10): do not push an unsolicited 0x10601 — Griffin / X-Cape / Voge
-            // ignore it or jump hours. 0x10450 stays on the profile unknown path (empty cmd+1).
+            // ignore it or jump hours.
+            // 0x10450 JSON is Zontes-gated (channel 21340). Every other HU keeps the empty
+            // 0x10451 that 2.0.13 already shipped — the 2.0.11/2.0.12 global body jumped hours.
             PxcFrame.CMD_HU_TIME_SYNC -> onHuTimeSync(tag, frame, out)
+            PxcFrame.CMD_HU_QUERY_TIME -> onHuQueryTime(tag, frame, out)
             else -> {
                 if (!profile.handleUnknownControl(tag, frame, out, log)) {
                     log("[$tag] cmd=0x${frame.cmd.toUInt().toString(16)} (${PxcFrame.nameOf(frame.cmd)}) " +
@@ -89,6 +92,20 @@ class PxcHandshake(
         if (n <= 3 || now - lastHuTimeSyncLogAt >= 30_000L) {
             lastHuTimeSyncLogAt = now
             log("[$tag] HU_TIME_SYNC #$n len=${frame.payload.size} → ack 0x10601 mode=${ack.mode} time=${ack.stamp}")
+        }
+    }
+
+    private fun onHuQueryTime(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
+        val channel = lastClientInfo?.optString("channel")?.trim().orEmpty()
+        val ack = HuQueryTime.ackIfZontes(channel)
+        if (ack != null) {
+            PxcFrame(PxcFrame.CMD_HU_QUERY_TIME_ACK, ack.payload).write(out)
+            log("[$tag] HU_QUERY_TIME (0x10450) len=${frame.payload.size} channel=$channel → 0x10451 " +
+                "dateTime=${ack.dateTime} currentTime=${ack.currentTime} zone=${ack.timeZone}")
+        } else {
+            PxcFrame(PxcFrame.CMD_HU_QUERY_TIME_ACK, ByteArray(0)).write(out)
+            log("[$tag] HU_QUERY_TIME (0x10450) len=${frame.payload.size} " +
+                "channel=${channel.ifEmpty { "-" }} → 0x10451 empty")
         }
     }
 
