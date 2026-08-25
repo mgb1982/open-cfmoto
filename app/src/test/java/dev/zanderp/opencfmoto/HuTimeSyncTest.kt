@@ -58,6 +58,15 @@ class HuTimeSyncTest {
     }
 
     @Test
+    fun forcePhone_overwritesSaneBikeStamp() {
+        val bike = "2026-07-24 17:09:20.190000000"
+        val ack = HuTimeSync.ack(req(bike), forcePhone = true)
+        assertEquals("phone", ack.mode)
+        assertTrue(HuTimeSync.isSaneStamp(ack.stamp))
+        assertFalse(ack.stamp.startsWith("2026-07-24 17:09:20"))
+    }
+
+    @Test
     fun isSaneStamp_rejectsJunk() {
         assertFalse(HuTimeSync.isSaneStamp(""))
         assertFalse(HuTimeSync.isSaneStamp("1970-01-01 00:00:00.000000000"))

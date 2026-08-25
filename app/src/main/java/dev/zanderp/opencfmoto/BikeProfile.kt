@@ -324,7 +324,7 @@ internal object HuTimeSync {
 
     fun ackPayload(request: ByteArray): ByteArray = ack(request).payload
 
-    fun ack(request: ByteArray): Ack {
+    fun ack(request: ByteArray, forcePhone: Boolean = false): Ack {
         val len = maxOf(PAYLOAD_LEN, request.size)
         val out = ByteArray(len)
         if (request.isNotEmpty()) {
@@ -340,7 +340,7 @@ internal object HuTimeSync {
         val bikeStamp = extractStamp(request)
         val stamp: String
         val mode: String
-        if (shouldEcho(bikeStamp, request)) {
+        if (!forcePhone && shouldEcho(bikeStamp, request)) {
             stamp = bikeStamp.ifBlank { extractStamp(out) }
             mode = "echo"
         } else {
@@ -547,7 +547,8 @@ object Cfdl26PortraitProfile : BikeProfile {
         // Bike wall-clock sync (supportSyncCorrectTime). Must carry phone time in the ack body —
         // empty 0x10601 → epoch/1970 on Morini / Voge and unsynced clocks elsewhere.
         if (frame.cmd == PxcFrame.CMD_HU_TIME_SYNC) {
-            val ack = HuTimeSync.ack(frame.payload)
+            val ack = HuTimeSync.ack(frame.payload, forcePhone = ClockLab.timeSync == ClockTimeSyncMode.PHONE)
+            log("[CLOCK-LAB] HU_TIME_SYNC → ${ClockLab.timeSync.id}")
             log("[$tag] HU_TIME_SYNC len=${frame.payload.size} → ack 0x10601 mode=${ack.mode} time=${ack.stamp}")
             PxcFrame(PxcFrame.CMD_HU_TIME_SYNC_ACK, ack.payload).write(out)
             return true

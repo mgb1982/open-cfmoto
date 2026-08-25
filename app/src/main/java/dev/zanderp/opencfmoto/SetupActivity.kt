@@ -124,6 +124,39 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.recovery_off).setOnClickListener { setAutoRecovery(false) }
         findViewById<MaterialButton>(R.id.btclock_on).setOnClickListener { setBtClock(true) }
         findViewById<MaterialButton>(R.id.btclock_off).setOnClickListener { setBtClock(false) }
+        findViewById<MaterialButton>(R.id.clocklab_preset_latest).setOnClickListener {
+            setClockLabPreset(ClockLabPreset.LATEST)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_preset_2012).setOnClickListener {
+            setClockLabPreset(ClockLabPreset.V2012)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_preset_zontes).setOnClickListener {
+            setClockLabPreset(ClockLabPreset.ZONTES)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_preset_phone).setOnClickListener {
+            setClockLabPreset(ClockLabPreset.PHONE_SYNC)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_preset_bt).setOnClickListener {
+            setClockLabPreset(ClockLabPreset.BT_LISTEN)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_query_empty).setOnClickListener {
+            setClockLabQuery(ClockQueryMode.EMPTY)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_query_carbit).setOnClickListener {
+            setClockLabQuery(ClockQueryMode.CARBIT)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_query_zontes).setOnClickListener {
+            setClockLabQuery(ClockQueryMode.ZONTES)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_query_none).setOnClickListener {
+            setClockLabQuery(ClockQueryMode.NO_ACK)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_sync_echo).setOnClickListener {
+            setClockLabTimeSync(ClockTimeSyncMode.ECHO)
+        }
+        findViewById<MaterialButton>(R.id.clocklab_sync_phone).setOnClickListener {
+            setClockLabTimeSync(ClockTimeSyncMode.PHONE)
+        }
         findViewById<MaterialButton>(R.id.keepwifi_on).setOnClickListener { setKeepWifi(true) }
         findViewById<MaterialButton>(R.id.keepwifi_off).setOnClickListener { setKeepWifi(false) }
         findViewById<MaterialButton>(R.id.logtrips_on).setOnClickListener { setLogTrips(true) }
@@ -291,6 +324,24 @@ class SetupActivity : AppCompatActivity() {
         Toast.makeText(this, "Bluetooth clock ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
     }
 
+    private fun setClockLabPreset(preset: ClockLabPreset) {
+        AppSettings.applyClockLabPreset(this, preset)
+        refreshOptions()
+        Toast.makeText(this, "Clock lab: ${preset.name}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setClockLabQuery(mode: ClockQueryMode) {
+        AppSettings.setClockLabQuery(this, mode)
+        refreshOptions()
+        Toast.makeText(this, "QUERY_TIME: ${mode.id}", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setClockLabTimeSync(mode: ClockTimeSyncMode) {
+        AppSettings.setClockLabTimeSync(this, mode)
+        refreshOptions()
+        Toast.makeText(this, "TIME_SYNC: ${mode.id}", Toast.LENGTH_SHORT).show()
+    }
+
     private fun setKeepWifi(on: Boolean) {
         AppSettings.setKeepWifiAfterDisconnect(this, on)
         refreshOptions()
@@ -431,6 +482,20 @@ class SetupActivity : AppCompatActivity() {
         highlight(AppSettings.bluetoothClockSync(this),
             R.id.btclock_on to true,
             R.id.btclock_off to false)
+        highlight(AppSettings.clockLabQuery(this),
+            R.id.clocklab_query_empty to ClockQueryMode.EMPTY,
+            R.id.clocklab_query_carbit to ClockQueryMode.CARBIT,
+            R.id.clocklab_query_zontes to ClockQueryMode.ZONTES,
+            R.id.clocklab_query_none to ClockQueryMode.NO_ACK)
+        highlight(AppSettings.clockLabTimeSync(this),
+            R.id.clocklab_sync_echo to ClockTimeSyncMode.ECHO,
+            R.id.clocklab_sync_phone to ClockTimeSyncMode.PHONE)
+        highlight(ClockLab.matchingPreset(),
+            R.id.clocklab_preset_latest to ClockLabPreset.LATEST,
+            R.id.clocklab_preset_2012 to ClockLabPreset.V2012,
+            R.id.clocklab_preset_zontes to ClockLabPreset.ZONTES,
+            R.id.clocklab_preset_phone to ClockLabPreset.PHONE_SYNC,
+            R.id.clocklab_preset_bt to ClockLabPreset.BT_LISTEN)
         highlight(AppSettings.keepWifiAfterDisconnect(this),
             R.id.keepwifi_on to true,
             R.id.keepwifi_off to false)

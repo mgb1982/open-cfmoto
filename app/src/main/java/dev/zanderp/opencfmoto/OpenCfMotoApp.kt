@@ -16,6 +16,10 @@ class OpenCfMotoApp : Application() {
         }
         CrashGuard.install(this)
         CrashGuard.hydrateLogBus(this)
+        try {
+            AppSettings.applyToHolder(this)
+        } catch (_: Exception) {
+        }
         // After hydrate so Share Logs still show prior crash, then stamp this process build.
         LogBus.logSessionBanner()
         AppHttp.init(this)

@@ -31,4 +31,24 @@ class HuQueryTimeTest {
         assertEquals(currentTime, ack.currentTime)
         assertEquals("Europe/Madrid", ack.timeZone)
     }
+
+    @Test
+    fun carbitOmitsZontesFields() {
+        val ack = HuQueryTime.carbit(now, madrid)
+        val body = String(ack.payload, Charsets.UTF_8)
+        assertEquals("{\"time\":$now,\"dateTime\":\"09.08.2026 12:43:39:244\"}", body)
+        assertEquals("09.08.2026 12:43:39:244", ack.dateTime)
+    }
+
+    @Test
+    fun zontesOemIgnoresChannel() {
+        val ack = HuQueryTime.zontesOem(now, madrid)
+        val body = String(ack.payload, Charsets.UTF_8)
+        val currentTime = now + madrid.getOffset(now)
+        assertEquals(
+            "{\"time\":$now,\"currentTime\":$currentTime," +
+                "\"currentTimeZone\":\"Europe/Madrid\",\"dateTime\":\"09.08.2026 12:43:39:244\"}",
+            body,
+        )
+    }
 }

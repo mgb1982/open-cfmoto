@@ -74,6 +74,7 @@ object LogBus {
                 "versionCode=${BuildConfig.VERSION_CODE} " +
                 "git=${BuildConfig.GIT_HASH} flags=$flags",
         )
+        log(ClockLab.banner(null))
         log("[BUILD] --- session start ---")
     }
 

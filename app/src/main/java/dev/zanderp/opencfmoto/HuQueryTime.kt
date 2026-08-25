@@ -13,8 +13,8 @@ import java.util.TimeZone
  *
  * 2.0.11 / 2.0.12 sent Carbit's `time` + `dateTime` to every HU. Griffin / X-Cape / Voge / QJ
  * jumped hours, so 2.0.13 empty-acked again. Official Zontes Smart also sends `currentTime`
- * (epoch UTC ms + local TZ offset) and `currentTimeZone`. Those extra fields are only safe
- * on the Zontes 125X channel (`21340`); every other HU keeps the empty ack.
+ * (epoch UTC ms + local TZ offset) and `currentTimeZone`. Clock lab can force any of those
+ * bodies; [ackIfZontes] still gates the 2.0.16-pre default on channel `21340`.
  */
 internal object HuQueryTime {
     internal const val ZONTES_125X_CHANNEL = "21340"
@@ -29,19 +29,42 @@ internal object HuQueryTime {
         val timeZone: String,
     )
 
+    fun dateTimeString(
+        nowMillis: Long,
+        zone: TimeZone = TimeZone.getDefault(),
+    ): String = synchronized(dateTimeFmt) {
+        dateTimeFmt.timeZone = zone
+        String.format(Locale.US, "%s:%03d", dateTimeFmt.format(Date(nowMillis)), (nowMillis % 1000L).toInt())
+    }
+
+    /** Carbit / 2.0.12 body — `time` + `dateTime` only. */
+    fun carbit(
+        nowMillis: Long = System.currentTimeMillis(),
+        zone: TimeZone = TimeZone.getDefault(),
+    ): Ack {
+        val dateTime = dateTimeString(nowMillis, zone)
+        val json = "{\"time\":$nowMillis,\"dateTime\":\"$dateTime\"}"
+        return Ack(json.toByteArray(Charsets.UTF_8), dateTime, nowMillis, nowMillis, zone.id)
+    }
+
+    /** Zontes Smart extras — not gated on channel. Clock lab uses this when the knob is on. */
+    fun zontesOem(
+        nowMillis: Long = System.currentTimeMillis(),
+        zone: TimeZone = TimeZone.getDefault(),
+    ): Ack {
+        val dateTime = dateTimeString(nowMillis, zone)
+        val currentTime = nowMillis + zone.getOffset(nowMillis)
+        val json = "{\"time\":$nowMillis,\"currentTime\":$currentTime," +
+            "\"currentTimeZone\":\"${zone.id}\",\"dateTime\":\"$dateTime\"}"
+        return Ack(json.toByteArray(Charsets.UTF_8), dateTime, nowMillis, currentTime, zone.id)
+    }
+
     fun ackIfZontes(
         channel: String?,
         nowMillis: Long = System.currentTimeMillis(),
         zone: TimeZone = TimeZone.getDefault(),
     ): Ack? {
         if (channel?.trim() != ZONTES_125X_CHANNEL) return null
-        val dateTime = synchronized(dateTimeFmt) {
-            dateTimeFmt.timeZone = zone
-            String.format(Locale.US, "%s:%03d", dateTimeFmt.format(Date(nowMillis)), (nowMillis % 1000L).toInt())
-        }
-        val currentTime = nowMillis + zone.getOffset(nowMillis)
-        val json = "{\"time\":$nowMillis,\"currentTime\":$currentTime," +
-            "\"currentTimeZone\":\"${zone.id}\",\"dateTime\":\"$dateTime\"}"
-        return Ack(json.toByteArray(Charsets.UTF_8), dateTime, nowMillis, currentTime, zone.id)
+        return zontesOem(nowMillis, zone)
     }
 }

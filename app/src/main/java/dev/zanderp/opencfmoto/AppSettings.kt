@@ -29,6 +29,8 @@ object AppSettings {
     private const val KEY_TRANSPORT = "wifi_transport"
     private const val KEY_ANON_TELEMETRY = "anonymous_telemetry"
     private const val KEY_BT_CLOCK = "bluetooth_clock_sync"
+    private const val KEY_CLOCK_LAB_QUERY = "clock_lab_query"
+    private const val KEY_CLOCK_LAB_TIMESYNC = "clock_lab_timesync"
     private const val KEY_KEEP_WIFI = "keep_wifi_after_disconnect"
 
     private fun prefs(ctx: Context) =
@@ -82,8 +84,35 @@ object AppSettings {
      */
     /** Answer dash clock over BLE (EC-BTP). Off by default — bike must already be paired. */
     fun bluetoothClockSync(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_BT_CLOCK, false)
-    fun setBluetoothClockSync(ctx: Context, on: Boolean) =
+    fun setBluetoothClockSync(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_BT_CLOCK, on).apply()
+        ClockLab.bluetooth = on
+    }
+
+    /** Clock lab `0x10450` reply. Default empty ack = Latest 2.0.13. Not in SettingsBackup. */
+    fun clockLabQuery(ctx: Context): ClockQueryMode =
+        ClockQueryMode.byId(prefs(ctx).getString(KEY_CLOCK_LAB_QUERY, null))
+    fun setClockLabQuery(ctx: Context, mode: ClockQueryMode) {
+        prefs(ctx).edit().putString(KEY_CLOCK_LAB_QUERY, mode.id).apply()
+        ClockLab.query = mode
+    }
+
+    /** Clock lab `0x10600` reply. Default echo = Latest 2.0.13. Not in SettingsBackup. */
+    fun clockLabTimeSync(ctx: Context): ClockTimeSyncMode =
+        ClockTimeSyncMode.byId(prefs(ctx).getString(KEY_CLOCK_LAB_TIMESYNC, null))
+    fun setClockLabTimeSync(ctx: Context, mode: ClockTimeSyncMode) {
+        prefs(ctx).edit().putString(KEY_CLOCK_LAB_TIMESYNC, mode.id).apply()
+        ClockLab.timeSync = mode
+    }
+
+    fun applyClockLabPreset(ctx: Context, preset: ClockLabPreset) {
+        ClockLab.applyPreset(preset)
+        prefs(ctx).edit()
+            .putString(KEY_CLOCK_LAB_QUERY, ClockLab.query.id)
+            .putString(KEY_CLOCK_LAB_TIMESYNC, ClockLab.timeSync.id)
+            .putBoolean(KEY_BT_CLOCK, ClockLab.bluetooth)
+            .apply()
+    }
 
     /**
      * Stay associated to the bike SoftAP / Wi-Fi Direct after Stop so some dashes keep the clock.
@@ -107,6 +136,7 @@ object AppSettings {
         ProfilePrefs.applyToHolder(ctx)
         ButtonMap.ensureDefaultsMigrated(ctx)
         ScreenMargins.load(ctx)
+        ClockLab.applyFrom(clockLabQuery(ctx), clockLabTimeSync(ctx), bluetoothClockSync(ctx))
     }
 }
 
