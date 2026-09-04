@@ -24,6 +24,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * Never scans. Never writes until the peer sends a valid EC-BTP frame (so Cardo / OBD / TPMS
  * that share `ffe0`/`fff0` stay silent). Off unless [AppSettings.bluetoothClockSync] is on.
+ *
+ * TEST BUILD NOTE: uses TRANSPORT_AUTO directly (was TRANSPORT_LE) — connectGatt() on Android
+ * returns a non-null BluetoothGatt almost immediately regardless of whether the underlying LE
+ * connection actually succeeds (real success/failure arrives later via onConnectionStateChange),
+ * so an "if (result != null) return" style LE-first/AUTO-fallback never actually falls back in
+ * practice. This build skips straight to AUTO to isolate that one variable. See Discord
+ * #clock-issue — Zontes 125X (channel=21340, BT name ZT851066).
  */
 @SuppressLint("MissingPermission")
 internal class EcBtpTimeLink(
@@ -90,6 +97,7 @@ internal class EcBtpTimeLink(
             @Volatile private var dataCharacteristic: BluetoothGattCharacteristic? = null
 
             override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+                log("[EC-BTP] $label connection state status=$status newState=$newState")
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
                     if (closed.get()) {
                         runCatching { gatt.disconnect() }
@@ -144,7 +152,15 @@ internal class EcBtpTimeLink(
                 log("[EC-BTP] answered clock (${reply.size}B, result=$written)")
             }
         }
-        val opened = openGattTransport(device, callback, label) ?: return
+        log("[EC-BTP] $label opening connectGatt(TRANSPORT_AUTO) — test build")
+        val opened = runCatching {
+            device.connectGatt(appContext, false, callback, BluetoothDevice.TRANSPORT_AUTO)
+        }.getOrNull()
+        log("[EC-BTP] $label connectGatt returned ${opened != null}")
+        if (opened == null) {
+            log("[EC-BTP] could not open $label")
+            return
+        }
         synchronized(lock) {
             if (closed.get()) {
                 runCatching { opened.disconnect() }
@@ -153,24 +169,6 @@ internal class EcBtpTimeLink(
                 connections += opened
             }
         }
-    }
-
-    /** LE first (dash clock), then AUTO — some Zontes names never reach HCI on LE-only. */
-    private fun openGattTransport(
-        device: BluetoothDevice,
-        callback: BluetoothGattCallback,
-        label: String,
-    ): BluetoothGatt? {
-        val le = runCatching {
-            device.connectGatt(appContext, false, callback, BluetoothDevice.TRANSPORT_LE)
-        }.getOrNull()
-        if (le != null) return le
-        log("[EC-BTP] LE open missed $label — retry AUTO")
-        val auto = runCatching {
-            device.connectGatt(appContext, false, callback, BluetoothDevice.TRANSPORT_AUTO)
-        }.getOrNull()
-        if (auto == null) log("[EC-BTP] could not open $label")
-        return auto
     }
 
     private fun dataCharacteristicOf(service: BluetoothGattService): BluetoothGattCharacteristic? =
