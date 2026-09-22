@@ -301,10 +301,18 @@ private fun basePhoneClientInfo(huid: String?, phoneUuid: String, supportFunctio
         put("bluetoothName", "OpenCfMoto")
         put("supportH264IFrame", true)
         put("supportFunction", supportFunction)
-        // Do NOT advertise supportSyncCorrectTime. Claiming it made some firmwares apply our
-        // 0x10601 aggressively (Zontes/Voge → 00:00) even when the cluster clock was already fine.
-        // We still body-ack every inbound 0x10600 (see HuTimeSync) so Morini/QJ never see empty→1970.
-        put("supportSyncCorrectTime", false)
+        // Omit supportSyncCorrectTime entirely — do NOT send it as `false`.
+        //
+        // Verified against the official Carbit/Zontes app (tayo.com.ZontesIntelligence) by capturing
+        // its CLIENT_INFO reply from logcat: it never sends this key at all.
+        //
+        // The bike advertises supportSyncCorrectTime:true in its own CLIENT_INFO. Replying `false`
+        // tells the HU "this client cannot be time-corrected", and the Zontes CFDL16 (channel 21340)
+        // then ignores the 0x10451 body completely and never sends 0x10600 — which is why a filled
+        // OEM-shaped reply and no reply at all both landed on 00:00.
+        //
+        // 2.0.9 flipped this from `true` to `false` because `true` made Voge/QJ apply a badly
+        // formatted 0x10601 (fixed separately in 2.0.10). Omitting is not the same as false.
         put("appVersionFingerPrint", "opencfmoto-poc")
     }
 
