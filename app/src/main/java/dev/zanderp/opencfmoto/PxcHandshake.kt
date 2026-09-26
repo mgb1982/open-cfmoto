@@ -34,6 +34,8 @@ class PxcHandshake(
     @Volatile private var lastHuTimeSyncLogAt: Long = 0L
     @Volatile private var huTimeSyncCount: Int = 0
     @Volatile private var clockLabBannerLogged: Boolean = false
+    /** APPSTATUS experiment: bike acks seen (logged once each). */
+    private val appStatusAcksSeen = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
 
     /**
      * Called when the bike selects a PXC channel on a :10922 socket (CAR_CTRL or CAR_DATA).
@@ -55,6 +57,7 @@ class PxcHandshake(
                 log("[$tag] bike selected CAR_DATA (0x20000) → ack 0x20001")
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_DATA + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_DATA")
+                startAppStatusLoop(socket)
             }
             PxcFrame.CMD_CLIENT_INFO -> onClientInfo(tag, frame, out)
             PxcFrame.CMD_QUERY_SPEED -> {
@@ -64,6 +67,16 @@ class PxcHandshake(
             PxcFrame.CMD_CHECK_SN -> onCheckSn(tag, frame, out)
             PxcFrame.CMD_HEARTBEAT -> {
                 PxcFrame(PxcFrame.CMD_HEARTBEAT_ACK, ByteArray(0)).write(out)
+            }
+            // Bike acks to our APPSTATUS_* notifications (0x20021/31/41/51) — log once, never re-ack.
+            APPSTATUS_FOREGROUND + 1,
+            APPSTATUS_BACKGROUND + 1,
+            APPSTATUS_SCREEN_LOCKED + 1,
+            APPSTATUS_SCREEN_UNLOCKED + 1 -> {
+                if (appStatusAcksSeen.add(frame.cmd)) {
+                    log("[APPSTATUS] bike acked 0x${frame.cmd.toUInt().toString(16)} len=${frame.payload.size} " +
+                        "${frame.payload.asText()} (firmware understands APPSTATUS)")
+                }
             }
             PxcFrame.CMD_HEARTBEAT_ACK,
             PxcFrame.CMD_CHECK_SN_RESULT + 1 -> {
@@ -80,6 +93,57 @@ class PxcHandshake(
                 }
             }
         }
+    }
+
+    /**
+     * EXPERIMENT (Zontes clock reset): the official Zontes Smart app (Carbit SDK) sends
+     * ECP_P2C_APPSTATUS_FOREGROUND (0x20020) on the CAR_DATA (P2C) socket ~130 ms after the bike
+     * opens it — BEFORE the bike's 0x10450 QUERY_TIME — and then once per second for the whole
+     * session (0x20030 BACKGROUND when the app is backgrounded, 0x20040/0x20050 on screen lock).
+     * OpenCfMoto never sent any of these. Payload copied verbatim from the official app's log
+     * (tayo.com.ZontesIntelligence 1.12, 2026-09-22). Gated to channel 21340 (Zontes).
+     */
+    private fun startAppStatusLoop(socket: Socket) {
+        if (!APPSTATUS_ENABLED) return
+        Thread({
+            try {
+                // CLIENT_INFO arrives on the CAR_CTRL socket before CAR_DATA opens; wait briefly just in case.
+                var waited = 0
+                while (lastClientInfo == null && waited < 3000 && !socket.isClosed) {
+                    Thread.sleep(100); waited += 100
+                }
+                val channel = lastClientInfo?.optString("channel")?.trim().orEmpty()
+                if (channel != "21340") {
+                    log("[APPSTATUS] not sending (channel=${channel.ifEmpty { "-" }}, only Zontes 21340)")
+                    return@Thread
+                }
+                val payload = JSONObject().apply {
+                    put("displayRotation", 0)
+                    put("width", 1440)
+                    put("height", 3088)
+                    put("enableAccessibility", false)
+                    put("enableAOAHid", true)
+                    put("mode", 2)
+                }.toString().toByteArray(Charsets.UTF_8)
+                Thread.sleep(130)
+                val out = socket.getOutputStream()
+                var n = 0
+                var lastLogAt = 0L
+                while (!socket.isClosed) {
+                    PxcFrame(APPSTATUS_FOREGROUND, payload).write(out)
+                    n++
+                    val now = System.currentTimeMillis()
+                    if (n <= 3 || now - lastLogAt >= 30_000L) {
+                        lastLogAt = now
+                        log("[APPSTATUS] → 0x20020 FOREGROUND #$n ${String(payload, Charsets.UTF_8)}")
+                    }
+                    Thread.sleep(1000)
+                }
+                log("[APPSTATUS] CAR_DATA socket closed after $n frame(s)")
+            } catch (e: Exception) {
+                log("[APPSTATUS] loop ended: ${e.javaClass.simpleName}: ${e.message}")
+            }
+        }, "pxc-appstatus").apply { isDaemon = true }.start()
     }
 
     private fun logClockLabBanner() {
@@ -180,6 +244,15 @@ class PxcHandshake(
         val reply = profile.buildClientInfoReply(json, carHuid, phoneUuid)
         log("[$tag] → CLIENT_INFO reply ${reply.toString().take(180)}…")
         PxcFrame(PxcFrame.CMD_CLIENT_INFO_RLY, reply.toString().toByteArray(Charsets.UTF_8)).write(out)
+    }
+
+    companion object {
+        /** Master switch for the APPSTATUS experiment. Set false to disable without removing code. */
+        const val APPSTATUS_ENABLED = true
+        const val APPSTATUS_FOREGROUND = 0x20020      // ECP_P2C_APPSTATUS_FOREGROUND
+        const val APPSTATUS_BACKGROUND = 0x20030      // ECP_P2C_APPSTATUS_BACKGROUND
+        const val APPSTATUS_SCREEN_LOCKED = 0x20040   // ECP_P2C_APPSTATUS_SCREEN_LOCKED
+        const val APPSTATUS_SCREEN_UNLOCKED = 0x20050 // ECP_P2C_APPSTATUS_SCREEN_UNLOCKED
     }
 
     private fun onCheckSn(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
