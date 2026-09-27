@@ -255,7 +255,7 @@ class PxcHandshake(
 
     companion object {
         /** Master switch for the APPSTATUS experiment. Set false to disable without removing code. */
-        const val APPSTATUS_ENABLED = true
+        const val APPSTATUS_ENABLED = false
         const val APPSTATUS_FOREGROUND = 0x20020      // ECP_P2C_APPSTATUS_FOREGROUND
         const val APPSTATUS_BACKGROUND = 0x20030      // ECP_P2C_APPSTATUS_BACKGROUND
         const val APPSTATUS_SCREEN_LOCKED = 0x20040   // ECP_P2C_APPSTATUS_SCREEN_LOCKED
