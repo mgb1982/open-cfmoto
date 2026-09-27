@@ -36,6 +36,9 @@ class PxcHandshake(
     @Volatile private var clockLabBannerLogged: Boolean = false
     /** APPSTATUS experiment: bike acks seen (logged once each). */
     private val appStatusAcksSeen = java.util.concurrent.ConcurrentHashMap.newKeySet<Int>()
+    /** H3 experiment: the CAR_DATA (P2C) socket, where the official app writes CHECK_SN_RESULT. */
+    @Volatile private var carDataSocket: Socket? = null
+    @Volatile private var carCtrlSocket: Socket? = null
 
     /**
      * Called when the bike selects a PXC channel on a :10922 socket (CAR_CTRL or CAR_DATA).
@@ -49,12 +52,14 @@ class PxcHandshake(
         val out = socket.getOutputStream()
         when (frame.cmd) {
             PxcFrame.CMD_CHANNEL_CAR_CTRL -> {
-                log("[$tag] bike selected CAR_CTRL (0x10000) → ack 0x10001")
+                log("[$tag] bike selected CAR_CTRL (0x10000) → ack 0x10001 ${sockId(socket)}")
+                carCtrlSocket = socket
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_CTRL + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_CTRL")
             }
             PxcFrame.CMD_CHANNEL_CAR_DATA -> {
-                log("[$tag] bike selected CAR_DATA (0x20000) → ack 0x20001")
+                log("[$tag] bike selected CAR_DATA (0x20000) → ack 0x20001 ${sockId(socket)}")
+                carDataSocket = socket
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_DATA + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_DATA")
                 startAppStatusLoop(socket)
@@ -64,7 +69,7 @@ class PxcHandshake(
                 log("[$tag] QUERY_SPEED ${frame.payload.asText()} → reply 0x10691")
                 PxcFrame(PxcFrame.CMD_QUERY_SPEED_RLY, ByteArray(0)).write(out)
             }
-            PxcFrame.CMD_CHECK_SN -> onCheckSn(tag, frame, out)
+            PxcFrame.CMD_CHECK_SN -> onCheckSn(tag, frame, socket)
             PxcFrame.CMD_HEARTBEAT -> {
                 PxcFrame(PxcFrame.CMD_HEARTBEAT_ACK, ByteArray(0)).write(out)
             }
@@ -78,9 +83,11 @@ class PxcHandshake(
                         "${frame.payload.asText()} (firmware understands APPSTATUS)")
                 }
             }
-            PxcFrame.CMD_HEARTBEAT_ACK,
             PxcFrame.CMD_CHECK_SN_RESULT + 1 -> {
-                // acks from the bike — nothing to do
+                log("[$tag] bike acked CHECK_SN_RESULT (0x201c1) len=${frame.payload.size} on ${chanOf(socket)} ${sockId(socket)}")
+            }
+            PxcFrame.CMD_HEARTBEAT_ACK -> {
+                // ack from the bike — nothing to do
             }
             // Clock lab: knobs choose 0x10600 echo vs phone and 0x10451
             // empty / Carbit / Zontes / no-ack. Defaults match Latest 2.0.13.
@@ -253,13 +260,30 @@ class PxcHandshake(
         const val APPSTATUS_BACKGROUND = 0x20030      // ECP_P2C_APPSTATUS_BACKGROUND
         const val APPSTATUS_SCREEN_LOCKED = 0x20040   // ECP_P2C_APPSTATUS_SCREEN_LOCKED
         const val APPSTATUS_SCREEN_UNLOCKED = 0x20050 // ECP_P2C_APPSTATUS_SCREEN_UNLOCKED
+        /**
+         * H3 experiment (Zontes clock reset): the official app acks CHECK_SN (0x103e1) on the socket
+         * it came in on (C2P / CAR_CTRL) but writes 0x201C0 CHECK_SN_RESULT on the P2C (CAR_DATA)
+         * socket — "process >>>> 0x000201C0" is logged by its PXCForCar-P2C thread (log 2026-09-22).
+         * We used to write both on the incoming socket. Set false to restore the old behaviour.
+         */
+        const val CHECK_SN_RESULT_ON_CAR_DATA = true
     }
 
-    private fun onCheckSn(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
+    private fun sockId(s: Socket?): String =
+        if (s == null) "sock=null" else "sock=${s.inetAddress?.hostAddress}:${s.port}→:${s.localPort}"
+
+    private fun chanOf(s: Socket): String = when (s) {
+        carDataSocket -> "CAR_DATA"
+        carCtrlSocket -> "CAR_CTRL"
+        else -> "other"
+    }
+
+    private fun onCheckSn(tag: String, frame: PxcFrame, socket: Socket) {
+        val out = socket.getOutputStream()
         val text = frame.payload.asText()
-        log("[$tag] CHECK_SN from bike: $text")
+        log("[$tag] CHECK_SN from bike on ${chanOf(socket)} ${sockId(socket)}: $text")
         val sn = try { JSONObject(text).optString("sn") } catch (e: Exception) { "" }
-        // ack the request frame
+        // ack the request frame on the socket it arrived on
         PxcFrame(PxcFrame.CMD_CHECK_SN_ACK, ByteArray(0)).write(out)
         // send the result
         val result = JSONObject().apply {
@@ -269,8 +293,22 @@ class PxcHandshake(
             put("id", sn)
             put("client_set", "easy_conn")
         }
+        val body = result.toString().toByteArray(Charsets.UTF_8)
+        val p2c = carDataSocket
+        if (CHECK_SN_RESULT_ON_CAR_DATA && p2c != null && !p2c.isClosed) {
+            val where = if (p2c === socket) "CAR_DATA (same socket)" else "CAR_DATA (P2C, like official)"
+            log("[H3] → CHECK_SN_RESULT via $where ${sockId(p2c)} $result")
+            try {
+                PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(p2c.getOutputStream())
+                return
+            } catch (e: Exception) {
+                log("[H3] CAR_DATA write failed (${e.javaClass.simpleName}: ${e.message}) — falling back to incoming socket")
+            }
+        } else if (CHECK_SN_RESULT_ON_CAR_DATA) {
+            log("[H3] no open CAR_DATA socket yet — CHECK_SN_RESULT on incoming socket (old behaviour)")
+        }
         log("[$tag] → CHECK_SN_RESULT ${result}")
-        PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, result.toString().toByteArray(Charsets.UTF_8)).write(out)
+        PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(out)
     }
 }
 
