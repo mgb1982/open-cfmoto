@@ -184,7 +184,13 @@ class PxcHandshake(
     private fun onHuQueryTime(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
         logClockLabBanner()
         val channel = lastClientInfo?.optString("channel")?.trim().orEmpty()
-        val mode = ClockLab.query
+        // Zontes (21340): once APPSTATUS + CHECK_SN_RESULT-on-P2C make the session valid, the dash
+        // DOES apply the 0x10451 body. An empty ack sets the cluster to 13:49, and a later good
+        // reply in the same dash boot does not recover it. So the default (EMPTY) answers with the
+        // OEM JSON on this channel; explicit Clock-lab choices (Carbit / no-ack) are respected.
+        val autoZontes = ClockLab.query == ClockQueryMode.EMPTY && channel == ZONTES_CHANNEL
+        val mode = if (autoZontes) ClockQueryMode.ZONTES else ClockLab.query
+        if (autoZontes) log("[CLOCK-LAB] channel $ZONTES_CHANNEL: default empty 0x10451 → OEM Zontes JSON")
         val reply = when (mode) {
             ClockQueryMode.EMPTY -> "empty"
             ClockQueryMode.CARBIT, ClockQueryMode.ZONTES -> "json"
