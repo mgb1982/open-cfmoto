@@ -287,39 +287,25 @@ object BikeProfileHolder {
  *  that LegacyCfdl16Profile (supportFunction=0) produces byte-identical output. */
 private fun basePhoneClientInfo(huid: String?, phoneUuid: String, supportFunction: Int): JSONObject =
     JSONObject().apply {
-        // ---- TEST BUILD: clone the official Carbit/Zontes app's CLIENT_INFO reply ----
-        // Captured from logcat (ECP_C2P_CLIENT_INFO: reply:{...}) on the same phone + bike, in the
-        // session where the dash clock DID get set correctly. Everything clonable is cloned; only
-        // pubkey/encryptedHUID stay ours (they are derived from our own RSA key, so byte-identity
-        // is impossible). Revert before shipping — this impersonates another vendor's app.
         put("pxcVersion", "1.0.2")
-        put("phoneUUID", "af1521f2-2df6-49e5-93e9-1c3ce797ad8b")   // was: phoneUuid (random per run)
-        put("phoneBrand", Build.BRAND)                             // already "samsung"
-        put("phoneModel", Build.MODEL)                             // already "SM-S918B"
-        put("phoneOsVersion", Build.VERSION.SDK_INT.toString())    // already "36"
+        put("phoneUUID", phoneUuid)
+        put("phoneBrand", Build.BRAND)
+        put("phoneModel", Build.MODEL)
+        put("phoneOsVersion", Build.VERSION.SDK_INT.toString())
         put("phoneOs", "Android")
-        put("package", "tayo.com.ZontesIntelligence")              // was: EasyConnProber.SPOOFED_PACKAGE
-        put("versionCode", 3034)                                   // was: 126
+        put("package", EasyConnProber.SPOOFED_PACKAGE)
+        put("versionCode", 126)
         put("token", 0)
         put("pubkey", RsaKeys.publicKeyBase64)
         put("encryptedHUID", huid?.let { RsaKeys.signHuid(it) } ?: "")
-        put("bluetoothName", "S23 Ultra de Manel")                 // was: "OpenCfMoto"
+        put("bluetoothName", "OpenCfMoto")
         put("supportH264IFrame", true)
-        put("supportFunction", supportFunction)                    // already 128 on this profile
-        // Omit supportSyncCorrectTime entirely — do NOT send it as `false`.
-        //
-        // Verified against the official Carbit/Zontes app (tayo.com.ZontesIntelligence) by capturing
-        // its CLIENT_INFO reply from logcat: it never sends this key at all.
-        //
-        // The bike advertises supportSyncCorrectTime:true in its own CLIENT_INFO. Replying `false`
-        // tells the HU "this client cannot be time-corrected", and the Zontes CFDL16 (channel 21340)
-        // then ignores the 0x10451 body completely and never sends 0x10600 — which is why a filled
-        // OEM-shaped reply and no reply at all both landed on 00:00.
-        //
-        // 2.0.9 flipped this from `true` to `false` because `true` made Voge/QJ apply a badly
-        // formatted 0x10601 (fixed separately in 2.0.10). Omitting is not the same as false.
-        put("appVersionFingerPrint", "V:1.12(3034)--ONLINE")       // was: "opencfmoto-poc"
-        put("speechEngineType", 2)                                 // official sends this; we did not
+        put("supportFunction", supportFunction)
+        // Do NOT advertise supportSyncCorrectTime. Claiming it made some firmwares apply our
+        // 0x10601 aggressively (Zontes/Voge → 00:00) even when the cluster clock was already fine.
+        // We still body-ack every inbound 0x10600 (see HuTimeSync) so Morini/QJ never see empty→1970.
+        put("supportSyncCorrectTime", false)
+        put("appVersionFingerPrint", "opencfmoto-poc")
     }
 
 /**
