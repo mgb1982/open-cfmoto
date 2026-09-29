@@ -42,6 +42,13 @@ class ControlsActivity : AppCompatActivity() {
     private var padFullscreen = false
     private lateinit var insetsController: WindowInsetsControllerCompat
     private lateinit var btnPadFullscreen: MaterialButton
+    private val statusHandler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val statusTick = object : Runnable {
+        override fun run() {
+            renderSpeedVolumeStatus()
+            statusHandler.postDelayed(this, 1_000L)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,11 +147,120 @@ class ControlsActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.theme_day).setOnClickListener { setMapTheme(MapTheme.DAY) }
         findViewById<MaterialButton>(R.id.theme_night).setOnClickListener { setMapTheme(MapTheme.NIGHT) }
         highlightTheme(NightPrefs.theme(this))
+
+        setupSpeedVolume()
     }
 
     override fun onResume() {
         super.onResume()
         syncVolumeUi()
+        statusHandler.post(statusTick)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        statusHandler.removeCallbacks(statusTick)
+    }
+
+    // ── Speed-compensated volume ([SpeedVolume]) ─────────────────────────────────────────────────
+
+    private fun setupSpeedVolume() {
+        val levels = listOf(
+            R.id.spdvol_off to SpeedVolumeLevel.OFF,
+            R.id.spdvol_low to SpeedVolumeLevel.LOW,
+            R.id.spdvol_medium to SpeedVolumeLevel.MEDIUM,
+            R.id.spdvol_high to SpeedVolumeLevel.HIGH,
+        )
+        for ((id, level) in levels) {
+            findViewById<MaterialButton>(id).setOnClickListener {
+                SpeedVolumePrefs.setLevel(this, level)
+                highlightSpeedVolume()
+                SpeedVolume.sync(this)
+                LogBus.log("→ speed volume: ${level.id}")
+            }
+        }
+        highlightSpeedVolume()
+
+        val advanced = findViewById<View>(R.id.spdvol_advanced)
+        val toggle = findViewById<MaterialButton>(R.id.spdvol_advanced_toggle)
+        toggle.setOnClickListener {
+            val show = advanced.visibility != View.VISIBLE
+            advanced.visibility = if (show) View.VISIBLE else View.GONE
+            toggle.setText(if (show) R.string.speed_volume_advanced_hide else R.string.speed_volume_advanced_show)
+        }
+
+        val sw = findViewById<MaterialSwitch>(R.id.spdvol_custom_switch)
+        val start = findViewById<SeekBar>(R.id.spdvol_start_seek)
+        val step = findViewById<SeekBar>(R.id.spdvol_step_seek)
+        val max = findViewById<SeekBar>(R.id.spdvol_max_seek)
+        sw.isChecked = SpeedVolumePrefs.customEnabled(this)
+        start.progress = SpeedVolumePrefs.customStart(this) / 5
+        step.progress = SpeedVolumePrefs.customPerStep(this) / 5
+        max.progress = SpeedVolumePrefs.customMax(this)
+        renderCurveLabels()
+
+        sw.setOnCheckedChangeListener { _, checked ->
+            SpeedVolumePrefs.setCustomEnabled(this, checked)
+            setCurveEnabled(checked)
+            LogBus.log("→ speed volume custom curve ${if (checked) "on" else "off"}")
+        }
+        setCurveEnabled(sw.isChecked)
+
+        val listener = object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                SpeedVolumePrefs.setCustom(this@ControlsActivity, start.progress * 5, step.progress * 5, max.progress)
+                renderCurveLabels()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        }
+        start.setOnSeekBarChangeListener(listener)
+        step.setOnSeekBarChangeListener(listener)
+        max.setOnSeekBarChangeListener(listener)
+    }
+
+    private fun setCurveEnabled(on: Boolean) {
+        for (id in listOf(R.id.spdvol_start_seek, R.id.spdvol_step_seek, R.id.spdvol_max_seek)) {
+            findViewById<SeekBar>(id).isEnabled = on
+        }
+        for (id in listOf(R.id.spdvol_start_label, R.id.spdvol_step_label, R.id.spdvol_max_label)) {
+            findViewById<View>(id).alpha = if (on) 1f else 0.5f
+        }
+    }
+
+    private fun renderCurveLabels() {
+        findViewById<TextView>(R.id.spdvol_start_label).text =
+            getString(R.string.speed_volume_start_label, SpeedVolumePrefs.customStart(this))
+        findViewById<TextView>(R.id.spdvol_step_label).text =
+            getString(R.string.speed_volume_step_label, SpeedVolumePrefs.customPerStep(this))
+        findViewById<TextView>(R.id.spdvol_max_label).text =
+            getString(R.string.speed_volume_max_label, SpeedVolumePrefs.customMax(this))
+    }
+
+    private fun renderSpeedVolumeStatus() {
+        findViewById<TextView>(R.id.spdvol_status)?.text = SpeedVolume.status(this)
+    }
+
+    private fun highlightSpeedVolume() {
+        val selected = SpeedVolumePrefs.level(this)
+        val onColor = ContextCompat.getColor(this, R.color.brand_orange)
+        val onText = ContextCompat.getColor(this, R.color.on_brand)
+        val offColor = ContextCompat.getColor(this, R.color.surface_high)
+        val offText = ContextCompat.getColor(this, R.color.text_primary)
+        val pairs = listOf(
+            R.id.spdvol_off to SpeedVolumeLevel.OFF,
+            R.id.spdvol_low to SpeedVolumeLevel.LOW,
+            R.id.spdvol_medium to SpeedVolumeLevel.MEDIUM,
+            R.id.spdvol_high to SpeedVolumeLevel.HIGH,
+        )
+        for ((id, level) in pairs) {
+            val btn = findViewById<MaterialButton>(id)
+            val on = level == selected
+            btn.backgroundTintList = android.content.res.ColorStateList.valueOf(if (on) onColor else offColor)
+            btn.setTextColor(if (on) onText else offText)
+        }
+        renderSpeedVolumeStatus()
     }
 
     /**
@@ -157,6 +273,7 @@ class ControlsActivity : AppCompatActivity() {
         findViewById<View>(R.id.controls_header).visibility = hide
         findViewById<View>(R.id.card_nav).visibility = hide
         findViewById<View>(R.id.card_theme).visibility = hide
+        findViewById<View>(R.id.card_speed_volume).visibility = hide
         findViewById<View>(R.id.card_handlebar).visibility = hide
         findViewById<View>(R.id.pad_intro).visibility = hide
         findViewById<View>(R.id.tv_volume_hint).visibility = hide

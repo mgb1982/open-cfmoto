@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Speed-compensated volume (SpeedVolume.kt). Translated: en, es, ca; other locales fall back to English. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="speed_volume_title">Speed volume</string>
+    <string name="speed_volume_desc">Raises the phone\'s media volume (nav voice and music) as you ride faster, to beat wind noise. Your own volume is the base: change it any time and the boost follows. Paused while the handlebar buttons drive Android Auto.</string>
+    <string name="speed_volume_off">Off</string>
+    <string name="speed_volume_low">Low</string>
+    <string name="speed_volume_medium">Medium</string>
+    <string name="speed_volume_high">High</string>
+    <string name="speed_volume_status_off">Off</string>
+    <string name="speed_volume_status_waiting">Waiting for the bike connection…</string>
+    <string name="speed_volume_status_paused">Paused: handlebar buttons are pinning the volume</string>
+    <string name="speed_volume_status_no_gps">Active: waiting for GPS speed…</string>
+    <string name="speed_volume_status_live">Active: %1$d km/h · boost +%2$d</string>
+    <string name="speed_volume_advanced_show">Advanced ▾</string>
+    <string name="speed_volume_advanced_hide">Advanced ▴</string>
+    <string name="speed_volume_custom">Custom curve (replaces the level\'s curve)</string>
+    <string name="speed_volume_start_label">Start boosting at: %1$d km/h</string>
+    <string name="speed_volume_step_label">One more step every: %1$d km/h</string>
+    <string name="speed_volume_max_label">Maximum boost: +%1$d steps</string>
+    <string name="speed_volume_custom_hint">Steps are on a 15-step volume scale. A level other than Off must still be selected for the custom curve to run.</string>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="speed_volume_title">Volum segons la velocitat</string>
+    <string name="speed_volume_desc">Apuja el volum multimèdia del mòbil (veu de navegació i música) com més de pressa vas, per compensar el soroll del vent. El teu volum és la base: canvia\'l quan vulguis i el reforç s\'hi adapta. Es posa en pausa mentre els botons del manillar controlen Android Auto.</string>
+    <string name="speed_volume_off">No</string>
+    <string name="speed_volume_low">Baix</string>
+    <string name="speed_volume_medium">Mitjà</string>
+    <string name="speed_volume_high">Alt</string>
+    <string name="speed_volume_status_off">Desactivat</string>
+    <string name="speed_volume_status_waiting">Esperant la connexió amb la moto…</string>
+    <string name="speed_volume_status_paused">En pausa: els botons del manillar fixen el volum</string>
+    <string name="speed_volume_status_no_gps">Actiu: esperant la velocitat del GPS…</string>
+    <string name="speed_volume_status_live">Actiu: %1$d km/h · reforç +%2$d</string>
+    <string name="speed_volume_advanced_show">Avançat ▾</string>
+    <string name="speed_volume_advanced_hide">Avançat ▴</string>
+    <string name="speed_volume_custom">Corba personalitzada (substitueix la del nivell)</string>
+    <string name="speed_volume_start_label">Començar a apujar a partir de: %1$d km/h</string>
+    <string name="speed_volume_step_label">Un pas més cada: %1$d km/h</string>
+    <string name="speed_volume_max_label">Reforç màxim: +%1$d passos</string>
+    <string name="speed_volume_custom_hint">Els passos són sobre una escala de volum de 15. Perquè la corba personalitzada funcioni, cal tenir seleccionat un nivell diferent de No.</string>
+</resources>

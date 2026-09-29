@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="speed_volume_title">Volumen según velocidad</string>
+    <string name="speed_volume_desc">Sube el volumen multimedia del móvil (voz de navegación y música) cuanto más rápido vas, para compensar el ruido del viento. Tu volumen es la base: cámbialo cuando quieras y el refuerzo se adapta. Se pausa mientras los botones del manillar controlan Android Auto.</string>
+    <string name="speed_volume_off">No</string>
+    <string name="speed_volume_low">Bajo</string>
+    <string name="speed_volume_medium">Medio</string>
+    <string name="speed_volume_high">Alto</string>
+    <string name="speed_volume_status_off">Desactivado</string>
+    <string name="speed_volume_status_waiting">Esperando la conexión con la moto…</string>
+    <string name="speed_volume_status_paused">En pausa: los botones del manillar fijan el volumen</string>
+    <string name="speed_volume_status_no_gps">Activo: esperando la velocidad del GPS…</string>
+    <string name="speed_volume_status_live">Activo: %1$d km/h · refuerzo +%2$d</string>
+    <string name="speed_volume_advanced_show">Avanzado ▾</string>
+    <string name="speed_volume_advanced_hide">Avanzado ▴</string>
+    <string name="speed_volume_custom">Curva personalizada (sustituye la del nivel)</string>
+    <string name="speed_volume_start_label">Empezar a subir a partir de: %1$d km/h</string>
+    <string name="speed_volume_step_label">Un paso más cada: %1$d km/h</string>
+    <string name="speed_volume_max_label">Refuerzo máximo: +%1$d pasos</string>
+    <string name="speed_volume_custom_hint">Los pasos son sobre una escala de volumen de 15. Para que la curva personalizada funcione, tiene que haber un nivel distinto de No seleccionado.</string>
+</resources>

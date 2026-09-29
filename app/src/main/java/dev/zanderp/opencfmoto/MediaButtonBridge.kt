@@ -67,6 +67,8 @@ class MediaButtonBridge(private val context: Context, private val log: (String) 
     private var volumeObserver: ContentObserver? = null
     /** Volume we hold the stream at while capturing, so there's always headroom up AND down. */
     private var pinnedVolume = -1
+    /** True while STREAM_MUSIC is pinned for handlebar nav ([SpeedVolume] stands aside). */
+    val isVolumePinned: Boolean get() = pinnedVolume >= 0
     /** One-shot guard: the dash only needs re-reading once per session. See [reassert]. */
     private var reasserted = false
     /** The user's own volume, restored when capture is turned off. */
