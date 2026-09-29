@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_clock_resync">Resincronizar el reloj una vez (Zontes)</string>
+    <string name="setup_clock_resync_desc">Unos 10 s después de la primera conexión de cada arranque del cuadro, corta el enlace una vez y deja que se reconecte, para que el cuadro vuelva a tomar la hora. La imagen parpadea unos segundos. Experimental, desactivado por defecto.</string>
+</resources>

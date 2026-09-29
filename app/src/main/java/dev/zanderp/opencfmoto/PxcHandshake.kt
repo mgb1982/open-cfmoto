@@ -40,6 +40,12 @@ class PxcHandshake(
     /** The CAR_DATA (P2C, phone→car) and CAR_CTRL (C2P) sockets of the current session. */
     @Volatile private var carDataSocket: Socket? = null
     @Volatile private var carCtrlSocket: Socket? = null
+    /** True once the bike sent CHECK_SN in the current session (= first session of this dash boot). */
+    @Volatile private var checkSnThisSession = false
+    @Volatile private var lastResyncAt = 0L
+
+    /** Asks the prober to drop every bike socket so its reconnect path re-probes (clock resync). */
+    @Volatile var onResyncRequested: ((String) -> Unit)? = null
 
     /**
      * Called when the bike selects a PXC channel on a :10922 socket (CAR_CTRL or CAR_DATA).
@@ -55,6 +61,7 @@ class PxcHandshake(
             PxcFrame.CMD_CHANNEL_CAR_CTRL -> {
                 log("[$tag] bike selected CAR_CTRL (0x10000) → ack 0x10001 ${sockId(socket)}")
                 carCtrlSocket = socket
+                checkSnThisSession = false
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_CTRL + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_CTRL")
             }
@@ -217,6 +224,34 @@ class PxcHandshake(
                     "→ 0x10451 zontes dateTime=${ack.dateTime} currentTime=${ack.currentTime} zone=${ack.timeZone}")
             }
         }
+        maybeScheduleResync(channel)
+    }
+
+    /**
+     * Zontes clock experiment ([ClockLab.resync]). Field data: with APPSTATUS + CHECK_SN_RESULT on
+     * P2C the dash takes our time on most cold boots, but ~1 in 4 still ends at 00:00 / 13:49 with a
+     * wire-identical session — and one same-boot reconnect (no CHECK_SN) then fixed it. So, only on
+     * the first session of a dash boot, wait a bit and drop the link once; the reconnect answers
+     * QUERY_TIME again. Never more than once per [RESYNC_MIN_GAP_MS].
+     */
+    private fun maybeScheduleResync(channel: String) {
+        if (!ClockLab.resync || channel != ZONTES_CHANNEL) return
+        if (!checkSnThisSession) {
+            log("[RESYNC] not needed — dash skipped CHECK_SN (same-boot reconnect)")
+            return
+        }
+        val now = System.currentTimeMillis()
+        if (now - lastResyncAt < RESYNC_MIN_GAP_MS) {
+            log("[RESYNC] skipped — last one ${(now - lastResyncAt) / 1000}s ago")
+            return
+        }
+        lastResyncAt = now
+        log("[RESYNC] first session of this dash boot — dropping the link once in ${RESYNC_DELAY_MS / 1000}s")
+        Thread({
+            try { Thread.sleep(RESYNC_DELAY_MS) } catch (_: InterruptedException) { return@Thread }
+            val cb = onResyncRequested
+            if (cb == null) log("[RESYNC] no prober hook — skipped") else cb("clock resync")
+        }, "pxc-resync").apply { isDaemon = true }.start()
     }
 
     private fun onClientInfo(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
@@ -282,6 +317,9 @@ class PxcHandshake(
          * 0x201c1 on CAR_DATA. Gated to channel 21340; other bikes keep the old path.
          */
         const val CHECK_SN_RESULT_ON_CAR_DATA = true
+        /** Clock resync experiment: wait after QUERY_TIME, and never repeat within the gap. */
+        const val RESYNC_DELAY_MS = 10_000L
+        const val RESYNC_MIN_GAP_MS = 10 * 60_000L
     }
 
     private fun sockId(s: Socket?): String =
@@ -295,6 +333,7 @@ class PxcHandshake(
 
     private fun onCheckSn(tag: String, frame: PxcFrame, socket: Socket) {
         val out = socket.getOutputStream()
+        checkSnThisSession = true
         val text = frame.payload.asText()
         log("[$tag] CHECK_SN from bike on ${chanOf(socket)} ${sockId(socket)}: $text")
         val sn = try { JSONObject(text).optString("sn") } catch (e: Exception) { "" }

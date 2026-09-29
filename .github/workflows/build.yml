@@ -18,7 +18,7 @@ jobs:
       - name: Build debug APK
         run: ./gradlew assembleDebug
       - name: Unit tests (fork features)
-        run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest'
+        run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest'
       - uses: actions/upload-artifact@v4
         with:
           name: opencfmoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
