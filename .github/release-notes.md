@@ -2,7 +2,7 @@ Versión no oficial de [OpenCfMoto](https://github.com/zanderp/open-cfmoto) (And
 
 ### Qué cambia respecto a la oficial
 - **El reloj del cuadro ya no se pone a 00:00 / 13:49 al conectar.** La app replica dos mensajes que envía la app oficial de Zontes, y además reconecta una vez unos 10 s después de la primera conexión de cada arranque. Durante esos ~3 s la imagen del cuadro se corta: es normal.
-- **Volumen según la velocidad** (opcional, en Controles): sube el volumen multimedia del móvil (navegación y música) a medida que vas más rápido. Niveles Bajo / Medio / Alto o curva personalizada.
+- **Volumen según la velocidad** (*experimental*, desactivado por defecto, en Controles): sube el volumen multimedia del móvil (navegación y música) a medida que vas más rápido. Niveles Bajo / Medio / Alto o curva personalizada. Aún está poco probado en marcha; si lo usas, cuéntanos cómo va.
 
 ### Instalación
 1. Descarga el archivo `.apk` de abajo (en *Assets*).
