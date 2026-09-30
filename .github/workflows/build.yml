@@ -1,4 +1,4 @@
-name: Build debug APK
+name: Build APK
 on:
   workflow_dispatch:
   push:
@@ -15,12 +15,35 @@ jobs:
           java-version: '17'
       - name: Grant execute permission
         run: chmod +x gradlew
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+
+      # Same signing key on every build, so a new APK installs over the old one (settings kept)
+      # instead of "app not installed" + uninstall. The key lives in the DEBUG_KEYSTORE_B64 repo
+      # secret (base64 JKS, alias androiddebugkey, passwords "android" — what the debugRelease
+      # signingConfig and the debug build both read from ~/.android/debug.keystore).
+      - name: Install fixed signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
+        run: |
+          mkdir -p ~/.android
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+            keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep 'SHA256:' | head -1
+          else
+            echo "::warning::DEBUG_KEYSTORE_B64 secret not set — this APK gets a random key and won't install over the previous one"
+          fi
+
+      # Debug first: if no secret was set it creates ~/.android/debug.keystore for the release build.
+      - name: Build APKs
+        run: ./gradlew assembleDebug assembleRelease
       - name: Unit tests (fork features)
         run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest'
+      - name: Show signing certificate
+        run: |
+          APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
+          echo "$APK"
+          BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
+          "$BT/apksigner" verify --print-certs "$APK" | grep -i 'SHA-256' | head -1 || true
       - uses: actions/upload-artifact@v4
         with:
           name: opencfmoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
-          path: '**/*-debug.apk'
-          
+          path: app/build/outputs/apk/release/*.apk
