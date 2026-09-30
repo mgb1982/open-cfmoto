@@ -8,6 +8,7 @@ Versión no oficial de [OpenCfMoto](https://github.com/zanderp/open-cfmoto) (And
 1. Descarga el archivo `.apk` de abajo (en *Assets*).
 2. Si tienes instalada la versión oficial de OpenCfMoto, **desinstálala primero**: al estar firmadas con claves distintas, Android no deja instalar una encima de la otra.
 3. Ábrelo y permite la instalación desde tu navegador o gestor de archivos si te lo pide.
+   - Puede salir el aviso de **Play Protect** de "app no segura" o "app bloqueada". Es porque la app es nueva y Google aún no la conoce, no porque haga nada raro. Pulsa **Más detalles → Instalar de todas formas**. El código fuente es público en este repositorio.
 4. Las próximas versiones de esta página se instalarán encima, sin perder la configuración.
 
 ### Ajustes recomendados
