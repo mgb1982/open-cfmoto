@@ -30,9 +30,11 @@ jobs:
             keytool -list -v -keystore ~/.android/debug.keystore -storepass android | grep 'SHA256:' | head -1
           else
             echo "::warning::DEBUG_KEYSTORE_B64 secret not set — this APK gets a random key and won't install over the previous one"
+            keytool -genkeypair -keystore ~/.android/debug.keystore -storetype JKS -alias androiddebugkey \
+              -storepass android -keypass android -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
           fi
 
-      # Debug first: if no secret was set it creates ~/.android/debug.keystore for the release build.
       - name: Build debug APK
         run: ./gradlew assembleDebug
       - name: Build release APK
