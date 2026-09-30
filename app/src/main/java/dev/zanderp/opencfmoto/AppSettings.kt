@@ -128,11 +128,12 @@ object AppSettings {
     }
 
     /**
-     * Zontes clock experiment: once per dash boot, ~10 s after answering QUERY_TIME, drop the PXC
-     * link and let the reconnect path re-probe. A same-boot reconnect fixed a failed clock sync in
-     * the field (2026-09-29). Off by default. Not in SettingsBackup.
+     * Zontes clock resync: once per dash boot, ~10 s after answering QUERY_TIME, drop the PXC link
+     * and let the reconnect path re-probe. Only acts on channel 21340. On by default: in the field it
+     * fixed the ~1-in-4 cold boots that still end at 00:00 / 13:49 and kept good syncs good.
+     * Not in SettingsBackup.
      */
-    fun clockResync(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_CLOCK_RESYNC, false)
+    fun clockResync(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_CLOCK_RESYNC, true)
     fun setClockResync(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_CLOCK_RESYNC, on).apply()
         ClockLab.resync = on

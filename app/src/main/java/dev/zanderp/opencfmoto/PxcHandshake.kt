@@ -228,11 +228,12 @@ class PxcHandshake(
     }
 
     /**
-     * Zontes clock experiment ([ClockLab.resync]). Field data: with APPSTATUS + CHECK_SN_RESULT on
-     * P2C the dash takes our time on most cold boots, but ~1 in 4 still ends at 00:00 / 13:49 with a
-     * wire-identical session — and one same-boot reconnect (no CHECK_SN) then fixed it. So, only on
-     * the first session of a dash boot, wait a bit and drop the link once; the reconnect answers
-     * QUERY_TIME again. Never more than once per [RESYNC_MIN_GAP_MS].
+     * Zontes clock fix, part 3/3 ([ClockLab.resync], on by default). With APPSTATUS + CHECK_SN_RESULT
+     * on P2C the dash takes our time on most cold boots, but ~1 in 4 still ends at 00:00 / 13:49 with
+     * a wire-identical session. A same-boot reconnect (the dash skips CHECK_SN) answers QUERY_TIME
+     * again and fixed every such failure seen, without breaking good syncs. So, only on the first
+     * session of a dash boot, wait a bit and drop the link once (~3 s of dash picture). Never more
+     * than once per [RESYNC_MIN_GAP_MS].
      */
     private fun maybeScheduleResync(channel: String) {
         if (!ClockLab.resync || channel != ZONTES_CHANNEL) return
@@ -352,7 +353,8 @@ class PxcHandshake(
         val p2c = carDataSocket
         if (CHECK_SN_RESULT_ON_CAR_DATA && zontes && p2c != null && !p2c.isClosed) {
             val where = if (p2c === socket) "CAR_DATA (same socket)" else "CAR_DATA (P2C, like official)"
-            log("[$tag] → CHECK_SN_RESULT via $where ${sockId(p2c)} $result")
+            // Log sn= (not the JSON "id") so LogRedactor masks the dash serial like everywhere else.
+            log("[$tag] → CHECK_SN_RESULT via $where ${sockId(p2c)} isOk=true sn=$sn")
             try {
                 PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(p2c.getOutputStream())
                 return
@@ -362,7 +364,7 @@ class PxcHandshake(
         } else if (CHECK_SN_RESULT_ON_CAR_DATA && zontes) {
             log("[$tag] no open CAR_DATA socket yet — CHECK_SN_RESULT on incoming socket")
         }
-        log("[$tag] → CHECK_SN_RESULT ${result}")
+        log("[$tag] → CHECK_SN_RESULT isOk=true sn=$sn")
         PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(out)
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Zontes clock resync experiment. Translated: en, es, ca; other locales fall back to English. -->
+<!-- Zontes clock resync. Translated: en, es, ca; other locales fall back to English. -->
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="setup_clock_resync">Resync the dash clock once (Zontes)</string>
-    <string name="setup_clock_resync_desc">About 10 s after the first connection of each dash start, drop the link once and let it reconnect, so the dash takes the time again. The dash picture blinks for a few seconds. Experimental, off by default.</string>
+    <string name="setup_clock_resync_desc">About 10 s after the first connection of each dash start, drop the link once and let it reconnect, so the dash takes the time again. The dash picture blinks for a few seconds. On by default; only acts on Zontes dashes.</string>
 </resources>
