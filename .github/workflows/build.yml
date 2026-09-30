@@ -43,10 +43,10 @@ jobs:
           rc=$?
           if [ $rc -ne 0 ]; then
             # Annotations are readable through the API even when raw logs are not.
-            grep -E "What went wrong|rror|Lint found|\.xml:[0-9]|\.kt:[0-9]" release-build.log | grep -v "^\s*at " | head -6 \
+            grep -E "What went wrong|rror:|Lint found|^e: " release-build.log | grep -v "^\s*at " | head -6 \
               | while IFS= read -r l; do echo "::error::${l:0:900}"; done
-            tail -n 60 release-build.log | cut -c1-200 | paste -sd '~' | fold -w 900 | head -4 \
-              | while IFS= read -r l; do echo "::error::TAIL ${l}"; done
+            grep -vE '^(w: |- To |See https|\s*$)' release-build.log | tail -n 40 | cut -c1-220 | paste -sd '~' \
+              | tail -c 3600 | fold -w 900 | while IFS= read -r l; do echo "::error::TAIL ${l}"; done
           fi
           exit $rc
       - name: Unit tests (fork features)
