@@ -11,7 +11,7 @@ Versión no oficial de [OpenCfMoto](https://github.com/zanderp/open-cfmoto) (And
 4. Las próximas versiones de esta página se instalarán encima, sin perder la configuración.
 
 ### Ajustes recomendados
-- Ajustes → Laboratorio del reloj: preset **Última**, y **Resincronizar el reloj una vez (Zontes)** activado (viene activado por defecto).
+- Ajustes → **Clock lab (EXPERIMENTAL)** (en catalán, *Laboratori del rellotge*): preset **Última**, y **Resincronizar el reloj una vez (Zontes)** activado (viene activado por defecto).
 
 ### Si algo falla
-Desde la app, *Compartir registros* y pásalo por el grupo, indicando qué hora mostraba el cuadro antes de conectar y después. Los registros ya ocultan los números de serie y las contraseñas.
+Desde la app, **Compartir registros** y pásalo por el grupo, indicando qué hora mostraba el cuadro antes de conectar y después. Los registros ya ocultan los números de serie y las contraseñas.
