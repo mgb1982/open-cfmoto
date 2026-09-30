@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_clock_resync">Resincronitzar el rellotge un cop (Zontes)</string>
+    <string name="setup_clock_resync_desc">Uns 10 s després de la primera connexió de cada arrencada del quadre, talla l\'enllaç un cop i deixa que es torni a connectar, perquè el quadre torni a agafar l\'hora. La imatge parpelleja uns segons. Activat per defecte; només actua en quadres Zontes.</string>
+</resources>

@@ -74,6 +74,18 @@ class EasyConnProber(
         // Heartbeat BOTH :10922 channel sockets — CAR_DATA carries 0x104a0/CHECK_SN and was
         // previously left idle, which is what triggered the ~7s 800NK flap.
         it.onPxcChannelSelected = { sock, label -> startCtrlHeartbeat(sock, label) }
+        it.onResyncRequested = { reason -> forceResync(reason) }
+    }
+
+    /**
+     * Drop every live bike socket on purpose. [onAllConnectionsClosed] then re-probes exactly like
+     * after a dash-side drop, so the bike reconnects on its own (Android Auto keeps running).
+     */
+    private fun forceResync(reason: String) {
+        if (!running) return
+        val socks = synchronized(activeClients) { activeClients.toList() }
+        log("[RESYNC] $reason — closing ${socks.size} bike socket(s); reconnect will re-probe")
+        for (s in socks) try { s.close() } catch (_: Exception) {}
     }
     private val servers = ArrayList<ServerSocket>()
     private var multicastLock: WifiManager.MulticastLock? = null

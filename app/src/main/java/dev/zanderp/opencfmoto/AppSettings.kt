@@ -32,6 +32,7 @@ object AppSettings {
     private const val KEY_CLOCK_LAB_QUERY = "clock_lab_query"
     private const val KEY_CLOCK_LAB_TIMESYNC = "clock_lab_timesync"
     private const val KEY_KEEP_WIFI = "keep_wifi_after_disconnect"
+    private const val KEY_CLOCK_RESYNC = "clock_resync_once"
     private const val KEY_BT_TRIGGER_MAC = "bt_trigger_mac"
     private const val KEY_BT_TRIGGER_NAME = "bt_trigger_name"
 
@@ -126,6 +127,18 @@ object AppSettings {
         ClockLab.keepWifi = on
     }
 
+    /**
+     * Zontes clock resync: once per dash boot, ~10 s after answering QUERY_TIME, drop the PXC link
+     * and let the reconnect path re-probe. Only acts on channel 21340. On by default: in the field it
+     * fixed the ~1-in-4 cold boots that still end at 00:00 / 13:49 and kept good syncs good.
+     * Not in SettingsBackup.
+     */
+    fun clockResync(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_CLOCK_RESYNC, true)
+    fun setClockResync(ctx: Context, on: Boolean) {
+        prefs(ctx).edit().putBoolean(KEY_CLOCK_RESYNC, on).apply()
+        ClockLab.resync = on
+    }
+
     fun anonymousTelemetry(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_ANON_TELEMETRY, true)
     fun setAnonymousTelemetry(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_ANON_TELEMETRY, on).apply()
@@ -164,6 +177,7 @@ object AppSettings {
             bluetoothClockSync(ctx),
             keepWifiAfterDisconnect(ctx),
         )
+        ClockLab.resync = clockResync(ctx)
     }
 }
 

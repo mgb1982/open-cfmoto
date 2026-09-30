@@ -46,6 +46,8 @@ object ClockLab {
     @Volatile var bluetooth: Boolean = false
     /** Stay associated after Stop — some dashes drop the clock when SoftAP/P2P dies. */
     @Volatile var keepWifi: Boolean = false
+    /** Zontes (21340): after the first session of a dash boot, drop + re-probe the PXC link once. */
+    @Volatile var resync: Boolean = true
 
     fun applyFrom(
         query: ClockQueryMode,

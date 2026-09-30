@@ -181,6 +181,8 @@ class SetupActivity : AppCompatActivity() {
         }
         findViewById<MaterialButton>(R.id.keepwifi_on).setOnClickListener { setKeepWifi(true) }
         findViewById<MaterialButton>(R.id.keepwifi_off).setOnClickListener { setKeepWifi(false) }
+        findViewById<MaterialButton>(R.id.clockresync_on).setOnClickListener { setClockResync(true) }
+        findViewById<MaterialButton>(R.id.clockresync_off).setOnClickListener { setClockResync(false) }
         findViewById<MaterialButton>(R.id.logtrips_on).setOnClickListener { setLogTrips(true) }
         findViewById<MaterialButton>(R.id.logtrips_off).setOnClickListener { setLogTrips(false) }
         findViewById<MaterialButton>(R.id.nontouch_on).setOnClickListener { setForceNonTouch(true) }
@@ -408,6 +410,13 @@ class SetupActivity : AppCompatActivity() {
         Toast.makeText(this, "Keep bike Wi-Fi ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
     }
 
+    private fun setClockResync(on: Boolean) {
+        AppSettings.setClockResync(this, on)
+        refreshOptions()
+        LogBus.log("→ clock resync ${if (on) "on" else "off"}")
+        Toast.makeText(this, "Clock resync ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
+    }
+
     private fun setLogTrips(on: Boolean) {
         AppSettings.setLogTrips(this, on)
         refreshOptions()
@@ -582,6 +591,9 @@ class SetupActivity : AppCompatActivity() {
         highlight(AppSettings.keepWifiAfterDisconnect(this),
             R.id.keepwifi_on to true,
             R.id.keepwifi_off to false)
+        highlight(AppSettings.clockResync(this),
+            R.id.clockresync_on to true,
+            R.id.clockresync_off to false)
         highlight(AppSettings.logTrips(this),
             R.id.logtrips_on to true,
             R.id.logtrips_off to false)

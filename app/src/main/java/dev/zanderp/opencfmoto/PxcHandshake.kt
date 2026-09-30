@@ -40,6 +40,12 @@ class PxcHandshake(
     /** The CAR_DATA (P2C, phone→car) and CAR_CTRL (C2P) sockets of the current session. */
     @Volatile private var carDataSocket: Socket? = null
     @Volatile private var carCtrlSocket: Socket? = null
+    /** True once the bike sent CHECK_SN in the current session (= first session of this dash boot). */
+    @Volatile private var checkSnThisSession = false
+    @Volatile private var lastResyncAt = 0L
+
+    /** Asks the prober to drop every bike socket so its reconnect path re-probes (clock resync). */
+    @Volatile var onResyncRequested: ((String) -> Unit)? = null
 
     /**
      * Called when the bike selects a PXC channel on a :10922 socket (CAR_CTRL or CAR_DATA).
@@ -55,6 +61,7 @@ class PxcHandshake(
             PxcFrame.CMD_CHANNEL_CAR_CTRL -> {
                 log("[$tag] bike selected CAR_CTRL (0x10000) → ack 0x10001 ${sockId(socket)}")
                 carCtrlSocket = socket
+                checkSnThisSession = false
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_CTRL + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_CTRL")
             }
@@ -217,6 +224,35 @@ class PxcHandshake(
                     "→ 0x10451 zontes dateTime=${ack.dateTime} currentTime=${ack.currentTime} zone=${ack.timeZone}")
             }
         }
+        maybeScheduleResync(channel)
+    }
+
+    /**
+     * Zontes clock fix, part 3/3 ([ClockLab.resync], on by default). With APPSTATUS + CHECK_SN_RESULT
+     * on P2C the dash takes our time on most cold boots, but ~1 in 4 still ends at 00:00 / 13:49 with
+     * a wire-identical session. A same-boot reconnect (the dash skips CHECK_SN) answers QUERY_TIME
+     * again and fixed every such failure seen, without breaking good syncs. So, only on the first
+     * session of a dash boot, wait a bit and drop the link once (~3 s of dash picture). Never more
+     * than once per [RESYNC_MIN_GAP_MS].
+     */
+    private fun maybeScheduleResync(channel: String) {
+        if (!ClockLab.resync || channel != ZONTES_CHANNEL) return
+        if (!checkSnThisSession) {
+            log("[RESYNC] not needed — dash skipped CHECK_SN (same-boot reconnect)")
+            return
+        }
+        val now = System.currentTimeMillis()
+        if (now - lastResyncAt < RESYNC_MIN_GAP_MS) {
+            log("[RESYNC] skipped — last one ${(now - lastResyncAt) / 1000}s ago")
+            return
+        }
+        lastResyncAt = now
+        log("[RESYNC] first session of this dash boot — dropping the link once in ${RESYNC_DELAY_MS / 1000}s")
+        Thread({
+            try { Thread.sleep(RESYNC_DELAY_MS) } catch (_: InterruptedException) { return@Thread }
+            val cb = onResyncRequested
+            if (cb == null) log("[RESYNC] no prober hook — skipped") else cb("clock resync")
+        }, "pxc-resync").apply { isDaemon = true }.start()
     }
 
     private fun onClientInfo(tag: String, frame: PxcFrame, out: java.io.OutputStream) {
@@ -282,6 +318,9 @@ class PxcHandshake(
          * 0x201c1 on CAR_DATA. Gated to channel 21340; other bikes keep the old path.
          */
         const val CHECK_SN_RESULT_ON_CAR_DATA = true
+        /** Clock resync experiment: wait after QUERY_TIME, and never repeat within the gap. */
+        const val RESYNC_DELAY_MS = 10_000L
+        const val RESYNC_MIN_GAP_MS = 10 * 60_000L
     }
 
     private fun sockId(s: Socket?): String =
@@ -295,6 +334,7 @@ class PxcHandshake(
 
     private fun onCheckSn(tag: String, frame: PxcFrame, socket: Socket) {
         val out = socket.getOutputStream()
+        checkSnThisSession = true
         val text = frame.payload.asText()
         log("[$tag] CHECK_SN from bike on ${chanOf(socket)} ${sockId(socket)}: $text")
         val sn = try { JSONObject(text).optString("sn") } catch (e: Exception) { "" }
@@ -313,7 +353,8 @@ class PxcHandshake(
         val p2c = carDataSocket
         if (CHECK_SN_RESULT_ON_CAR_DATA && zontes && p2c != null && !p2c.isClosed) {
             val where = if (p2c === socket) "CAR_DATA (same socket)" else "CAR_DATA (P2C, like official)"
-            log("[$tag] → CHECK_SN_RESULT via $where ${sockId(p2c)} $result")
+            // Log sn= (not the JSON "id") so LogRedactor masks the dash serial like everywhere else.
+            log("[$tag] → CHECK_SN_RESULT via $where ${sockId(p2c)} isOk=true sn=$sn")
             try {
                 PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(p2c.getOutputStream())
                 return
@@ -323,7 +364,7 @@ class PxcHandshake(
         } else if (CHECK_SN_RESULT_ON_CAR_DATA && zontes) {
             log("[$tag] no open CAR_DATA socket yet — CHECK_SN_RESULT on incoming socket")
         }
-        log("[$tag] → CHECK_SN_RESULT ${result}")
+        log("[$tag] → CHECK_SN_RESULT isOk=true sn=$sn")
         PxcFrame(PxcFrame.CMD_CHECK_SN_RESULT, body).write(out)
     }
 }
