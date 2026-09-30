@@ -38,16 +38,17 @@ jobs:
       - name: Build release APK
         shell: bash
         run: |
-          set -o pipefail
-          ./gradlew assembleRelease 2>&1 | tee release-build.log
-      - name: Surface release build errors
-        if: failure()
-        shell: bash
-        run: |
-          grep -nE "What went wrong|Error:|error:|Lint found|FAILED|\.xml:[0-9]+|\.kt:[0-9]+" release-build.log | head -40 | while IFS= read -r l; do echo "::error::${l:0:900}"; done
-          sed -n '/What went wrong/,+25p' release-build.log | head -30 | while IFS= read -r l; do echo "::error::${l:0:900}"; done
-          f=$(ls app/build/reports/lint-results-*.txt 2>/dev/null | head -1)
-          if [ -n "$f" ]; then head -60 "$f" | grep -E "Error|error" | head -20 | while IFS= read -r l; do echo "::error::LINT ${l:0:900}"; done; fi
+          set +e
+          ./gradlew assembleRelease > release-build.log 2>&1
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            # Annotations are readable through the API even when raw logs are not.
+            grep -E "What went wrong|rror|Lint found|\.xml:[0-9]|\.kt:[0-9]" release-build.log | grep -v "^\s*at " | head -6 \
+              | while IFS= read -r l; do echo "::error::${l:0:900}"; done
+            tail -n 60 release-build.log | cut -c1-200 | paste -sd '~' | fold -w 900 | head -4 \
+              | while IFS= read -r l; do echo "::error::TAIL ${l}"; done
+          fi
+          exit $rc
       - name: Unit tests (fork features)
         run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest'
       - name: Show signing certificate
