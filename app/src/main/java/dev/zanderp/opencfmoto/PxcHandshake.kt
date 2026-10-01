@@ -59,6 +59,8 @@ class PxcHandshake(
 
     /** Dispatch one inbound frame on a given socket (ctrl or media). */
     fun handle(tag: String, frame: PxcFrame, socket: Socket) {
+        // Listen-only telemetry probe (instrument channel / VEHICLEINFO); see TelemetryTap.
+        if (TelemetryTap.handle(tag, frame, socket, log, onPxcChannelSelected)) return
         val out = socket.getOutputStream()
         when (frame.cmd) {
             PxcFrame.CMD_CHANNEL_CAR_CTRL -> {
@@ -110,6 +112,7 @@ class PxcHandshake(
                     log("[$tag] cmd=0x${frame.cmd.toUInt().toString(16)} (${PxcFrame.nameOf(frame.cmd)}) " +
                         "len=${frame.payload.size} ${frame.payload.asText()}")
                 }
+                TelemetryTap.logUnknown(tag, frame, log)
             }
         }
     }
