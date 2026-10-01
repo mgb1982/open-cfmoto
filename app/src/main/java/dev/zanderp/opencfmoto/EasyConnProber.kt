@@ -600,7 +600,7 @@ class EasyConnProber(
     }
 
     private fun JSONProbe(): String =
-        "{\"phoneType\":\"Android\",\"packageName\":\"$SPOOFED_PACKAGE\"}"
+        "{\"phoneType\":\"Android\",\"packageName\":\"${TelemetryTap.identity.pkg}\"}"
 
     private fun spawnAccept(port: Int, server: ServerSocket) =
         thread(name = "ec-accept-$port", isDaemon = true) {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Telemetry experiment. Translated: en, es, ca; other locales fall back to English. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="setup_probe_identity">App identity sent to the dash (telemetry test)</string>
+    <string name="setup_probe_identity_desc">Experimental. Which app OpenCfMoto claims to be when it connects. The dash might only send telemetry (odometer, range, tyre pressure…) to some apps; look for [TELEMETRY] in the log. If the dash stops connecting, go back to CFMoto. Applies from the next Connect.</string>
+    <string name="setup_probe_identity_cfmoto">CFMoto</string>
+    <string name="setup_probe_identity_zontes_intl">Zontes</string>
+    <string name="setup_probe_identity_zontes_cn">Zontes CN</string>
+</resources>

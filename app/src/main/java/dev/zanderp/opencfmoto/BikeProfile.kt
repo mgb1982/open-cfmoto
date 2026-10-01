@@ -293,7 +293,7 @@ private fun basePhoneClientInfo(huid: String?, phoneUuid: String, supportFunctio
         put("phoneModel", Build.MODEL)
         put("phoneOsVersion", Build.VERSION.SDK_INT.toString())
         put("phoneOs", "Android")
-        put("package", EasyConnProber.SPOOFED_PACKAGE)
+        put("package", TelemetryTap.identity.pkg)   // experiment: SPOOFED_PACKAGE unless changed
         put("versionCode", 126)
         put("token", 0)
         put("pubkey", RsaKeys.publicKeyBase64)

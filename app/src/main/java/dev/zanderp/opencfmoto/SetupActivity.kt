@@ -184,6 +184,9 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.clockresync_smart).setOnClickListener { setClockResync(ClockResyncMode.SMART) }
         findViewById<MaterialButton>(R.id.clockresync_once).setOnClickListener { setClockResync(ClockResyncMode.ONCE) }
         findViewById<MaterialButton>(R.id.clockresync_off).setOnClickListener { setClockResync(ClockResyncMode.OFF) }
+        findViewById<MaterialButton>(R.id.probeid_cfmoto).setOnClickListener { setProbeIdentity(ProbeIdentity.CFMOTO) }
+        findViewById<MaterialButton>(R.id.probeid_zontes_intl).setOnClickListener { setProbeIdentity(ProbeIdentity.ZONTES_INTL) }
+        findViewById<MaterialButton>(R.id.probeid_zontes_cn).setOnClickListener { setProbeIdentity(ProbeIdentity.ZONTES_CN) }
         findViewById<MaterialButton>(R.id.logtrips_on).setOnClickListener { setLogTrips(true) }
         findViewById<MaterialButton>(R.id.logtrips_off).setOnClickListener { setLogTrips(false) }
         findViewById<MaterialButton>(R.id.nontouch_on).setOnClickListener { setForceNonTouch(true) }
@@ -411,6 +414,13 @@ class SetupActivity : AppCompatActivity() {
         Toast.makeText(this, "Keep bike Wi-Fi ${if (on) "on" else "off"}", Toast.LENGTH_SHORT).show()
     }
 
+    private fun setProbeIdentity(identity: ProbeIdentity) {
+        AppSettings.setProbeIdentity(this, identity)
+        refreshOptions()
+        LogBus.log("→ probe identity ${identity.id} (${identity.pkg}) — applies from the next Connect")
+        Toast.makeText(this, identity.pkg, Toast.LENGTH_SHORT).show()
+    }
+
     private fun setClockResync(mode: ClockResyncMode) {
         AppSettings.setClockResyncMode(this, mode)
         refreshOptions()
@@ -596,6 +606,10 @@ class SetupActivity : AppCompatActivity() {
             R.id.clockresync_smart to ClockResyncMode.SMART,
             R.id.clockresync_once to ClockResyncMode.ONCE,
             R.id.clockresync_off to ClockResyncMode.OFF)
+        highlight(AppSettings.probeIdentity(this),
+            R.id.probeid_cfmoto to ProbeIdentity.CFMOTO,
+            R.id.probeid_zontes_intl to ProbeIdentity.ZONTES_INTL,
+            R.id.probeid_zontes_cn to ProbeIdentity.ZONTES_CN)
         highlight(AppSettings.logTrips(this),
             R.id.logtrips_on to true,
             R.id.logtrips_off to false)

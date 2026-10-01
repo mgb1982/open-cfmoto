@@ -34,6 +34,7 @@ object AppSettings {
     private const val KEY_KEEP_WIFI = "keep_wifi_after_disconnect"
     private const val KEY_CLOCK_RESYNC = "clock_resync_once"          // legacy boolean (zontes-1)
     private const val KEY_CLOCK_RESYNC_MODE = "clock_resync_mode"
+    private const val KEY_PROBE_IDENTITY = "probe_identity"
     private const val KEY_BT_TRIGGER_MAC = "bt_trigger_mac"
     private const val KEY_BT_TRIGGER_NAME = "bt_trigger_name"
 
@@ -147,6 +148,14 @@ object AppSettings {
         ClockLab.resyncMode = mode
     }
 
+    /** Telemetry experiment: app identity in the mDNS probe + CLIENT_INFO. Default CFMoto (unchanged). */
+    fun probeIdentity(ctx: Context): ProbeIdentity =
+        ProbeIdentity.byId(prefs(ctx).getString(KEY_PROBE_IDENTITY, null))
+    fun setProbeIdentity(ctx: Context, identity: ProbeIdentity) {
+        prefs(ctx).edit().putString(KEY_PROBE_IDENTITY, identity.id).apply()
+        TelemetryTap.identity = identity
+    }
+
     fun anonymousTelemetry(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_ANON_TELEMETRY, true)
     fun setAnonymousTelemetry(ctx: Context, on: Boolean) {
         prefs(ctx).edit().putBoolean(KEY_ANON_TELEMETRY, on).apply()
@@ -186,6 +195,7 @@ object AppSettings {
             keepWifiAfterDisconnect(ctx),
         )
         ClockLab.resyncMode = clockResyncMode(ctx)
+        TelemetryTap.identity = probeIdentity(ctx)
     }
 }
 

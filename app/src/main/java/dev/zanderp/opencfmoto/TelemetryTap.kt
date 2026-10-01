@@ -23,8 +23,26 @@ import java.util.concurrent.ConcurrentHashMap
  * the dash ever opens/sends them, we accept the channel, keep the socket alive and hex-dump what
  * arrives, so the payload format can be worked out. It changes nothing else.
  */
+/**
+ * Which app we claim to be in the mDNS probe and CLIENT_INFO reply. Experiment: the dash may only
+ * open the instrument channel to some apps (Zontes Smart China shows full telemetry).
+ */
+enum class ProbeIdentity(val id: String, val pkg: String) {
+    CFMOTO("cfmoto", "com.cfmoto.cfmotointernational"),   // what OpenCfMoto always sent
+    ZONTES_INTL("zontes_intl", "tayo.com.ZontesIntelligence"),
+    ZONTES_CN("zontes_cn", "com.tayo.msbox"),
+    ;
+
+    companion object {
+        fun byId(id: String?): ProbeIdentity = entries.firstOrNull { it.id == id } ?: CFMOTO
+    }
+}
+
 object TelemetryTap {
     const val ENABLED = true
+
+    /** Set from settings ([AppSettings.probeIdentity]). */
+    @Volatile var identity: ProbeIdentity = ProbeIdentity.CFMOTO
 
     const val CH_MINST_C2P = 0x1070000
     const val CH_MINST_P2C = 0x1060000

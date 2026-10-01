@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_probe_identity">Identidad de la app ante el cuadro (prueba de telemetría)</string>
+    <string name="setup_probe_identity_desc">Experimental. Qué app dice ser OpenCfMoto al conectarse. Puede que el cuadro solo envíe telemetría (odómetro, autonomía, presión de neumáticos…) a algunas apps; busca [TELEMETRY] en el registro. Si el cuadro deja de conectar, vuelve a CFMoto. Se aplica desde el siguiente Conectar.</string>
+    <string name="setup_probe_identity_cfmoto">CFMoto</string>
+    <string name="setup_probe_identity_zontes_intl">Zontes</string>
+    <string name="setup_probe_identity_zontes_cn">Zontes CN</string>
+</resources>
