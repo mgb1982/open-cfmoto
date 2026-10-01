@@ -46,8 +46,8 @@ object ClockLab {
     @Volatile var bluetooth: Boolean = false
     /** Stay associated after Stop — some dashes drop the clock when SoftAP/P2P dies. */
     @Volatile var keepWifi: Boolean = false
-    /** Zontes (21340): after the first session of a dash boot, drop + re-probe the PXC link once. */
-    @Volatile var resync: Boolean = true
+    /** Zontes (21340) clock resync policy — see [ClockResyncMode]. */
+    @Volatile var resyncMode: ClockResyncMode = ClockResyncMode.SMART
 
     fun applyFrom(
         query: ClockQueryMode,
@@ -90,5 +90,24 @@ object ClockLab {
         val bt = if (bluetooth) "on" else "off"
         val kw = if (keepWifi) "on" else "off"
         return "[CLOCK-LAB] query=${query.id} timeSync=${timeSync.id} bt=$bt keepWifi=$kw channel=$ch"
+    }
+}
+
+/**
+ * Zontes (channel 21340) clock resync: drop + re-probe the PXC link so the dash asks QUERY_TIME again.
+ *  - [SMART]: only when the dash asked for the time late (≥ [PxcHandshake.SLOW_QUERY_TIME_MS] after
+ *    picking CAR_CTRL) — in the field every failed sync was a late ask and every early one was fine —
+ *    and retry up to [PxcHandshake.MAX_RESYNCS_PER_BOOT] times per dash boot.
+ *  - [ONCE]: always once, on the first session of each dash boot.
+ *  - [OFF]: never.
+ */
+enum class ClockResyncMode(val id: String) {
+    SMART("smart"),
+    ONCE("once"),
+    OFF("off"),
+    ;
+
+    companion object {
+        fun byId(id: String?): ClockResyncMode = entries.firstOrNull { it.id == id } ?: SMART
     }
 }

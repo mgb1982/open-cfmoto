@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_clock_resync">Resincronitzar el rellotge un cop (Zontes)</string>
-    <string name="setup_clock_resync_desc">Uns 10 s després de la primera connexió de cada arrencada del quadre, talla l\'enllaç un cop i deixa que es torni a connectar, perquè el quadre torni a agafar l\'hora. La imatge parpelleja uns segons. Activat per defecte; només actua en quadres Zontes.</string>
+    <string name="setup_clock_resync">Resincronitzar el rellotge del quadre (Zontes)</string>
+    <string name="setup_clock_resync_desc">Talla l\'enllaç uns segons i torna a connectar perquè el quadre torni a agafar l\'hora. Intel·ligent: només quan el quadre ha demanat l\'hora tard (senyal que ha fallat), fins a 3 vegades. Sempre un cop: a la primera connexió de cada arrencada del quadre. Només actua en quadres Zontes.</string>
+    <string name="setup_clock_resync_smart">Intel·ligent</string>
+    <string name="setup_clock_resync_once">Sempre un cop</string>
 </resources>
