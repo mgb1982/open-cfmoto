@@ -26,6 +26,16 @@ jobs:
       # instead of "app not installed" + uninstall. The key lives in the DEBUG_KEYSTORE_B64 repo
       # secret (base64 JKS, alias androiddebugkey, passwords "android" — what the debugRelease
       # signingConfig and the debug build both read from ~/.android/debug.keystore).
+      - name: Version suffix
+        shell: bash
+        run: |
+          case "$GITHUB_REF" in
+            refs/heads/release/*) S="-zontes${GITHUB_REF_NAME#release/zontes-}" ;;
+            refs/tags/zontes-*)   S="-zontes${GITHUB_REF_NAME#zontes-}" ;;
+            *)                    S="-dev" ;;
+          esac
+          echo "VERSION_SUFFIX=$S" >> "$GITHUB_ENV"
+          echo "versionName suffix: $S"
       - name: Install fixed signing key
         env:
           KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
@@ -42,12 +52,12 @@ jobs:
           fi
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug -PversionSuffix="$VERSION_SUFFIX"
       - name: Build release APK
         shell: bash
         run: |
           set +e
-          ./gradlew assembleRelease > release-build.log 2>&1
+          ./gradlew assembleRelease -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1
           rc=$?
           if [ $rc -ne 0 ]; then
             # Annotations are readable through the API even when raw logs are not.
@@ -87,5 +97,5 @@ jobs:
           make_latest: true
       - uses: actions/upload-artifact@v4
         with:
-          name: opencfmoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
+          name: OpenCfMoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
           path: app/build/outputs/apk/release/*.apk

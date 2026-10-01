@@ -20,7 +20,9 @@ android {
         minSdk = 29
         targetSdk = 36
         versionCode = 77
-        versionName = "2.0.18"
+        // Fork builds: CI passes -PversionSuffix (e.g. "-zontes2" for a release, "-dev" otherwise) so
+        // the About screen and the log's [BUILD] line tell which fork build is installed.
+        versionName = "2.0.18" + ((project.findProperty("versionSuffix") as String?) ?: "")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
