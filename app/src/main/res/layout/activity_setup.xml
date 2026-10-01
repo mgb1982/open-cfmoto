@@ -1706,20 +1706,29 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/clockresync_on"
+                        android:id="@+id/clockresync_smart"
                         style="@style/Widget.OpenCfMoto.Segment"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="3dp"
                         android:layout_weight="1"
-                        android:text="@string/gpx_on" />
+                        android:text="@string/setup_clock_resync_smart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/clockresync_once"
+                        style="@style/Widget.OpenCfMoto.Segment"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="3dp"
+                        android:layout_weight="1"
+                        android:text="@string/setup_clock_resync_once" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/clockresync_off"
                         style="@style/Widget.OpenCfMoto.Segment"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
+                        android:layout_marginStart="3dp"
                         android:layout_weight="1"
                         android:text="@string/res_off" />
                 </LinearLayout>

@@ -42,7 +42,10 @@ class PxcHandshake(
     @Volatile private var carCtrlSocket: Socket? = null
     /** True once the bike sent CHECK_SN in the current session (= first session of this dash boot). */
     @Volatile private var checkSnThisSession = false
-    @Volatile private var lastResyncAt = 0L
+    /** When the bike picked CAR_CTRL in this session — the reference for how late QUERY_TIME comes. */
+    @Volatile private var ctrlSelectedAt = 0L
+    /** Resyncs done in the current dash boot (reset by the CHECK_SN of a new boot). */
+    @Volatile private var resyncsThisBoot = 0
 
     /** Asks the prober to drop every bike socket so its reconnect path re-probes (clock resync). */
     @Volatile var onResyncRequested: ((String) -> Unit)? = null
@@ -62,6 +65,7 @@ class PxcHandshake(
                 log("[$tag] bike selected CAR_CTRL (0x10000) → ack 0x10001 ${sockId(socket)}")
                 carCtrlSocket = socket
                 checkSnThisSession = false
+                ctrlSelectedAt = System.currentTimeMillis()
                 PxcFrame(PxcFrame.CMD_CHANNEL_CAR_CTRL + 1, ByteArray(0)).write(out)
                 onPxcChannelSelected?.invoke(socket, "CAR_CTRL")
             }
@@ -228,26 +232,48 @@ class PxcHandshake(
     }
 
     /**
-     * Zontes clock fix, part 3/3 ([ClockLab.resync], on by default). With APPSTATUS + CHECK_SN_RESULT
-     * on P2C the dash takes our time on most cold boots, but ~1 in 4 still ends at 00:00 / 13:49 with
-     * a wire-identical session. A same-boot reconnect (the dash skips CHECK_SN) answers QUERY_TIME
-     * again and fixed every such failure seen, without breaking good syncs. So, only on the first
-     * session of a dash boot, wait a bit and drop the link once (~3 s of dash picture). Never more
-     * than once per [RESYNC_MIN_GAP_MS].
+     * Zontes clock fix, part 3/3 ([ClockLab.resyncMode], SMART by default). With APPSTATUS +
+     * CHECK_SN_RESULT on P2C the dash takes our time on most sessions, but some still end at 00:00 /
+     * 13:49 with a wire-identical session. Field data (24 sessions, ZT125T-X): every failure was a
+     * session where the dash sent QUERY_TIME late (≥ ~2.0 s after picking CAR_CTRL); every session
+     * that asked before ~1.95 s set the clock. A same-boot reconnect (the dash skips CHECK_SN and
+     * asks again) gets a fresh chance. So SMART drops the link only after a late ask, up to
+     * [MAX_RESYNCS_PER_BOOT] times per dash boot; ONCE keeps the zontes-1 behaviour (always once,
+     * first session of a boot). We answer QUERY_TIME within ~2 ms either way — the lateness is the
+     * dash's; why it then ignores our time is not known.
      */
     private fun maybeScheduleResync(channel: String) {
-        if (!ClockLab.resync || channel != ZONTES_CHANNEL) return
-        if (!checkSnThisSession) {
-            log("[RESYNC] not needed — dash skipped CHECK_SN (same-boot reconnect)")
-            return
+        val mode = ClockLab.resyncMode
+        if (mode == ClockResyncMode.OFF || channel != ZONTES_CHANNEL) return
+        val askedAfterMs = if (ctrlSelectedAt > 0) System.currentTimeMillis() - ctrlSelectedAt else -1L
+        val slow = askedAfterMs >= SLOW_QUERY_TIME_MS
+        val reason: String = when (mode) {
+            ClockResyncMode.ONCE -> {
+                if (!checkSnThisSession) {
+                    log("[RESYNC] once: not needed — dash skipped CHECK_SN (same-boot reconnect), " +
+                        "QUERY_TIME after ${askedAfterMs}ms")
+                    return
+                }
+                "once: first session of this dash boot (QUERY_TIME after ${askedAfterMs}ms)"
+            }
+            else -> {
+                if (!slow) {
+                    log("[RESYNC] smart: QUERY_TIME after ${askedAfterMs}ms (< ${SLOW_QUERY_TIME_MS}ms) — " +
+                        "looks good, no resync")
+                    return
+                }
+                if (resyncsThisBoot >= MAX_RESYNCS_PER_BOOT) {
+                    log("[RESYNC] smart: QUERY_TIME after ${askedAfterMs}ms but already resynced " +
+                        "$resyncsThisBoot× this dash boot — giving up (Stop + Connect by hand)")
+                    return
+                }
+                "smart: QUERY_TIME after ${askedAfterMs}ms (≥ ${SLOW_QUERY_TIME_MS}ms) — " +
+                    "resync ${resyncsThisBoot + 1}/$MAX_RESYNCS_PER_BOOT"
+            }
         }
-        val now = System.currentTimeMillis()
-        if (now - lastResyncAt < RESYNC_MIN_GAP_MS) {
-            log("[RESYNC] skipped — last one ${(now - lastResyncAt) / 1000}s ago")
-            return
-        }
-        lastResyncAt = now
-        log("[RESYNC] first session of this dash boot — dropping the link once in ${RESYNC_DELAY_MS / 1000}s")
+        if (mode == ClockResyncMode.ONCE && resyncsThisBoot >= 1) return
+        resyncsThisBoot++
+        log("[RESYNC] $reason — dropping the link in ${RESYNC_DELAY_MS / 1000}s")
         Thread({
             try { Thread.sleep(RESYNC_DELAY_MS) } catch (_: InterruptedException) { return@Thread }
             val cb = onResyncRequested
@@ -318,9 +344,11 @@ class PxcHandshake(
          * 0x201c1 on CAR_DATA. Gated to channel 21340; other bikes keep the old path.
          */
         const val CHECK_SN_RESULT_ON_CAR_DATA = true
-        /** Clock resync experiment: wait after QUERY_TIME, and never repeat within the gap. */
+        /** Clock resync: wait after QUERY_TIME before dropping the link. */
         const val RESYNC_DELAY_MS = 10_000L
-        const val RESYNC_MIN_GAP_MS = 10 * 60_000L
+        /** SMART resync: a QUERY_TIME this long after CAR_CTRL marks a session likely to have failed. */
+        const val SLOW_QUERY_TIME_MS = 1_950L
+        const val MAX_RESYNCS_PER_BOOT = 3
     }
 
     private fun sockId(s: Socket?): String =
@@ -335,6 +363,7 @@ class PxcHandshake(
     private fun onCheckSn(tag: String, frame: PxcFrame, socket: Socket) {
         val out = socket.getOutputStream()
         checkSnThisSession = true
+        resyncsThisBoot = 0
         val text = frame.payload.asText()
         log("[$tag] CHECK_SN from bike on ${chanOf(socket)} ${sockId(socket)}: $text")
         val sn = try { JSONObject(text).optString("sn") } catch (e: Exception) { "" }
