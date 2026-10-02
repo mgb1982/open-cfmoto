@@ -68,7 +68,7 @@ jobs:
           fi
           exit $rc
       - name: Unit tests (fork features)
-        run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest'
+        run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest'
       - name: Show signing certificate
         run: |
           APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
