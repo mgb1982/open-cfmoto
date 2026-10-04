@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="status_no_phone">Sin datos del móvil</string>
+    <string name="status_streaming">● Conectado al cuadro</string>
+    <string name="status_reconnecting">● Reconectando…</string>
+    <string name="status_idle">Sin viaje en curso</string>
+    <string name="label_dist">km</string>
+    <string name="label_time">en marcha</string>
+    <string name="label_max">máx km/h</string>
+    <string name="label_avg">media km/h</string>
+    <string name="hint_logging_off">El registro de viajes está desactivado en el móvil</string>
+    <string name="channel_ride">Viaje en curso</string>
+    <string name="ride_active">Viaje en curso — toca para ver los datos</string>
+</resources>

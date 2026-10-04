@@ -15,6 +15,11 @@ protobuf = "3.25.1"
 conscrypt = "2.5.3"
 osmdroid = "6.1.20"
 maplibre = "13.3.1"
+playWearable = "19.0.0"
+wear = "1.3.0"
+wearOngoing = "1.0.0"
+viewpager2 = "1.1.0"
+recyclerview = "1.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +41,11 @@ osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "o
 maplibre = { group = "org.maplibre.gl", name = "android-sdk-opengl", version.ref = "maplibre" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playWearable" }
+androidx-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
+androidx-wear-ongoing = { group = "androidx.wear", name = "wear-ongoing", version.ref = "wearOngoing" }
+androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

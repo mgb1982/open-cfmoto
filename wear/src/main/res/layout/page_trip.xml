@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="30dp"
+    android:paddingTop="18dp"
+    android:paddingEnd="30dp"
+    android:paddingBottom="18dp">
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="@string/status_no_phone"
+        android:textColor="#9E9E9E"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-4dp"
+        android:fontFamily="sans-serif-condensed"
+        android:includeFontPadding="false"
+        android:text="--"
+        android:textColor="#FFFFFF"
+        android:textSize="56sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_speed_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-2dp"
+        android:text="@string/unit_kmh"
+        android:textColor="#9E9E9E"
+        android:textSize="11sp" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:columnCount="2">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="2dp">
+            <TextView
+                android:id="@+id/tv_dist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="--"
+                android:textColor="#4FC3F7"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_dist"
+                android:textColor="#9E9E9E"
+                android:textSize="10sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="2dp">
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="--"
+                android:textColor="#4FC3F7"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_time"
+                android:textColor="#9E9E9E"
+                android:textSize="10sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="2dp">
+            <TextView
+                android:id="@+id/tv_max"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="--"
+                android:textColor="#4FC3F7"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_max"
+                android:textColor="#9E9E9E"
+                android:textSize="10sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_columnWeight="1"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingTop="2dp">
+            <TextView
+                android:id="@+id/tv_avg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-condensed"
+                android:text="--"
+                android:textColor="#4FC3F7"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_avg"
+                android:textColor="#9E9E9E"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </GridLayout>
+
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/hint_logging_off"
+        android:textColor="#FFB300"
+        android:textSize="10sp"
+        android:visibility="gone" />
+</LinearLayout>

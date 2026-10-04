@@ -75,6 +75,9 @@ jobs:
           echo "$APK"
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BT/apksigner" verify --print-certs "$APK" | grep -i 'SHA-256' | head -1 || true
+          WAPK=$(find wear/build/outputs/apk/release -name '*.apk' | head -1)
+          echo "wear: $WAPK"
+          "$BT/apksigner" verify --print-certs "$WAPK" | grep -i 'SHA-256' | head -1 || true
       - name: Prepare release APK
         id: rel
         if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/release/')
@@ -84,6 +87,9 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           mkdir -p dist
           cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" "dist/OpenCfMoto-Zontes-$TAG.apk"
+          # Optional Wear OS companion (install on the watch, not the phone).
+          W="$(find wear/build/outputs/apk/release -name '*.apk' | head -1)"
+          [ -n "$W" ] && cp "$W" "dist/OpenCfMoto-Zontes-$TAG-RELOJ-WearOS.apk"
       - name: Create release
         if: steps.rel.outputs.tag != ''
         uses: softprops/action-gh-release@v2
@@ -99,3 +105,7 @@ jobs:
         with:
           name: OpenCfMoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
           path: app/build/outputs/apk/release/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OpenCfMoto-WearOS-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
+          path: wear/build/outputs/apk/release/*.apk

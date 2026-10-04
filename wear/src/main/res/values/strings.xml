@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenCfMoto</string>
+    <string name="status_no_phone">No data from phone</string>
+    <string name="status_streaming">● Connected to dash</string>
+    <string name="status_reconnecting">● Reconnecting…</string>
+    <string name="status_idle">Not riding</string>
+    <string name="unit_kmh">km/h</string>
+    <string name="label_dist">km</string>
+    <string name="label_time">moving</string>
+    <string name="label_max">max km/h</string>
+    <string name="label_avg">avg km/h</string>
+    <string name="hint_logging_off">Trip logging is off on the phone</string>
+    <string name="btn_ok">OK</string>
+    <string name="channel_ride">Ride in progress</string>
+    <string name="ride_active">Ride in progress — tap for trip data</string>
+</resources>

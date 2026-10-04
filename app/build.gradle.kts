@@ -108,6 +108,8 @@ dependencies {
     implementation(libs.conscrypt.android)
     implementation(libs.osmdroid)
     implementation(libs.maplibre)
+    // Wear OS companion link (module :wear).
+    implementation(libs.play.services.wearable)
     // Compile-time OkHttp for MapLibre cellular pin (MapLibre brings it as runtime only).
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation(libs.junit)

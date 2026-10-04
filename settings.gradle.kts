@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Open CfMoto"
 include(":app")
+include(":wear")
  

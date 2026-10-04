@@ -130,6 +130,7 @@ class AndroidAutoService : Service() {
     private fun tickTripLogging() {
         TripAutoLog.sync(this)
         SpeedVolume.sync(this)
+        WearBridge.sync(this)
     }
 
     private fun tickWatchdog() {
@@ -207,6 +208,7 @@ class AndroidAutoService : Service() {
         // Don't bank the trip if the map HUD is still live — [TripAutoLog] keeps recording.
         try { TripAutoLog.sync(this) } catch (_: Exception) {}
         try { SpeedVolume.sync(this) } catch (_: Exception) {}
+        try { WearBridge.sync(this) } catch (_: Exception) {}
         try { BikeLink.prober?.stop() } catch (_: Exception) {}
         try { mediaButtons?.stop() } catch (_: Exception) {}
         mediaButtons = null
@@ -654,6 +656,7 @@ class AndroidAutoService : Service() {
         // Bank the trip unless the map UI is still bound (phone preview); onDestroy syncs again.
         try { TripAutoLog.sync(this) } catch (_: Exception) {}
         try { SpeedVolume.sync(this) } catch (_: Exception) {}
+        try { WearBridge.sync(this) } catch (_: Exception) {}
         stopSelf()   // onDestroy tears down the receiver, pipeline, and wake lock
     }
 
@@ -674,6 +677,7 @@ class AndroidAutoService : Service() {
         watchdogHandler.removeCallbacksAndMessages(null)
         try { TripAutoLog.sync(this) } catch (_: Exception) {}
         try { SpeedVolume.sync(this) } catch (_: Exception) {}
+        try { WearBridge.sync(this) } catch (_: Exception) {}
         try { mediaButtons?.stop() } catch (_: Exception) {}
         mediaButtons = null
         try { receiver?.stop() } catch (_: Exception) {}
