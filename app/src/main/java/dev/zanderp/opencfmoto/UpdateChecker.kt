@@ -15,7 +15,12 @@ import java.net.URL
  */
 object UpdateChecker {
 
-    const val REPO = "zanderp/open-cfmoto"
+    /**
+     * Zontes fork: releases are published as zontes-N on this repo and signed with the fork's key,
+     * so an upstream (zanderp) APK can't install over it — never offer one. Fork builds compare the
+     * zontes number (versionName "2.0.18-zontesN"); "-dev" builds only see releases on a manual check.
+     */
+    const val REPO = "mgb1982/open-cfmoto"
 
     private const val API = "https://api.github.com/repos/$REPO/releases/latest"
     private const val PREF = "updates"
@@ -37,7 +42,9 @@ object UpdateChecker {
         if (!manual && !dueForCheck(context)) return null
         val release = fetch() ?: return null
         markChecked(context)
-        if (!isNewer(release.version, BuildConfig.VERSION_NAME)) return null
+        val newer = isNewerFork(release.version, BuildConfig.VERSION_NAME, manual)
+            ?: isNewer(release.version, BuildConfig.VERSION_NAME)
+        if (!newer) return null
         if (!manual && release.version == skipped(context)) return null
         return release
     }
@@ -75,6 +82,20 @@ object UpdateChecker {
         }
     } catch (_: Exception) {
         null
+    }
+
+    /**
+     * Fork versioning: tag "zontes-N" vs versionName "...-zontesM". Null when the tag isn't a fork
+     * release (fall back to [isNewer]). A "-dev" build is never nagged automatically; on a manual
+     * check it is offered the latest release.
+     */
+    internal fun isNewerFork(latestTag: String, currentVersion: String, manual: Boolean): Boolean? {
+        val latest = Regex("zontes-?(\\d+)", RegexOption.IGNORE_CASE).find(latestTag)
+            ?.groupValues?.get(1)?.toIntOrNull() ?: return null
+        val current = Regex("zontes(\\d+)", RegexOption.IGNORE_CASE).find(currentVersion)
+            ?.groupValues?.get(1)?.toIntOrNull()
+            ?: return manual
+        return latest > current
     }
 
     internal fun isNewer(latest: String, current: String): Boolean {
