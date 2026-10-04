@@ -71,13 +71,12 @@ jobs:
         run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest'
       - name: Show signing certificate
         run: |
-          APK=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
-          echo "$APK"
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          "$BT/apksigner" verify --print-certs "$APK" | grep -i 'SHA-256' | head -1 || true
-          WAPK=$(find wear/build/outputs/apk/release -name '*.apk' | head -1)
-          echo "wear: $WAPK"
-          "$BT/apksigner" verify --print-certs "$WAPK" | grep -i 'SHA-256' | head -1 || true
+          for APK in $(find app/build/outputs/apk/release wear/build/outputs/apk/release -name '*.apk'); do
+            CERT=$("$BT/apksigner" verify --print-certs "$APK" | grep -i 'SHA-256' | head -1 | awk '{print $NF}')
+            PKG=$("$BT/aapt2" dump badging "$APK" | head -1 | cut -c1-160)
+            echo "::notice::$(basename "$APK") cert=${CERT:0:23}… $PKG"
+          done
       - name: Prepare release APK
         id: rel
         if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/release/')
