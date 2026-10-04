@@ -228,6 +228,10 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             R.id.btn_home to PhoneLink.KEY_HOME,
             R.id.btn_assistant to PhoneLink.KEY_ASSISTANT,
         )
+        v.findViewById<View>(R.id.btn_trip).setOnClickListener { b ->
+            b.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+            pager.currentItem = 0
+        }
         for ((id, code) in keys) {
             v.findViewById<View>(id).setOnClickListener { b ->
                 b.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
