@@ -42,7 +42,8 @@ import kotlin.math.pow
  * covers the view sharply, the phone is asked for a new one. Swipe-to-dismiss is off (it would fight
  * panning): the back button closes, or a fast fling right while fully zoomed out.
  */
-class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
+class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener,
+    com.google.android.gms.wearable.MessageClient.OnMessageReceivedListener {
 
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var image: ImageView
@@ -128,11 +129,13 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     override fun onResume() {
         super.onResume()
         Wearable.getDataClient(this).addListener(this)
+        Wearable.getMessageClient(this).addListener(this)
         if (bmp == null) request()
     }
 
     override fun onPause() {
         Wearable.getDataClient(this).removeListener(this)
+        Wearable.getMessageClient(this).removeListener(this)
         handler.removeCallbacksAndMessages(null)
         super.onPause()
     }
@@ -233,18 +236,30 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             Wearable.getDataClient(this).getFdForAsset(asset).addOnSuccessListener { resp ->
                 Thread({
                     val bytes = try { resp.inputStream.use { it.readBytes() } } catch (_: Exception) { null }
-                    if (bytes != null) {
-                        // Track-only fallbacks (phone offline) aren't cached, so the map comes later.
-                        if (withMap && key == WearKeys.OVERVIEW) {
-                            try { WearKeys.overviewFile(this, tripId).writeBytes(bytes) } catch (_: Exception) {}
-                        }
-                        val b = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                        if (b != null) runOnUiThread {
-                            if (key == pendingKey) showBitmap(b, params.first, params.second, params.third)
-                        }
-                    }
+                    if (bytes != null) onImage(key, withMap, bytes, params)
                 }, "tripmap-read").start()
             }
+        }
+    }
+
+    /** Fast path: the image as a direct message, "<json header>\n<image bytes>". */
+    override fun onMessageReceived(event: com.google.android.gms.wearable.MessageEvent) {
+        if (event.path != PhoneLink.PATH_TRIPIMG) return
+        val img = WearKeys.parseImageMessage(event.data) ?: return
+        if (img.tripId != tripId) return
+        val params = pendingParams[img.key] ?: return
+        Thread({ onImage(img.key, img.withMap, img.bytes, params) }, "tripmap-msg").start()
+    }
+
+    /** Off the main thread: cache the overview, decode, show if it's still the one we want. */
+    private fun onImage(key: String, withMap: Boolean, bytes: ByteArray, params: Triple<Double, Double, Double>) {
+        // Track-only fallbacks (phone offline) aren't cached, so the map comes later.
+        if (withMap && key == WearKeys.OVERVIEW) {
+            try { WearKeys.overviewFile(this, tripId).writeBytes(bytes) } catch (_: Exception) {}
+        }
+        val b = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return
+        runOnUiThread {
+            if (key == pendingKey) showBitmap(b, params.first, params.second, params.third)
         }
     }
 
@@ -295,5 +310,18 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
 /** Shared by the map screen and the background listener that stores pre-rendered overviews. */
 object WearKeys {
     const val OVERVIEW = "overview"
+
+    class ImageMessage(val tripId: String, val key: String, val withMap: Boolean, val bytes: ByteArray)
+
+    fun parseImageMessage(data: ByteArray): ImageMessage? {
+        val nl = data.indexOf('\n'.code.toByte())
+        if (nl <= 0) return null
+        return try {
+            val h = JSONObject(String(data, 0, nl, Charsets.UTF_8))
+            ImageMessage(h.optString("id"), h.optString("key"), h.optBoolean("withMap"), data.copyOfRange(nl + 1, data.size))
+        } catch (_: Exception) {
+            null
+        }
+    }
     fun overviewFile(ctx: Context, tripId: String) = File(ctx.cacheDir, "tripmap3_${tripId}_overview.img")
 }

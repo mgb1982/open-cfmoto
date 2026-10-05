@@ -24,6 +24,7 @@ object PhoneLink {
     const val PATH_SESSION = "/ocm/session"
     const val PATH_TRIPS = "/ocm/trips"
     const val PATH_TRIPMAP = "/ocm/tripmap"
+    const val PATH_TRIPIMG = "/ocm/tripimg"
 
     // Same values as AaInput.KEY_* in the phone app (Android keycodes).
     const val KEY_UP = 19
@@ -183,6 +184,14 @@ class SessionListenerService : WearableListenerService() {
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        if (messageEvent.path == PhoneLink.PATH_TRIPIMG) {
+            // Pre-rendered overview arriving while no map screen is open: keep it for the first tap.
+            val img = WearKeys.parseImageMessage(messageEvent.data) ?: return
+            if (img.key == WearKeys.OVERVIEW && img.withMap) {
+                try { WearKeys.overviewFile(this, img.tripId).writeBytes(img.bytes) } catch (_: Exception) {}
+            }
+            return
+        }
         if (messageEvent.path != PhoneLink.PATH_SESSION) return
         PhoneLink.rememberPhone(messageEvent.sourceNodeId)
         when (String(messageEvent.data, Charsets.UTF_8).trim()) {
