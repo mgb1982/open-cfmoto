@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Round-screen D-pad: a cross around OK, small shortcuts on the diagonals, all inside a 200dp
+<!-- Plain TextViews, not Buttons: the watch's Button style left-aligns its label.
+     Round-screen D-pad: a cross around OK, small shortcuts on the diagonals, all inside a 200dp
      square centred on the screen so nothing reaches the curved edge. -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -10,81 +11,86 @@
     android:layout_height="200dp"
     android:layout_gravity="center">
 
-    <Button
+    <TextView
         android:id="@+id/btn_ok"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="center"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="@string/btn_ok"
         android:textColor="#FFFFFF"
         android:textSize="15sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_up"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="15dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="▲"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_down"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="15dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="▼"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_left"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="start|center_vertical"
         android:layout_marginStart="15dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="◀"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_right"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_gravity="end|center_vertical"
         android:layout_marginEnd="15dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="▶"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_back"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -92,15 +98,16 @@
         android:layout_marginTop="28dp"
         android:layout_marginStart="28dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="↩"
         android:textColor="#FFFFFF"
         android:textSize="16sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_home"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -108,15 +115,16 @@
         android:layout_marginTop="28dp"
         android:layout_marginEnd="28dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="⌂"
         android:textColor="#FFFFFF"
         android:textSize="18sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_assistant"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -124,15 +132,16 @@
         android:layout_marginBottom="28dp"
         android:layout_marginStart="28dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="🎤"
         android:textColor="#FFFFFF"
         android:textSize="15sp" />
 
-    <Button
+    <TextView
         android:id="@+id/btn_trip"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -140,10 +149,11 @@
         android:layout_marginBottom="28dp"
         android:layout_marginEnd="28dp"
         android:background="@drawable/btn_round"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
+        android:clickable="true"
+        android:focusable="false"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:padding="0dp"
-        android:stateListAnimator="@null"
         android:text="📊"
         android:textColor="#FFFFFF"
         android:textSize="15sp" />
