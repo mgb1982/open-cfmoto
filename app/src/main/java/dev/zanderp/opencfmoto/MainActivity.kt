@@ -860,7 +860,9 @@ class MainActivity : AppCompatActivity() {
 
     /** Update the big status header + Connect button label from a [ConnectionState] transition. */
     private fun renderStatus(phase: Phase, detail: String) {
-        statusView.text = getString(phase.labelRes)
+        statusView.text = getString(phase.labelRes) +
+            if (ClockLab.resyncInProgress() && phase != Phase.STOPPED && phase != Phase.IDLE)
+                " · " + getString(R.string.clock_resyncing) else ""
         bikeView.text = if (detail.isNotBlank()) detail else bikeLabelText()
         if (phase == Phase.ERROR && detail.isNotBlank() && !isHusConnectNoise(detail)) {
             try {

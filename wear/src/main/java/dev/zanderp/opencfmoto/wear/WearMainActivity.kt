@@ -165,7 +165,11 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
                 status.setText(R.string.status_no_phone)
                 status.setTextColor(if (ambient) Color.WHITE else COLOR_GREY)
             }
-            s!!.phase == "STREAMING" -> {
+            s!!.clockResync -> {
+                status.setText(R.string.status_clock_resync)
+                status.setTextColor(if (ambient) Color.WHITE else COLOR_AMBER)
+            }
+            s.phase == "STREAMING" -> {
                 status.setText(R.string.status_streaming)
                 status.setTextColor(if (ambient) Color.WHITE else COLOR_GREEN)
             }

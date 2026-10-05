@@ -121,6 +121,7 @@ data class RideStats(
     val volume: Int?,
     val volumeMax: Int?,
     val boost: Int,
+    val clockResync: Boolean,
 ) {
     companion object {
         fun parse(json: String): RideStats? = try {
@@ -146,6 +147,7 @@ data class RideStats(
                 volume = if (o.has("vol")) o.optInt("vol") else null,
                 volumeMax = if (o.has("volMax")) o.optInt("volMax") else null,
                 boost = o.optInt("boost", -1),
+                clockResync = o.optBoolean("clk"),
             )
         } catch (_: Exception) {
             null

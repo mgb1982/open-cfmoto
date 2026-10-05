@@ -49,6 +49,10 @@ object ClockLab {
     /** Zontes (21340) clock resync policy — see [ClockResyncMode]. */
     @Volatile var resyncMode: ClockResyncMode = ClockResyncMode.SMART
 
+    /** elapsedRealtime deadline while a dash-clock resync is pending or reconnecting (UI hint). */
+    @Volatile var resyncBusyUntil: Long = 0L
+    fun resyncInProgress(): Boolean = android.os.SystemClock.elapsedRealtime() < resyncBusyUntil
+
     fun applyFrom(
         query: ClockQueryMode,
         timeSync: ClockTimeSyncMode,

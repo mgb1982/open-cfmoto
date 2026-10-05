@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="setup_clock_resync">Resincronizar el reloj del cuadro (Zontes)</string>
-    <string name="setup_clock_resync_desc">Corta el enlace unos segundos y vuelve a conectar para que el cuadro tome la hora de nuevo. Inteligente: solo cuando el cuadro ha pedido la hora tarde (señal de que ha fallado), hasta 3 veces. Siempre una vez: en la primera conexión de cada arranque del cuadro. Solo actúa en cuadros Zontes.</string>
-    <string name="setup_clock_resync_smart">Inteligente</string>
-    <string name="setup_clock_resync_once">Siempre una vez</string>
+    <string name="clock_resyncing">⏱ Ajustando hora del cuadro…</string>
 </resources>

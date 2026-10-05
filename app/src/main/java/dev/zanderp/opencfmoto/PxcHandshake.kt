@@ -245,6 +245,9 @@ class PxcHandshake(
     private fun maybeScheduleResync(channel: String) {
         val mode = ClockLab.resyncMode
         if (mode == ClockResyncMode.OFF || channel != ZONTES_CHANNEL) return
+        // A fresh QUERY_TIME answer ends any "adjusting the dash clock" hint from the last session.
+        ClockLab.resyncBusyUntil = 0L
+        ConnectionState.refresh()
         val askedAfterMs = if (ctrlSelectedAt > 0) System.currentTimeMillis() - ctrlSelectedAt else -1L
         val slow = askedAfterMs >= SLOW_QUERY_TIME_MS
         val reason: String = when (mode) {
@@ -273,6 +276,10 @@ class PxcHandshake(
         }
         if (mode == ClockResyncMode.ONCE && resyncsThisBoot >= 1) return
         resyncsThisBoot++
+        // Show "adjusting dash clock…" (phone + watch) until the reconnect answers QUERY_TIME again,
+        // so the rider doesn't Stop/Connect by hand while it happens.
+        ClockLab.resyncBusyUntil = android.os.SystemClock.elapsedRealtime() + RESYNC_DELAY_MS + RESYNC_BUSY_GRACE_MS
+        ConnectionState.refresh()
         log("[RESYNC] $reason — dropping the link in ${RESYNC_DELAY_MS / 1000}s")
         Thread({
             try { Thread.sleep(RESYNC_DELAY_MS) } catch (_: InterruptedException) { return@Thread }
@@ -344,8 +351,11 @@ class PxcHandshake(
          * 0x201c1 on CAR_DATA. Gated to channel 21340; other bikes keep the old path.
          */
         const val CHECK_SN_RESULT_ON_CAR_DATA = true
-        /** Clock resync: wait after QUERY_TIME before dropping the link. */
-        const val RESYNC_DELAY_MS = 10_000L
+        /** Clock resync: wait after QUERY_TIME before dropping the link. Was 10 s (arbitrary); at
+         *  10 s riders saw 00:00 and reconnected by hand first, so try 3 s (field test Oct 2026). */
+        const val RESYNC_DELAY_MS = 3_000L
+        /** How long after the drop the "adjusting clock" hint may stay up waiting for the reconnect. */
+        const val RESYNC_BUSY_GRACE_MS = 12_000L
         /** SMART resync: a QUERY_TIME this long after CAR_CTRL marks a session likely to have failed. */
         const val SLOW_QUERY_TIME_MS = 1_950L
         const val MAX_RESYNCS_PER_BOOT = 3

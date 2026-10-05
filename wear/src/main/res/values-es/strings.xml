@@ -17,4 +17,5 @@
     <string name="label_gps">GPS ±m</string>
     <string name="label_battery">móvil</string>
     <string name="label_volume">volumen</string>
+    <string name="status_clock_resync">⏱ Ajustando hora…</string>
 </resources>

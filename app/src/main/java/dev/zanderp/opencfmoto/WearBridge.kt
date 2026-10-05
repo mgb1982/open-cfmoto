@@ -124,6 +124,7 @@ object WearBridge {
         o.put("avg", if (movH > 0.0) (s!!.distanceMeters / 1000.0) / movH else 0.0)
         o.put("el", if (sessionActive) SystemClock.elapsedRealtime() - sessionStartedAt else 0L)
         o.put("acc", s?.accuracyM ?: 0)
+        o.put("clk", ClockLab.resyncInProgress())
         putInfo(ctx, o)
         return o.toString()
     }

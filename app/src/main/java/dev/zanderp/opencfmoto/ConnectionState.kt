@@ -56,4 +56,12 @@ object ConnectionState {
         } catch (_: Exception) {
         }
     }
+
+    /** Re-notify the observer without a transition (e.g. the clock-resync hint changed). */
+    fun refresh() {
+        try {
+            listener?.invoke(phase, detail)
+        } catch (_: Exception) {
+        }
+    }
 }
