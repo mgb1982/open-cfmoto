@@ -690,6 +690,7 @@ class MainActivity : AppCompatActivity() {
         // The active bike (and its name) may have changed in the Garage — reflect it on the label and
         // the Connect button.
         refreshBikeLabel()
+        refreshHero()
         renderStatus(ConnectionState.phase, ConnectionState.detail)
         if (WifiGate.isWifiEnabled(this)) WifiGate.cancelNotification(this)
         // Retry auto-connect on resume: after finishing first-run setup, or once the bike's Wi-Fi
@@ -856,6 +857,30 @@ class MainActivity : AppCompatActivity() {
         if (detail == getString(R.string.conn_detail_aa_not_started)) return true
         val d = detail.lowercase()
         return d.contains("head unit server") || d.contains("start head unit")
+    }
+
+    /** Visual test: the active bike's Garage photo as a hero card (hidden when it has none). */
+    private fun refreshHero() {
+        val card = findViewById<View?>(R.id.hero_card) ?: return
+        val bike = BikeMemory.selected(this)
+        val path = bike?.photoPath
+        val bmp = path?.let { p ->
+            runCatching {
+                val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                android.graphics.BitmapFactory.decodeFile(p, bounds)
+                var sample = 1
+                while (bounds.outWidth / (sample * 2) >= 1080) sample *= 2
+                android.graphics.BitmapFactory.decodeFile(p, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+            }.getOrNull()
+        }
+        if (bike == null || bmp == null) {
+            card.visibility = View.GONE
+            return
+        }
+        findViewById<android.widget.ImageView>(R.id.hero_photo).setImageBitmap(bmp)
+        findViewById<TextView>(R.id.hero_name).text = bike.name
+        findViewById<TextView>(R.id.hero_sub).text = bike.qr?.ssid ?: ""
+        card.visibility = View.VISIBLE
     }
 
     /** Update the big status header + Connect button label from a [ConnectionState] transition. */

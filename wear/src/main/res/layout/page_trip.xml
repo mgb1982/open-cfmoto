@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="19sp"
                 android:textStyle="bold" />
             <TextView
@@ -81,7 +81,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="19sp"
                 android:textStyle="bold" />
             <TextView
@@ -104,7 +104,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="19sp"
                 android:textStyle="bold" />
             <TextView
@@ -127,7 +127,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-condensed"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="19sp"
                 android:textStyle="bold" />
             <TextView

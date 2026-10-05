@@ -3,24 +3,27 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- Brand: CFMoto-inspired sport orange on a dark "cockpit" surface. -->
-    <color name="brand_orange">#FF6A2C</color>
-    <color name="brand_orange_dark">#E85A1E</color>
-    <color name="on_brand">#FFFFFF</color>
+    <!-- Visual test "verde mate": matte green ground, gold accents like the ZT125T-X's stock
+         decals. The accent keeps its old resource name (brand_orange) so every screen that tints
+         with it follows without touching code. -->
+    <color name="brand_orange">#D1A955</color>
+    <color name="brand_orange_dark">#A9873E</color>
+    <color name="on_brand">#18211A</color>
+    <color name="brand_gold">#D1A955</color>
 
-    <!-- Dark surfaces -->
-    <color name="bg">#0E1116</color>
-    <color name="surface">#171B22</color>
-    <color name="surface_high">#1F242E</color>
-    <color name="outline">#2C333F</color>
+    <!-- Matte green surfaces -->
+    <color name="bg">#1A231D</color>
+    <color name="surface">#243028</color>
+    <color name="surface_high">#2D3B31</color>
+    <color name="outline">#3D4F42</color>
 
     <!-- Text -->
-    <color name="text_primary">#F2F5FA</color>
-    <color name="text_secondary">#9AA4B2</color>
+    <color name="text_primary">#F1F4EC</color>
+    <color name="text_secondary">#AEBAAA</color>
 
     <!-- Status semantics -->
-    <color name="status_live">#34C759</color>
-    <color name="status_busy">#FFB020</color>
-    <color name="status_error">#FF5A52</color>
-    <color name="status_idle">#8A93A3</color>
+    <color name="status_live">#5BD47A</color>
+    <color name="status_busy">#E9C46A</color>
+    <color name="status_error">#FF6B5E</color>
+    <color name="status_idle">#8E9C90</color>
 </resources>

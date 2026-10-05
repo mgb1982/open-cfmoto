@@ -41,7 +41,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -66,7 +66,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -91,7 +91,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -116,7 +116,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -141,7 +141,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -166,7 +166,7 @@
                 android:fontFamily="sans-serif-condensed"
                 android:maxLines="1"
                 android:text="--"
-                android:textColor="#4FC3F7"
+                android:textColor="#D1A955"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView

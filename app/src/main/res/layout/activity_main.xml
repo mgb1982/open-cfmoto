@@ -37,10 +37,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.01"
+                android:fontFamily="@font/archivo_black"
                 android:text="OpenCfMoto"
                 android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/brand_version"
@@ -68,6 +68,61 @@
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
             android:paddingBottom="16dp">
+
+            <!-- Visual test: the active bike's Garage photo as a hero, name in gold. Hidden without a photo. -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hero_card"
+                style="@style/Card.OpenCfMoto"
+                android:layout_width="match_parent"
+                android:layout_height="190dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"
+                app:contentPadding="0dp">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/hero_photo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="110dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_hero_scrim" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
+                        android:layout_margin="18dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/hero_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/archivo_black"
+                            android:maxLines="1"
+                            android:textColor="@color/brand_gold"
+                            android:textSize="34sp" />
+
+                        <TextView
+                            android:id="@+id/hero_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:textColor="#E6F1F4EC"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </FrameLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.card.MaterialCardView
                 style="@style/Card.OpenCfMoto"
@@ -102,10 +157,10 @@
                             android:id="@+id/status_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/archivo_black"
                             android:text="@string/main_ready"
                             android:textColor="@color/text_primary"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
+                            android:textSize="21sp" />
 
                         <TextView
                             android:id="@+id/bike_view"

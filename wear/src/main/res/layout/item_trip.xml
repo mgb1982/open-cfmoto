@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-condensed"
-        android:textColor="#4FC3F7"
+        android:textColor="#D1A955"
         android:textSize="20sp"
         android:textStyle="bold" />
 

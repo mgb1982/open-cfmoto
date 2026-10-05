@@ -98,3 +98,11 @@ CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto, Google, and Google
 Maps are trademarks of their respective owners. OpenCfMoto is an independent,
 unofficial project and is not affiliated with, endorsed by, or sponsored by any
 of them. These names are used only to describe interoperability.
+
+--------------------------------------------------------------------------------
+Fonts (visual test build)
+--------------------------------------------------------------------------------
+
+  * Archivo and Archivo Black, Copyright The Archivo Project Authors, licensed
+    under the SIL Open Font License 1.1 (licenses/OFL-Archivo.txt). Bundled as
+    static instances in app/src/main/res/font/.

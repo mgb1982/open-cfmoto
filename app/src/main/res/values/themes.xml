@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- A dark "cockpit" theme with a CFMoto-orange accent. Dark is intentional: this runs on a
+    <!-- Visual test "verde mate" (matte green + gold, Archivo). Was: a dark "cockpit" theme with a CFMoto-orange accent. Dark is intentional: this runs on a
          bike in daylight/handlebar context and mirrors a commercial head-unit look. -->
     <style name="Base.Theme.OpenCfMoto" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/brand_orange</item>
@@ -14,6 +14,38 @@
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
         <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline</item>
+        <item name="colorSecondary">@color/brand_gold</item>
+        <item name="colorOnSecondary">@color/on_brand</item>
+        <item name="colorSecondaryContainer">@color/surface_high</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
+        <item name="colorTertiary">@color/brand_gold</item>
+        <item name="colorOnTertiary">@color/on_brand</item>
+        <item name="colorTertiaryContainer">@color/surface_high</item>
+        <item name="colorOnTertiaryContainer">@color/text_primary</item>
+        <item name="colorSurfaceContainerLowest">@color/bg</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_high</item>
+        <item name="elevationOverlayEnabled">false</item>
+
+        <!-- Archivo everywhere; Archivo Black for headline numbers and titles (TextAppearance.Ocm.Display). -->
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.Ocm.Display</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Ocm.Headline</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Ocm.Headline</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.Ocm.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Ocm.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Ocm.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.Ocm.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Ocm.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Ocm.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Ocm.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Ocm.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Ocm.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Ocm.LabelSmall</item>
 
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/bg</item>
@@ -21,6 +53,55 @@
     </style>
 
     <style name="Theme.OpenCfMoto" parent="Base.Theme.OpenCfMoto" />
+
+    <style name="TextAppearance.Ocm.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="fontFamily">@font/archivo_black</item>
+    </style>
+    <style name="TextAppearance.Ocm.Headline" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="fontFamily">@font/archivo_black</item>
+    </style>
+    <style name="TextAppearance.Ocm.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="fontFamily">@font/archivo_black</item>
+    </style>
+    <style name="TextAppearance.Ocm.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
+    <style name="TextAppearance.Ocm.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/archivo</item>
+        <item name="fontFamily">@font/archivo</item>
+    </style>
 
     <!-- Primary CTA: tall, rounded, confident. Height grows with font scale. -->
     <style name="Widget.OpenCfMoto.Button.Connect" parent="Widget.Material3.Button">
@@ -31,7 +112,9 @@
         <item name="android:letterSpacing">0.01</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
-        <item name="cornerRadius">18dp</item>
+        <item name="cornerRadius">32dp</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
+        <item name="fontFamily">@font/archivo_black</item>
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">@dimen/btn_icon_padding</item>
     </style>
@@ -91,6 +174,9 @@
     <style name="Card.OpenCfMoto" parent="Widget.Material3.CardView.Elevated">
         <item name="cardCornerRadius">22dp</item>
         <item name="cardBackgroundColor">@color/surface</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="strokeWidth">1dp</item>
         <item name="contentPadding">20dp</item>
     </style>
 
@@ -115,6 +201,6 @@
         <item name="android:layout_marginTop">4dp</item>
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">24sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/archivo_black</item>
     </style>
 </resources>

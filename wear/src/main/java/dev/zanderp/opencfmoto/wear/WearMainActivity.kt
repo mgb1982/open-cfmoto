@@ -373,6 +373,6 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         private val COLOR_GREEN = Color.parseColor("#66BB6A")
         private val COLOR_AMBER = Color.parseColor("#FFB300")
         private val COLOR_GREY = Color.parseColor("#9E9E9E")
-        private val COLOR_ACCENT = Color.parseColor("#4FC3F7")
+        private val COLOR_ACCENT = Color.parseColor("#D1A955")
     }
 }
