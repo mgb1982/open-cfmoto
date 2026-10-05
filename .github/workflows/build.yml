@@ -52,7 +52,16 @@ jobs:
           fi
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug -PversionSuffix="$VERSION_SUFFIX"
+        shell: bash
+        run: |
+          set +e
+          ./gradlew assembleDebug -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
+          rc=$?
+          if [ $rc -ne 0 ]; then
+            grep -E "What went wrong|rror:|^e: " debug-build.log | grep -v "^\s*at " | head -8 \
+              | while IFS= read -r l; do echo "::error::${l:0:900}"; done
+          fi
+          exit $rc
       - name: Build release APK
         shell: bash
         run: |
