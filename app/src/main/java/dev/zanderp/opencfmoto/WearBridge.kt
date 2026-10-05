@@ -92,6 +92,8 @@ object WearBridge {
             }
             PATH_KEY -> text.toIntOrNull()?.let { code -> main.post { sendKey(code) } }
             PATH_SCROLL -> text.toIntOrNull()?.let { d -> main.post { sendScroll(d) } }
+            WearTrips.PATH_TRIPS -> WearTrips.sendList(ctx.applicationContext, event.sourceNodeId)
+            WearTrips.PATH_TRIPMAP -> WearTrips.sendMap(ctx.applicationContext, text)
         }
     }
 

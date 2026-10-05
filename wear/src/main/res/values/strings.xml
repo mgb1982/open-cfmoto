@@ -21,4 +21,12 @@
     <string name="label_battery">phone</string>
     <string name="label_volume">volume</string>
     <string name="status_clock_resync">⏱ Adjusting dash clock…</string>
+    <string name="trips_title">Trips</string>
+    <string name="trips_loading">Loading trips…</string>
+    <string name="trips_none">No saved trips yet</string>
+    <string name="trips_no_phone">No answer from the phone</string>
+    <string name="trip_line">%1$s · avg %2$d · max %3$d</string>
+    <string name="map_loading">Drawing the map…</string>
+    <string name="map_no_phone">No map yet — is the phone nearby?</string>
+    <string name="map_desc">Trip map</string>
 </resources>

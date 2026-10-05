@@ -22,6 +22,8 @@ object PhoneLink {
     const val PATH_SCROLL = "/ocm/scroll"
     const val PATH_STATS = "/ocm/stats"
     const val PATH_SESSION = "/ocm/session"
+    const val PATH_TRIPS = "/ocm/trips"
+    const val PATH_TRIPMAP = "/ocm/tripmap"
 
     // Same values as AaInput.KEY_* in the phone app (Android keycodes).
     const val KEY_UP = 19

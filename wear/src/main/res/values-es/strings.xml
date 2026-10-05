@@ -18,4 +18,12 @@
     <string name="label_battery">móvil</string>
     <string name="label_volume">volumen</string>
     <string name="status_clock_resync">⏱ Ajustando hora…</string>
+    <string name="trips_title">Viajes</string>
+    <string name="trips_loading">Cargando viajes…</string>
+    <string name="trips_none">Aún no hay viajes guardados</string>
+    <string name="trips_no_phone">El móvil no responde</string>
+    <string name="trip_line">%1$s · media %2$d · máx %3$d</string>
+    <string name="map_loading">Dibujando el mapa…</string>
+    <string name="map_no_phone">Sin mapa — ¿está el móvil cerca?</string>
+    <string name="map_desc">Mapa del viaje</string>
 </resources>

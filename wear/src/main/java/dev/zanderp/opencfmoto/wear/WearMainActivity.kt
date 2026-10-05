@@ -30,7 +30,8 @@ import java.util.Locale
 /**
  * Page 0 (default): current ride — speed, distance, moving time, max and average.
  * Page 1: Android Auto D-pad. Page 2: clock, total ride time, altitude, heading, GPS accuracy,
- * phone battery and media volume. The bezel/crown drives the Android Auto knob on every page.
+ * phone battery and media volume. Page 3: recent trips (tap one for its map). The bezel/crown
+ * drives the Android Auto knob, except on the trips page where it scrolls the list.
  */
 class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListener {
 
@@ -98,6 +99,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 dots.text = (0 until PAGES).joinToString("  ") { if (it == position) "●" else "○" }
+                if (position == PAGE_TRIPS) requestTrips()
             }
         })
 
@@ -123,6 +125,11 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     }
 
     override fun onMessageReceived(event: MessageEvent) {
+        if (event.path == PhoneLink.PATH_TRIPS) {
+            val list = TripSummary.parseList(String(event.data, Charsets.UTF_8))
+            runOnUiThread { showTrips(list) }
+            return
+        }
         if (event.path != PhoneLink.PATH_STATS) return
         PhoneLink.rememberPhone(event.sourceNodeId)
         val s = RideStats.parse(String(event.data, Charsets.UTF_8)) ?: return
@@ -138,6 +145,11 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_SCROLL && ev.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)) {
             // Clockwise reports a negative AXIS_SCROLL; clockwise = knob forward (+1).
+            if (pager.currentItem == PAGE_TRIPS) {
+                tripsList?.scrollBy(0, (-ev.getAxisValue(MotionEvent.AXIS_SCROLL) * 70 *
+                    resources.displayMetrics.density).toInt())
+                return true
+            }
             rotaryAcc += -ev.getAxisValue(MotionEvent.AXIS_SCROLL)
             val steps = rotaryAcc.toInt()
             if (steps != 0) {
@@ -275,6 +287,36 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         render()
     }
 
+    // ---- Trips page ----
+
+    private var tripsList: RecyclerView? = null
+    private var tripsEmpty: TextView? = null
+    private val tripsAdapter = TripsAdapter { t ->
+        startActivity(TripMapActivity.intent(this, t))
+    }
+
+    private fun bindTrips(v: View) {
+        tripsList = v.findViewById<RecyclerView>(R.id.rv_trips).also {
+            it.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
+            it.adapter = tripsAdapter
+        }
+        tripsEmpty = v.findViewById(R.id.tv_trips_empty)
+    }
+
+    private fun requestTrips() {
+        tripsEmpty?.let { if (tripsAdapter.itemCount == 0) it.setText(R.string.trips_loading) }
+        PhoneLink.send(this, PhoneLink.PATH_TRIPS, "1")
+        handler.postDelayed({
+            if (tripsAdapter.itemCount == 0) tripsEmpty?.setText(R.string.trips_no_phone)
+        }, 6_000L)
+    }
+
+    private fun showTrips(list: List<TripSummary>) {
+        tripsAdapter.submit(list)
+        tripsEmpty?.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        if (list.isEmpty()) tripsEmpty?.setText(R.string.trips_none)
+    }
+
     private fun bindPad(v: View) {
         val keys = mapOf(
             R.id.btn_up to PhoneLink.KEY_UP,
@@ -299,7 +341,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     }
 
     private inner class PagesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        private val layouts = intArrayOf(R.layout.page_trip, R.layout.page_pad, R.layout.page_info)
+        private val layouts = intArrayOf(R.layout.page_trip, R.layout.page_pad, R.layout.page_info, R.layout.page_trips)
         override fun getItemCount() = layouts.size
         override fun getItemViewType(position: Int) = position
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -310,13 +352,15 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             when (position) {
                 0 -> bindTrip(holder.itemView)
                 1 -> bindPad(holder.itemView)
-                else -> bindInfo(holder.itemView)
+                2 -> bindInfo(holder.itemView)
+                else -> bindTrips(holder.itemView)
             }
         }
     }
 
     companion object {
-        private const val PAGES = 3
+        private const val PAGES = 4
+        private const val PAGE_TRIPS = 3
         private const val SUBSCRIBE_EVERY_MS = 4_000L
         private const val STALE_MS = 6_000L
         private val COLOR_GREEN = Color.parseColor("#66BB6A")
