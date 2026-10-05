@@ -29,4 +29,6 @@
     <string name="map_loading">Drawing the map…</string>
     <string name="map_no_phone">No map yet — is the phone nearby?</string>
     <string name="map_desc">Trip map</string>
+    <string name="pill_max">max %d</string>
+    <string name="pill_avg">avg %d</string>
 </resources>

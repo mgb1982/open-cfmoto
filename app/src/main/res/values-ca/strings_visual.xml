@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_settings_desc">Ajustos</string>
+    <string name="stat_km_today">km avui</string>
+    <string name="stat_max_today">km/h màx</string>
+    <string name="stat_clock">hora quadre</string>
+    <string name="stat_clock_ok">hora ✓</string>
+    <string name="stat_clock_adjusting">ajustant…</string>
+    <string name="main_trips_pill">Viatges</string>
+    <string name="main_more">Més</string>
+</resources>

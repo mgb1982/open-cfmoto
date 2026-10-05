@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Visual test "verde mate": full-bleed bike photo hero, today's numbers as tiles, two pill
+     shortcuts, everything else under "Más", and the Connect/Disconnect pill pinned at the bottom.
+     Every id the code uses is kept. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,50 +12,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
-
-        <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:contentDescription="OpenCfMoto"
-            android:src="@drawable/ic_ride"
-            android:tint="@color/brand_orange" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/brand_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:letterSpacing="0.01"
-                android:fontFamily="@font/archivo_black"
-                android:text="OpenCfMoto"
-                android:textColor="@color/text_primary"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/brand_version"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp"
-                tools:text="v2.0.0" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- Scrollable body — required in landscape where the chrome is taller than the screen. -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/main_scroll"
         android:layout_width="match_parent"
@@ -65,71 +24,128 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="16dp">
+            android:orientation="vertical">
 
-            <!-- Visual test: the active bike's Garage photo as a hero, name in gold. Hidden without a photo. -->
-            <com.google.android.material.card.MaterialCardView
+            <!-- Hero: the active bike's Garage photo, edge to edge. -->
+            <FrameLayout
                 android:id="@+id/hero_card"
-                style="@style/Card.OpenCfMoto"
                 android:layout_width="match_parent"
-                android:layout_height="190dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="8dp"
-                android:visibility="gone"
-                app:contentPadding="0dp">
+                android:layout_height="300dp"
+                android:background="@color/surface_high">
 
-                <FrameLayout
+                <ImageView
+                    android:id="@+id/hero_placeholder"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
+                    android:alpha="0.18"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_ride"
+                    app:tint="@color/text_secondary" />
+
+                <ImageView
+                    android:id="@+id/hero_photo"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop" />
 
-                    <ImageView
-                        android:id="@+id/hero_photo"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:contentDescription="@null"
-                        android:scaleType="centerCrop" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="96dp"
+                    android:layout_gravity="top"
+                    android:background="@drawable/bg_hero_scrim_top" />
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="110dp"
-                        android:layout_gravity="bottom"
-                        android:background="@drawable/bg_hero_scrim" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_gravity="bottom"
+                    android:background="@drawable/bg_hero_scrim" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="22dp"
+                    android:paddingTop="14dp"
+                    android:paddingEnd="14dp">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="18dp"
+                        android:layout_weight="1"
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/hero_name"
+                            android:id="@+id/brand_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/archivo_black"
-                            android:maxLines="1"
-                            android:textColor="@color/brand_gold"
-                            android:textSize="34sp" />
+                            android:text="@string/brand_wordmark"
+                            android:textColor="@color/text_primary"
+                            android:textSize="19sp" />
 
                         <TextView
-                            android:id="@+id/hero_sub"
+                            android:id="@+id/brand_version"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:maxLines="1"
-                            android:textColor="#E6F1F4EC"
-                            android:textSize="13sp" />
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp"
+                            tools:text="v2.0.18" />
                     </LinearLayout>
-                </FrameLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <com.google.android.material.card.MaterialCardView
-                style="@style/Card.OpenCfMoto"
+                    <ImageButton
+                        android:id="@+id/btn_hero_menu"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_round_glass"
+                        android:contentDescription="@string/main_settings_desc"
+                        android:padding="12dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_settings"
+                        app:tint="@color/text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_marginStart="22dp"
+                    android:layout_marginBottom="18dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/hero_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/archivo_black"
+                        android:maxLines="1"
+                        android:textColor="@color/brand_gold"
+                        android:textSize="46sp"
+                        tools:text="125X" />
+
+                    <TextView
+                        android:id="@+id/hero_sub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxLines="1"
+                        android:textColor="#E6F1F4EC"
+                        android:textSize="13sp"
+                        tools:text="ZT473788" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="16dp">
 
+                <!-- Status: a dot, the phase, the bike/detail line. -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -138,391 +154,481 @@
 
                     <ImageView
                         android:id="@+id/status_icon"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_status_circle"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
                         android:contentDescription="@string/main_connection_status"
-                        android:padding="15dp"
-                        android:src="@drawable/ic_ride"
-                        android:tint="@color/status_idle" />
+                        android:src="@drawable/ic_status_dot" />
+
+                    <TextView
+                        android:id="@+id/status_view"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/archivo_semibold"
+                        android:text="@string/main_ready"
+                        android:textColor="@color/text_primary"
+                        android:textSize="17sp" />
+
+                    <ProgressBar
+                        android:id="@+id/status_progress"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:indeterminateTint="@color/brand_orange"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/bike_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="26dp"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/main_no_bike_paired_yet"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
+                <!-- Today at a glance. -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="5dp"
                         android:layout_weight="1"
-                        android:orientation="vertical">
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
 
                         <TextView
-                            android:id="@+id/status_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/archivo_black"
-                            android:text="@string/main_ready"
-                            android:textColor="@color/text_primary"
-                            android:textSize="21sp" />
+                            android:id="@+id/stat_km"
+                            style="@style/HeroStatValue"
+                            android:text="--" />
 
                         <TextView
-                            android:id="@+id/bike_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="@string/main_no_bike_paired_yet"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="13sp" />
+                            style="@style/HeroStatLabel"
+                            android:text="@string/stat_km_today" />
+                    </LinearLayout>
 
-                        <ProgressBar
-                            android:id="@+id/status_progress"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:indeterminate="true"
-                            android:indeterminateTint="@color/brand_orange"
-                            android:visibility="gone" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:id="@+id/stat_max"
+                            style="@style/HeroStatValue"
+                            android:text="--" />
+
+                        <TextView
+                            style="@style/HeroStatLabel"
+                            android:text="@string/stat_max_today" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_stat_tile"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:id="@+id/stat_clock"
+                            style="@style/HeroStatValue"
+                            android:text="--" />
+
+                        <TextView
+                            android:id="@+id/stat_clock_label"
+                            style="@style/HeroStatLabel"
+                            android:text="@string/stat_clock" />
                     </LinearLayout>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Connect becomes Stop while linking or projecting. -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_connect"
-                style="@style/Widget.OpenCfMoto.Button.Connect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/main_connect" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_hud_view"
-                    style="@style/Widget.OpenCfMoto.Button.Tonal"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="5dp"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:text="@string/hud_dash_view" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_controls"
-                    style="@style/Widget.OpenCfMoto.Button.Tonal"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:text="@string/controls_controls" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:baselineAligned="false"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_aa_start"
-                    style="@style/Widget.OpenCfMoto.Button.Tile"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
-                    app:autoSizeMaxTextSize="@dimen/btn_tile_text"
-                    app:autoSizeStepGranularity="1sp"
-                    android:text="@string/main_scan" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_gpx"
-                    style="@style/Widget.OpenCfMoto.Button.Tile"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="4dp"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
-                    app:autoSizeMaxTextSize="@dimen/btn_tile_text"
-                    app:autoSizeStepGranularity="1sp"
-                    android:text="@string/gpx_map" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_mirror_start"
-                    style="@style/Widget.OpenCfMoto.Button.Tile"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_weight="1"
-                    android:maxLines="1"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
-                    app:autoSizeMaxTextSize="@dimen/btn_tile_text"
-                    app:autoSizeStepGranularity="1sp"
-                    android:text="@string/main_mirror" />
-            </LinearLayout>
-
-            <!-- Hidden: Stop is merged into Connect; keep id for any legacy refs. -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_aa_stop"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:text="@string/main_stop"
-                android:visibility="gone" />
-
-            <!-- 2×2 so labels stay horizontal on narrow phones / large font. -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:orientation="vertical">
-
+                <!-- Two pill shortcuts. -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_setup"
-                        style="@style/Widget.OpenCfMoto.Button.Text"
+                        android:id="@+id/btn_controls"
+                        style="@style/Widget.OpenCfMoto.Button.Pill"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
                         android:layout_weight="1"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/main_setup"
-                        app:icon="@drawable/ic_settings"
-                        app:iconTint="@color/text_secondary"
-                        app:iconGravity="textStart"
-                        app:iconPadding="6dp"
-                        app:iconSize="18dp" />
+                        android:text="@string/controls_controls" />
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_devices"
-                        style="@style/Widget.OpenCfMoto.Button.Text"
+                        android:id="@+id/btn_trips_list"
+                        style="@style/Widget.OpenCfMoto.Button.Pill"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_marginStart="5dp"
                         android:layout_weight="1"
-                        android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/garage_garage"
-                        app:icon="@drawable/ic_devices"
-                        app:iconTint="@color/text_secondary"
-                        app:iconGravity="textStart"
-                        app:iconPadding="6dp"
-                        app:iconSize="18dp" />
+                        android:text="@string/main_trips_pill" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="26dp"
+                    android:layout_marginBottom="2dp"
+                    android:letterSpacing="0.12"
+                    android:text="@string/main_more"
+                    android:textAllCaps="true"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_trip"
-                        style="@style/Widget.OpenCfMoto.Button.Text"
+                        android:id="@+id/btn_hud_view"
+                        style="@style/Widget.OpenCfMoto.Button.Tonal"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:maxLines="1"
                         android:ellipsize="end"
-                        android:text="@string/main_trip"
-                        app:icon="@drawable/ic_ride"
-                        app:iconTint="@color/text_secondary"
-                        app:iconGravity="textStart"
-                        app:iconPadding="6dp"
-                        app:iconSize="18dp" />
+                        android:text="@string/hud_dash_view" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_toggle_log"
-                        style="@style/Widget.OpenCfMoto.Button.Text"
+                        android:id="@+id/btn_aa_start"
+                        style="@style/Widget.OpenCfMoto.Button.Tile"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
                         android:layout_weight="1"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/main_logs"
-                        app:icon="@drawable/ic_logs"
-                        app:iconTint="@color/text_secondary"
-                        app:iconGravity="textStart"
-                        app:iconPadding="6dp"
-                        app:iconSize="18dp" />
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
+                        app:autoSizeMaxTextSize="@dimen/btn_tile_text"
+                        app:autoSizeStepGranularity="1sp"
+                        android:text="@string/main_scan" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_gpx"
+                        style="@style/Widget.OpenCfMoto.Button.Tile"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="4dp"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
+                        app:autoSizeMaxTextSize="@dimen/btn_tile_text"
+                        app:autoSizeStepGranularity="1sp"
+                        android:text="@string/gpx_map" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_mirror_start"
+                        style="@style/Widget.OpenCfMoto.Button.Tile"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_weight="1"
+                        android:maxLines="1"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="@dimen/btn_tile_text_min"
+                        app:autoSizeMaxTextSize="@dimen/btn_tile_text"
+                        app:autoSizeStepGranularity="1sp"
+                        android:text="@string/main_mirror" />
                 </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/et_destination"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/main_search_a_place_or_address"
-                    android:imeOptions="actionGo"
-                    android:inputType="textPostalAddress"
-                    android:maxLines="1"
-                    android:textColor="@color/text_primary"
-                    android:textColorHint="@color/text_secondary" />
-
+                <!-- Hidden: Stop is merged into Connect; keep id for any legacy refs. -->
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_navigate"
-                    style="@style/Widget.OpenCfMoto.Segment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="@string/main_go" />
-            </LinearLayout>
+                    android:id="@+id/btn_aa_stop"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:text="@string/main_stop"
+                    android:visibility="gone" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/tips_panel"
-                style="@style/Card.OpenCfMoto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
 
+                <!-- 2×2 so labels stay horizontal on narrow phones / large font. -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:letterSpacing="0.08"
-                        android:text="@string/main_rider_tips"
-                        android:textAllCaps="true"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:lineSpacingExtra="4dp"
-                        android:text="@string/main_connect_start_android_auto_on_the_dash_becomes_s"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_about_page"
-                        style="@style/Widget.OpenCfMoto.Segment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="@string/main_about_credits" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_check_update"
-                        style="@style/Widget.OpenCfMoto.Segment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/main_check_for_update" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_problem_report"
-                        style="@style/Widget.OpenCfMoto.Segment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:text="@string/main_report_a_problem" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_donate"
-                        style="@style/Widget.OpenCfMoto.Button.Text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/about_donate"
-                        android:textSize="13sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/log_panel"
-                style="@style/Card.OpenCfMoto.Log"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:minHeight="220dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
                     android:orientation="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <TextView
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_setup"
+                            style="@style/Widget.OpenCfMoto.Button.Text"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@string/main_setup"
+                            app:icon="@drawable/ic_settings"
+                            app:iconTint="@color/text_secondary"
+                            app:iconGravity="textStart"
+                            app:iconPadding="6dp"
+                            app:iconSize="18dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_devices"
+                            style="@style/Widget.OpenCfMoto.Button.Text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@string/garage_garage"
+                            app:icon="@drawable/ic_devices"
+                            app:iconTint="@color/text_secondary"
+                            app:iconGravity="textStart"
+                            app:iconPadding="6dp"
+                            app:iconSize="18dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_trip"
+                            style="@style/Widget.OpenCfMoto.Button.Text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@string/main_trip"
+                            app:icon="@drawable/ic_ride"
+                            app:iconTint="@color/text_secondary"
+                            app:iconGravity="textStart"
+                            app:iconPadding="6dp"
+                            app:iconSize="18dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_toggle_log"
+                            style="@style/Widget.OpenCfMoto.Button.Text"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:text="@string/main_logs"
+                            app:icon="@drawable/ic_logs"
+                            app:iconTint="@color/text_secondary"
+                            app:iconGravity="textStart"
+                            app:iconPadding="6dp"
+                            app:iconSize="18dp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/et_destination"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/main_search_a_place_or_address"
+                        android:imeOptions="actionGo"
+                        android:inputType="textPostalAddress"
+                        android:maxLines="1"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_secondary" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_navigate"
+                        style="@style/Widget.OpenCfMoto.Segment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/main_go" />
+                </LinearLayout>
+
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/tips_panel"
+                    style="@style/Card.OpenCfMoto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:letterSpacing="0.08"
-                            android:text="@string/main_diagnostics"
+                            android:text="@string/main_rider_tips"
                             android:textAllCaps="true"
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
 
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_share_log"
-                            style="@style/Widget.OpenCfMoto.Button.Text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="0dp"
-                            android:text="@string/main_share" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_clear"
-                            style="@style/Widget.OpenCfMoto.Button.Text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:minWidth="0dp"
-                            android:text="@string/main_clear" />
-                    </LinearLayout>
-
-                    <ScrollView
-                        android:id="@+id/log_scroll"
-                        android:layout_width="match_parent"
-                        android:layout_height="220dp"
-                        android:layout_marginTop="4dp"
-                        android:background="@color/bg"
-                        android:fillViewport="true"
-                        android:nestedScrollingEnabled="true"
-                        android:padding="8dp">
-
                         <TextView
-                            android:id="@+id/log_view"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:contentDescription="@string/main_logs"
-                            android:fontFamily="monospace"
-                            android:textColor="#9CDCFE"
-                            android:textIsSelectable="true"
-                            android:textSize="11sp" />
-                    </ScrollView>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                            android:layout_marginTop="10dp"
+                            android:lineSpacingExtra="4dp"
+                            android:text="@string/main_connect_start_android_auto_on_the_dash_becomes_s"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_about_page"
+                            style="@style/Widget.OpenCfMoto.Segment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:text="@string/main_about_credits" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_check_update"
+                            style="@style/Widget.OpenCfMoto.Segment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/main_check_for_update" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_problem_report"
+                            style="@style/Widget.OpenCfMoto.Segment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="@string/main_report_a_problem" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_donate"
+                            style="@style/Widget.OpenCfMoto.Button.Text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/about_donate"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/log_panel"
+                    style="@style/Card.OpenCfMoto.Log"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:minHeight="220dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:letterSpacing="0.08"
+                                android:text="@string/main_diagnostics"
+                                android:textAllCaps="true"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_share_log"
+                                style="@style/Widget.OpenCfMoto.Button.Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:text="@string/main_share" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_clear"
+                                style="@style/Widget.OpenCfMoto.Button.Text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="0dp"
+                                android:text="@string/main_clear" />
+                        </LinearLayout>
+
+                        <ScrollView
+                            android:id="@+id/log_scroll"
+                            android:layout_width="match_parent"
+                            android:layout_height="220dp"
+                            android:layout_marginTop="4dp"
+                            android:background="@color/bg"
+                            android:fillViewport="true"
+                            android:nestedScrollingEnabled="true"
+                            android:padding="8dp">
+
+                            <TextView
+                                android:id="@+id/log_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@string/main_logs"
+                                android:fontFamily="monospace"
+                                android:textColor="#9CDCFE"
+                                android:textIsSelectable="true"
+                                android:textSize="11sp" />
+                        </ScrollView>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Connect becomes Disconnect while linking or projecting. Pinned like a thumb button. -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_connect"
+        style="@style/Widget.OpenCfMoto.Button.Connect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="14dp"
+        android:text="@string/main_connect" />
 </LinearLayout>

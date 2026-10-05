@@ -636,6 +636,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_share_log).setOnClickListener { shareLog() }
 
         findViewById<Button>(R.id.btn_setup).setOnClickListener { SetupActivity.start(this) }
+        findViewById<View>(R.id.btn_hero_menu).setOnClickListener { SetupActivity.start(this) }
+        findViewById<View>(R.id.btn_trips_list).setOnClickListener { TripsListActivity.start(this) }
+        (findViewById<View>(R.id.btn_trips_list) as? MaterialButton)?.setIconResource(R.drawable.ic_ride)
         findViewById<View>(R.id.brand_title).setOnClickListener { AboutActivity.start(this) }
         findViewById<View>(R.id.btn_about_page).setOnClickListener { AboutActivity.start(this) }
         findViewById<View>(R.id.btn_check_update).setOnClickListener { checkUpdateManual() }
@@ -670,6 +673,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        statsHandler.removeCallbacks(todayTicker)
         CrashGuard.persistSession(this)
         super.onPause()
     }
@@ -691,6 +695,9 @@ class MainActivity : AppCompatActivity() {
         // the Connect button.
         refreshBikeLabel()
         refreshHero()
+        loadToday()
+        statsHandler.removeCallbacks(todayTicker)
+        statsHandler.post(todayTicker)
         renderStatus(ConnectionState.phase, ConnectionState.detail)
         if (WifiGate.isWifiEnabled(this)) WifiGate.cancelNotification(this)
         // Retry auto-connect on resume: after finishing first-run setup, or once the bike's Wi-Fi
@@ -859,12 +866,11 @@ class MainActivity : AppCompatActivity() {
         return d.contains("head unit server") || d.contains("start head unit")
     }
 
-    /** Visual test: the active bike's Garage photo as a hero card (hidden when it has none). */
+    /** Visual test: the active bike's Garage photo as the hero (a faint bike glyph without one). */
     private fun refreshHero() {
-        val card = findViewById<View?>(R.id.hero_card) ?: return
+        val photo = findViewById<android.widget.ImageView?>(R.id.hero_photo) ?: return
         val bike = BikeMemory.selected(this)
-        val path = bike?.photoPath
-        val bmp = path?.let { p ->
+        val bmp = bike?.photoPath?.let { p ->
             runCatching {
                 val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
                 android.graphics.BitmapFactory.decodeFile(p, bounds)
@@ -873,14 +879,66 @@ class MainActivity : AppCompatActivity() {
                 android.graphics.BitmapFactory.decodeFile(p, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
             }.getOrNull()
         }
-        if (bike == null || bmp == null) {
-            card.visibility = View.GONE
-            return
+        photo.setImageBitmap(bmp)
+        findViewById<View>(R.id.hero_placeholder).visibility = if (bmp == null) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.hero_name).text = bike?.name ?: ""
+        findViewById<TextView>(R.id.hero_sub).text = bike?.qr?.ssid ?: getString(R.string.main_no_bike_paired_yet)
+        // Wordmark: second half in gold ("Open" + "CfMoto").
+        findViewById<TextView>(R.id.brand_title).apply {
+            val t = getString(R.string.brand_wordmark)
+            val split = 4.coerceAtMost(t.length)
+            text = android.text.SpannableString(t).apply {
+                setSpan(
+                    android.text.style.ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, R.color.brand_gold)),
+                    split, t.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+            }
         }
-        findViewById<android.widget.ImageView>(R.id.hero_photo).setImageBitmap(bmp)
-        findViewById<TextView>(R.id.hero_name).text = bike.name
-        findViewById<TextView>(R.id.hero_sub).text = bike.qr?.ssid ?: ""
-        card.visibility = View.VISIBLE
+    }
+
+    // ---- Visual test: "today" tiles (km, max speed, dash clock) ----
+
+    private var savedTodayKm = 0.0
+    private var savedTodayMax = 0
+    private val todayTicker = object : Runnable {
+        override fun run() {
+            renderToday()
+            statsHandler.postDelayed(this, 5_000L)
+        }
+    }
+    private val statsHandler = android.os.Handler(android.os.Looper.getMainLooper())
+
+    /** Saved trips of today (read once per resume, off the main thread), then the live ride on top. */
+    private fun loadToday() {
+        Thread({
+            val since = TripsListActivity.startOfDay(System.currentTimeMillis())
+            val today = try { TripStore.list(this).filter { it.start >= since } } catch (_: Exception) { emptyList() }
+            val km = today.sumOf { it.distanceKm }
+            val max = today.maxOfOrNull { it.maxKmh } ?: 0
+            runOnUiThread {
+                savedTodayKm = km
+                savedTodayMax = max
+                renderToday()
+            }
+        }, "today-stats").start()
+    }
+
+    private fun renderToday() {
+        val live = TripLogger.current?.takeIf { it.recording }?.snapshot()
+        val km = savedTodayKm + (live?.distanceMeters ?: 0.0) / 1000.0
+        val max = maxOf(savedTodayMax, ((live?.maxSpeedMs ?: 0f) * 3.6f).toInt())
+        val loc = java.util.Locale.getDefault()
+        findViewById<TextView?>(R.id.stat_km)?.text = String.format(loc, "%.1f", km)
+        findViewById<TextView?>(R.id.stat_max)?.text = if (max > 0) max.toString() else "--"
+        findViewById<TextView?>(R.id.stat_clock)?.text =
+            java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
+        findViewById<TextView?>(R.id.stat_clock_label)?.setText(
+            when {
+                ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
+                ConnectionState.phase == Phase.STREAMING -> R.string.stat_clock_ok
+                else -> R.string.stat_clock
+            }
+        )
     }
 
     /** Update the big status header + Connect button label from a [ConnectionState] transition. */

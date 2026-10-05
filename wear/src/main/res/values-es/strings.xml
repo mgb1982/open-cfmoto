@@ -26,4 +26,6 @@
     <string name="map_loading">Dibujando el mapa…</string>
     <string name="map_no_phone">Sin mapa — ¿está el móvil cerca?</string>
     <string name="map_desc">Mapa del viaje</string>
+    <string name="pill_max">máx %d</string>
+    <string name="pill_avg">med %d</string>
 </resources>

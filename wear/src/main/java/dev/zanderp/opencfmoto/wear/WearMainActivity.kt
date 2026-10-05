@@ -198,7 +198,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         val accent = if (ambient) Color.WHITE else COLOR_ACCENT
         tvSpeed?.setTextColor(Color.WHITE)
         tvSpeedUnit?.setTextColor(if (ambient) Color.WHITE else COLOR_GREY)
-        listOf(tvDist, tvTime, tvMax, tvAvg).forEach { it?.setTextColor(accent) }
+        listOf(tvDist, tvTime, tvMax, tvAvg).forEach { it?.setTextColor(if (ambient) Color.WHITE else Color.parseColor("#F1F4EC")) }
 
         if (!fresh || s == null) {
             tvSpeed?.text = "--"
@@ -211,10 +211,10 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         }
         tvSpeed?.text = if (s.fix) s.speedKmh.toString() else "--"
         val km = s.distanceM / 1000.0
-        tvDist?.text = String.format(Locale.getDefault(), if (km < 100) "%.1f" else "%.0f", km)
+        tvDist?.text = String.format(Locale.getDefault(), if (km < 100) "%.1f km" else "%.0f km", km)
         tvTime?.text = formatDuration(s.movingMs)
-        tvMax?.text = String.format(Locale.getDefault(), "%.0f", s.maxKmh)
-        tvAvg?.text = String.format(Locale.getDefault(), "%.0f", s.avgKmh)
+        tvMax?.text = getString(R.string.pill_max, s.maxKmh.toInt())
+        tvAvg?.text = getString(R.string.pill_avg, s.avgKmh.toInt())
         tvHint?.visibility = if (s.session && !s.recording && !ambient) View.VISIBLE else View.GONE
     }
 

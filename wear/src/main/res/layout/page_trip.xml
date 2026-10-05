@@ -28,7 +28,7 @@
         android:includeFontPadding="false"
         android:text="--"
         android:textColor="#FFFFFF"
-        android:textSize="56sp"
+        android:textSize="60sp"
         android:textStyle="bold" />
 
     <TextView
@@ -40,104 +40,66 @@
         android:textColor="#9E9E9E"
         android:textSize="11sp" />
 
-    <GridLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:columnCount="2">
-        <LinearLayout
-            android:layout_width="0dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_dist"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="2dp">
-            <TextView
-                android:id="@+id/tv_dist"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="--"
-                android:textColor="#D1A955"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_dist"
-                android:textColor="#9E9E9E"
-                android:textSize="10sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/bg_pill"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="5dp"
+            android:text="--"
+            android:textColor="#F1F4EC"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="2dp">
-            <TextView
-                android:id="@+id/tv_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="--"
-                android:textColor="#D1A955"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_time"
-                android:textColor="#9E9E9E"
-                android:textSize="10sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/bg_pill"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="5dp"
+            android:text="--"
+            android:textColor="#F1F4EC"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_max"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="2dp">
-            <TextView
-                android:id="@+id/tv_max"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="--"
-                android:textColor="#D1A955"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_max"
-                android:textColor="#9E9E9E"
-                android:textSize="10sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="0dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/bg_pill"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="5dp"
+            android:text="--"
+            android:textColor="#F1F4EC"
+            android:textSize="14sp" />
+        <TextView
+            android:id="@+id/tv_avg"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:paddingTop="2dp">
-            <TextView
-                android:id="@+id/tv_avg"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-condensed"
-                android:text="--"
-                android:textColor="#D1A955"
-                android:textSize="19sp"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_avg"
-                android:textColor="#9E9E9E"
-                android:textSize="10sp" />
-        </LinearLayout>
-    </GridLayout>
+            android:layout_margin="3dp"
+            android:background="@drawable/bg_pill"
+            android:fontFamily="sans-serif-medium"
+            android:paddingHorizontal="11dp"
+            android:paddingVertical="5dp"
+            android:text="--"
+            android:textColor="#F1F4EC"
+            android:textSize="14sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_hint"

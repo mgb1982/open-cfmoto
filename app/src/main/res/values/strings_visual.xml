@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="brand_wordmark" translatable="false">OpenCfMoto</string>
+    <string name="main_settings_desc">Settings</string>
+    <string name="stat_km_today">km today</string>
+    <string name="stat_max_today">max km/h</string>
+    <string name="stat_clock">dash clock</string>
+    <string name="stat_clock_ok">dash clock ✓</string>
+    <string name="stat_clock_adjusting">adjusting…</string>
+    <string name="main_trips_pill">Trips</string>
+    <string name="main_more">More</string>
+</resources>
