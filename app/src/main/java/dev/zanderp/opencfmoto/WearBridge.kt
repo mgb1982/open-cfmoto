@@ -4,6 +4,12 @@
 package dev.zanderp.opencfmoto
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.location.LocationManager
+import android.media.AudioManager
+import android.os.BatteryManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -103,7 +109,7 @@ object WearBridge {
         else try { sink(delta) } catch (e: Exception) { LogBus.log("[WEAR] scroll failed: ${e.message}") }
     }
 
-    private fun snapshotJson(): String {
+    private fun snapshotJson(ctx: Context): String {
         val s = TripLogger.current?.snapshot()
         val o = JSONObject()
         o.put("phase", ConnectionState.phase.name)
@@ -117,14 +123,54 @@ object WearBridge {
         val movH = (s?.movingTimeMs ?: 0L) / 3_600_000.0
         o.put("avg", if (movH > 0.0) (s!!.distanceMeters / 1000.0) / movH else 0.0)
         o.put("el", if (sessionActive) SystemClock.elapsedRealtime() - sessionStartedAt else 0L)
+        o.put("acc", s?.accuracyM ?: 0)
+        putInfo(ctx, o)
         return o.toString()
+    }
+
+    /** Third watch page: altitude, heading, phone battery/temperature, media volume. */
+    private fun putInfo(ctx: Context, o: JSONObject) {
+        try {
+            val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            val loc = lm?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            if (loc != null && System.currentTimeMillis() - loc.time < 15_000L) {
+                // Mean-sea-level altitude when the phone can compute it (Android 14+); raw GPS
+                // altitude is ellipsoidal (~50 m high around Barcelona).
+                if (Build.VERSION.SDK_INT >= 34 && loc.hasMslAltitude()) o.put("alt", loc.mslAltitudeMeters)
+                else if (loc.hasAltitude()) { o.put("alt", loc.altitude); o.put("altRaw", true) }
+                if (loc.hasBearing() && loc.hasSpeed() && loc.speed > 1.5f) o.put("brg", loc.bearing.toDouble())
+            }
+        } catch (_: SecurityException) {
+        } catch (_: Exception) {
+        }
+        try {
+            val b = ctx.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            if (b != null) {
+                val level = b.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = b.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                if (level >= 0 && scale > 0) o.put("bat", level * 100 / scale)
+                val t = b.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE)
+                if (t != Int.MIN_VALUE) o.put("batT", t / 10.0)
+                o.put("chg", b.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0)
+            }
+        } catch (_: Exception) {
+        }
+        try {
+            val am = ctx.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            if (am != null) {
+                o.put("vol", am.getStreamVolume(AudioManager.STREAM_MUSIC))
+                o.put("volMax", am.getStreamMaxVolume(AudioManager.STREAM_MUSIC))
+            }
+            o.put("boost", if (SpeedVolume.running) SpeedVolume.boostSteps else -1)
+        } catch (_: Exception) {
+        }
     }
 
     private fun sendStats(ctx: Context) {
         val node = subscriber ?: return
         try {
             Wearable.getMessageClient(ctx)
-                .sendMessage(node, PATH_STATS, snapshotJson().toByteArray(Charsets.UTF_8))
+                .sendMessage(node, PATH_STATS, snapshotJson(ctx).toByteArray(Charsets.UTF_8))
         } catch (_: Exception) {
             // No Play services / Wear OS app on this phone: nothing to talk to.
         }

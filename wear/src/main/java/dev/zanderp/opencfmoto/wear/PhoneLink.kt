@@ -110,6 +110,17 @@ data class RideStats(
     val movingMs: Long,
     val maxKmh: Double,
     val avgKmh: Double,
+    val elapsedMs: Long,
+    val accuracyM: Int,
+    val altitudeM: Double?,
+    val altitudeRaw: Boolean,
+    val bearing: Double?,
+    val batteryPct: Int?,
+    val batteryTempC: Double?,
+    val charging: Boolean,
+    val volume: Int?,
+    val volumeMax: Int?,
+    val boost: Int,
 ) {
     companion object {
         fun parse(json: String): RideStats? = try {
@@ -124,6 +135,17 @@ data class RideStats(
                 movingMs = o.optLong("mov"),
                 maxKmh = o.optDouble("max", 0.0),
                 avgKmh = o.optDouble("avg", 0.0),
+                elapsedMs = o.optLong("el"),
+                accuracyM = o.optInt("acc"),
+                altitudeM = if (o.has("alt")) o.optDouble("alt") else null,
+                altitudeRaw = o.optBoolean("altRaw"),
+                bearing = if (o.has("brg")) o.optDouble("brg") else null,
+                batteryPct = if (o.has("bat")) o.optInt("bat") else null,
+                batteryTempC = if (o.has("batT")) o.optDouble("batT") else null,
+                charging = o.optBoolean("chg"),
+                volume = if (o.has("vol")) o.optInt("vol") else null,
+                volumeMax = if (o.has("volMax")) o.optInt("volMax") else null,
+                boost = o.optInt("boost", -1),
             )
         } catch (_: Exception) {
             null

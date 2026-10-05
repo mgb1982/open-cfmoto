@@ -11,4 +11,10 @@
     <string name="hint_logging_off">El registro de viajes está desactivado en el móvil</string>
     <string name="channel_ride">Viaje en curso</string>
     <string name="ride_active">Viaje en curso — toca para ver los datos</string>
+    <string name="label_total">tiempo total</string>
+    <string name="label_alt">altitud m</string>
+    <string name="label_heading">rumbo</string>
+    <string name="label_gps">GPS ±m</string>
+    <string name="label_battery">móvil</string>
+    <string name="label_volume">volumen</string>
 </resources>

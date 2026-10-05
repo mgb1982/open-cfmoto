@@ -29,7 +29,8 @@ import java.util.Locale
 
 /**
  * Page 0 (default): current ride — speed, distance, moving time, max and average.
- * Page 1: Android Auto D-pad. The bezel/crown drives the Android Auto knob on either page.
+ * Page 1: Android Auto D-pad. Page 2: clock, total ride time, altitude, heading, GPS accuracy,
+ * phone battery and media volume. The bezel/crown drives the Android Auto knob on every page.
  */
 class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedListener {
 
@@ -46,6 +47,12 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var tvMax: TextView? = null
     private var tvAvg: TextView? = null
     private var tvHint: TextView? = null
+    private var tvTotal: TextView? = null
+    private var tvAlt: TextView? = null
+    private var tvHeading: TextView? = null
+    private var tvGps: TextView? = null
+    private var tvBattery: TextView? = null
+    private var tvVolume: TextView? = null
 
     private var stats: RideStats? = null
     private var statsAt = 0L
@@ -86,11 +93,11 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         root = findViewById(R.id.root)
         dots = findViewById(R.id.tv_dots)
         pager = findViewById(R.id.pager)
-        pager.offscreenPageLimit = 1
+        pager.offscreenPageLimit = PAGES - 1
         pager.adapter = PagesAdapter()
         pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                dots.text = if (position == 0) "●  ○" else "○  ●"
+                dots.text = (0 until PAGES).joinToString("  ") { if (it == position) "●" else "○" }
             }
         })
 
@@ -147,6 +154,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private fun render() {
         val s = stats
         val fresh = s != null && SystemClock.elapsedRealtime() - statsAt < STALE_MS
+        renderInfo(if (fresh) s else null)
         val status = tvStatus ?: return
 
         root.setBackgroundColor(Color.BLACK)
@@ -194,6 +202,42 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         tvHint?.visibility = if (s.session && !s.recording && !ambient) View.VISIBLE else View.GONE
     }
 
+    private fun renderInfo(s: RideStats?) {
+        val loc = Locale.getDefault()
+        if (s == null) {
+            listOf(tvTotal, tvAlt, tvHeading, tvGps, tvBattery, tvVolume).forEach { it?.text = "--" }
+        } else {
+            tvTotal?.text = if (s.session) formatDuration(s.elapsedMs) else "--"
+            val alt = s.altitudeM
+            tvAlt?.text = if (alt == null) "--"
+                else String.format(loc, "%.0f", alt) + if (s.altitudeRaw) "*" else ""
+            val brg = s.bearing
+            tvHeading?.text = if (brg == null) "--" else compass(brg)
+            tvGps?.text = if (s.fix && s.accuracyM > 0) s.accuracyM.toString() else "--"
+            val pct = s.batteryPct
+            val temp = s.batteryTempC
+            tvBattery?.text = if (pct == null) "--" else
+                (if (s.charging) "⚡" else "") + "$pct%" +
+                    (if (temp != null) String.format(loc, " · %.0f°", temp) else "")
+            val vol = s.volume
+            val volMax = s.volumeMax
+            tvVolume?.text = if (vol == null || volMax == null) "--" else
+                "$vol/$volMax" + if (s.boost > 0) " +${s.boost}" else ""
+        }
+        // Hot phone (AA + GPS + sun on the mount): flag it.
+        val hot = (s?.batteryTempC ?: 0.0) >= 42.0
+        tvBattery?.setTextColor(if (ambient) Color.WHITE else if (hot) COLOR_AMBER else COLOR_ACCENT)
+        listOf(tvTotal, tvAlt, tvHeading, tvGps, tvVolume).forEach {
+            it?.setTextColor(if (ambient) Color.WHITE else COLOR_ACCENT)
+        }
+    }
+
+    private fun compass(deg: Double): String {
+        val names = arrayOf("N", "NE", "E", "SE", "S", "SO", "O", "NO")
+        val i = (((deg % 360 + 360) % 360 + 22.5) / 45.0).toInt() % 8
+        return names[i]
+    }
+
     private fun formatDuration(ms: Long): String {
         val total = ms / 1000
         val h = total / 3600
@@ -214,6 +258,16 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         tvMax = v.findViewById(R.id.tv_max)
         tvAvg = v.findViewById(R.id.tv_avg)
         tvHint = v.findViewById(R.id.tv_hint)
+        render()
+    }
+
+    private fun bindInfo(v: View) {
+        tvTotal = v.findViewById(R.id.tv_total)
+        tvAlt = v.findViewById(R.id.tv_alt)
+        tvHeading = v.findViewById(R.id.tv_heading)
+        tvGps = v.findViewById(R.id.tv_gps)
+        tvBattery = v.findViewById(R.id.tv_battery)
+        tvVolume = v.findViewById(R.id.tv_volume)
         render()
     }
 
@@ -241,7 +295,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     }
 
     private inner class PagesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        private val layouts = intArrayOf(R.layout.page_trip, R.layout.page_pad)
+        private val layouts = intArrayOf(R.layout.page_trip, R.layout.page_pad, R.layout.page_info)
         override fun getItemCount() = layouts.size
         override fun getItemViewType(position: Int) = position
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -249,11 +303,16 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             return object : RecyclerView.ViewHolder(v) {}
         }
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            if (position == 0) bindTrip(holder.itemView) else bindPad(holder.itemView)
+            when (position) {
+                0 -> bindTrip(holder.itemView)
+                1 -> bindPad(holder.itemView)
+                else -> bindInfo(holder.itemView)
+            }
         }
     }
 
     companion object {
+        private const val PAGES = 3
         private const val SUBSCRIBE_EVERY_MS = 4_000L
         private const val STALE_MS = 6_000L
         private val COLOR_GREEN = Color.parseColor("#66BB6A")
