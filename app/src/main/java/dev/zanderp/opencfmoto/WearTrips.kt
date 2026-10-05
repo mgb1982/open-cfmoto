@@ -40,6 +40,9 @@ object WearTrips {
     private const val MAX_TRIPS = 10
     private const val SNAPSHOT_TIMEOUT_MS = 15_000L
     private const val MAX_ZOOM_STEP = 4
+    /** Zoomed images cover this many screens across, so the watch can pan them. */
+    private const val PAN_FACTOR = 3
+    private const val MAX_IMAGE_PX = 1400
 
     private val main = Handler(Looper.getMainLooper())
 
@@ -70,13 +73,21 @@ object WearTrips {
         }, "wear-trips").start()
     }
 
-    /** Request JSON: {"id": "...", "z": 0..4, "px": 450, "density": 2.0}. */
+    /**
+     * Request JSON: {"id", "key", "z": 0..4, "u","v": view centre in the whole-ride frame (0..1),
+     * "px": screen px, "density"}. z = 0 is the whole ride at screen size; zoomed requests get an
+     * image [PAN_FACTOR]× the screen (capped) so the watch can pan it with a finger.
+     */
     fun sendMap(ctx: Context, requestJson: String) {
         val req = try { JSONObject(requestJson) } catch (_: Exception) { return }
         val id = req.optString("id")
+        val key = req.optString("key")
         val z = req.optInt("z", 0).coerceIn(0, MAX_ZOOM_STEP)
+        val u = req.optDouble("u", 0.5).coerceIn(-0.5, 1.5)
+        val v = req.optDouble("v", 0.5).coerceIn(-0.5, 1.5)
         val px = req.optInt("px", 450).coerceIn(200, 1000)
         val density = req.optDouble("density", 2.0).toFloat().coerceIn(1f, 4f)
+        val outPx = if (z == 0) px else (px * PAN_FACTOR).coerceAtMost(MAX_IMAGE_PX)
         Thread({
             val trip = try { TripStore.get(ctx, id) } catch (_: Exception) { null }
             if (trip == null || trip.points.size < 2) {
@@ -84,13 +95,13 @@ object WearTrips {
                 return@Thread
             }
             val pts = downsample(trip.points.map { LatLng(it.lat, it.lon) }, 600)
-            val bounds = frame(pts, z)
-            main.post { render(ctx.applicationContext, id, z, px, density, pts, bounds) }
+            val bounds = frame(pts, z, u, v, outPx.toDouble() / px)
+            main.post { render(ctx.applicationContext, id, key, outPx, density, pts, bounds) }
         }, "wear-tripmap").start()
     }
 
     private fun render(
-        ctx: Context, id: String, z: Int, px: Int, density: Float,
+        ctx: Context, id: String, key: String, px: Int, density: Float,
         pts: List<LatLng>, bounds: LatLngBounds,
     ) {
         var done = false
@@ -103,14 +114,14 @@ object WearTrips {
                 } else {
                     plainTrack(px, pts, bounds, density)
                 }
-                publish(ctx, id, z, bmp, withMap)
+                publish(ctx, id, key, bmp, withMap)
             }, "wear-tripmap-draw").start()
         }
 
         val logical = (px / density).toInt()
         val snapshotter = try {
             val opts = MapSnapshotter.Options(logical, logical)
-                .withStyleBuilder(Style.Builder().fromUri(MapLibreDashController.STYLE_NIGHT))
+                .withStyleBuilder(Style.Builder().fromUri(MapLibreDashController.STYLE_DAY))
                 .withRegion(bounds)
                 .withPixelRatio(density)
                 .withLogo(false)
@@ -151,23 +162,29 @@ object WearTrips {
         }
     }
 
-    private fun publish(ctx: Context, id: String, z: Int, bmp: Bitmap, withMap: Boolean) {
+    private fun publish(ctx: Context, id: String, key: String, bmp: Bitmap, withMap: Boolean) {
         try {
             val out = ByteArrayOutputStream()
             bmp.compress(Bitmap.CompressFormat.JPEG, 82, out)
-            val req = PutDataMapRequest.create("$PATH_TRIPMAP/$id/$z")
+            // One data item per trip (replaced on each request); "key" says which view it is.
+            val req = PutDataMapRequest.create("$PATH_TRIPMAP/$id")
+            req.dataMap.putString("key", key)
             req.dataMap.putAsset("map", Asset.createFromBytes(out.toByteArray()))
             req.dataMap.putBoolean("withMap", withMap)
             req.dataMap.putLong("t", System.currentTimeMillis())
             Wearable.getDataClient(ctx).putDataItem(req.asPutDataRequest().setUrgent())
-            LogBus.log("[WEAR] trip map $id z=$z sent (${out.size() / 1024} KB, ${if (withMap) "map" else "track only"})")
+            LogBus.log("[WEAR] trip map $id [$key] ${bmp.width}px sent (${out.size() / 1024} KB, ${if (withMap) "map" else "track only"})")
         } catch (e: Exception) {
             LogBus.log("[WEAR] trip map send failed: ${e.message}")
         }
     }
 
-    /** Track bounds, padded so the whole ride fits inside the ROUND screen, then zoomed in by [z]. */
-    private fun frame(pts: List<LatLng>, z: Int): LatLngBounds {
+    /**
+     * The whole-ride frame (track bounds, padded so the ride fits inside the ROUND screen) is the
+     * (0..1, 0..1) space the watch's u/v live in. The view is that frame zoomed in by [z] around
+     * (u, v); the image covers [cover]× the view so it can be panned.
+     */
+    private fun frame(pts: List<LatLng>, z: Int, u: Double, v: Double, cover: Double): LatLngBounds {
         var minLat = 90.0; var maxLat = -90.0; var minLon = 180.0; var maxLon = -180.0
         for (p in pts) {
             if (p.latitude < minLat) minLat = p.latitude
@@ -179,11 +196,15 @@ object WearTrips {
         val cLon = (minLon + maxLon) / 2
         val lonScale = cos(Math.toRadians(cLat)).coerceAtLeast(0.2)
         // Square span in "latitude degrees", at least ~400 m, with room for the round mask.
-        var span = max(maxLat - minLat, (maxLon - minLon) * lonScale).coerceAtLeast(0.0036) * 1.55
-        span /= 1.8.pow(z)
+        val span0 = max(maxLat - minLat, (maxLon - minLon) * lonScale).coerceAtLeast(0.0036) * 1.55
+        val north0 = cLat + span0 / 2
+        val west0 = cLon - span0 / 2 / lonScale
+        val centerLat = north0 - v * span0
+        val centerLon = west0 + u * span0 / lonScale
+        val span = span0 / 1.8.pow(z) * cover
         val halfLat = span / 2
         val halfLon = span / 2 / lonScale
-        return LatLngBounds.from(cLat + halfLat, cLon + halfLon, cLat - halfLat, cLon - halfLon)
+        return LatLngBounds.from(centerLat + halfLat, centerLon + halfLon, centerLat - halfLat, centerLon - halfLon)
     }
 
     private fun downsample(pts: List<LatLng>, maxPts: Int): List<LatLng> {
@@ -198,8 +219,15 @@ object WearTrips {
 
     private fun drawTrack(bmp: Bitmap, pts: List<LatLng>, project: (LatLng) -> PointF, density: Float) {
         val c = Canvas(bmp)
+        val casing = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.STROKE
+            strokeWidth = 5.6f * density
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+        }
         val line = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = Color.parseColor("#FF6B2C")
+            color = Color.parseColor("#E8541C")
             style = Paint.Style.STROKE
             strokeWidth = 3.2f * density
             strokeCap = Paint.Cap.ROUND
@@ -210,21 +238,22 @@ object WearTrips {
             val q = project(p)
             if (i == 0) path.moveTo(q.x, q.y) else path.lineTo(q.x, q.y)
         }
+        c.drawPath(path, casing)
         c.drawPath(path, line)
         val dot = Paint(Paint.ANTI_ALIAS_FLAG)
-        val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK }
+        val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE }
         val s = project(pts.first())
         val e = project(pts.last())
         c.drawCircle(s.x, s.y, 7f * density, ring)
-        dot.color = Color.parseColor("#22C55E"); c.drawCircle(s.x, s.y, 5f * density, dot)
+        dot.color = Color.parseColor("#16A34A"); c.drawCircle(s.x, s.y, 5f * density, dot)
         c.drawCircle(e.x, e.y, 7f * density, ring)
-        dot.color = Color.parseColor("#F43F5E"); c.drawCircle(e.x, e.y, 5f * density, dot)
+        dot.color = Color.parseColor("#E11D48"); c.drawCircle(e.x, e.y, 5f * density, dot)
     }
 
     /** No map: the track on black with a simple local projection over the same bounds. */
     private fun plainTrack(px: Int, pts: List<LatLng>, b: LatLngBounds, density: Float): Bitmap {
         val bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
-        Canvas(bmp).drawColor(Color.parseColor("#0B0D10"))
+        Canvas(bmp).drawColor(Color.parseColor("#EEF0F2"))
         val north = b.latitudeNorth; val south = b.latitudeSouth
         val west = b.longitudeWest; val east = b.longitudeEast
         drawTrack(bmp, pts, { p ->

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The trip map pans with a finger, so the system swipe-to-dismiss would fight it. -->
+    <style name="Theme.TripMap" parent="@android:style/Theme.DeviceDefault">
+        <item name="android:windowSwipeToDismiss">false</item>
+    </style>
+</resources>
