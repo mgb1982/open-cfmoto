@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<!-- Zontes clock resync. Translated: en, es, ca; other locales fall back to English. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="setup_clock_resync">Resync the dash clock (Zontes)</string>
+    <string name="setup_clock_resync_desc">Drops the link for a few seconds and reconnects so the dash takes the time again. Smart: only when the dash asked for the time late (the sign of a failed sync), up to 3 times. Always once: on the first connection of every dash start. Only acts on Zontes dashes.</string>
+    <string name="setup_clock_resync_smart">Smart</string>
+    <string name="setup_clock_resync_once">Always once</string>
     <string name="clock_resyncing">⏱ Adjusting dash clock…</string>
 </resources>
