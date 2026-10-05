@@ -305,7 +305,14 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
 
     private fun requestTrips() {
         tripsEmpty?.let { if (tripsAdapter.itemCount == 0) it.setText(R.string.trips_loading) }
-        PhoneLink.send(this, PhoneLink.PATH_TRIPS, "1")
+        // Screen size lets the phone pre-render the newest trips' overview maps right away.
+        PhoneLink.send(
+            this, PhoneLink.PATH_TRIPS,
+            org.json.JSONObject()
+                .put("px", resources.displayMetrics.widthPixels)
+                .put("density", resources.displayMetrics.density.toDouble())
+                .toString(),
+        )
         handler.postDelayed({
             if (tripsAdapter.itemCount == 0) tripsEmpty?.setText(R.string.trips_no_phone)
         }, 6_000L)

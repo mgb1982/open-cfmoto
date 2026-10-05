@@ -157,8 +157,31 @@ data class RideStats(
     }
 }
 
-/** Wakes up when the phone says the ride (projection to the dash) started or ended. */
+/**
+ * Wakes up when the phone says the ride (projection to the dash) started or ended, and stores the
+ * trip overview maps the phone pre-renders when the trips list opens (so the first tap is instant).
+ */
 class SessionListenerService : WearableListenerService() {
+    override fun onDataChanged(events: com.google.android.gms.wearable.DataEventBuffer) {
+        for (ev in events) {
+            if (ev.type != com.google.android.gms.wearable.DataEvent.TYPE_CHANGED) continue
+            val path = ev.dataItem.uri.path ?: continue
+            if (!path.startsWith(PhoneLink.PATH_TRIPMAP + "/")) continue
+            val dm = com.google.android.gms.wearable.DataMapItem.fromDataItem(ev.dataItem.freeze()).dataMap
+            if (dm.getString("key") != WearKeys.OVERVIEW || !dm.getBoolean("withMap")) continue
+            val asset = dm.getAsset("map") ?: continue
+            val tripId = path.substringAfterLast('/')
+            try {
+                val fd = com.google.android.gms.tasks.Tasks.await(
+                    com.google.android.gms.wearable.Wearable.getDataClient(this).getFdForAsset(asset)
+                )
+                val bytes = fd.inputStream.use { it.readBytes() }
+                WearKeys.overviewFile(this, tripId).writeBytes(bytes)
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     override fun onMessageReceived(messageEvent: MessageEvent) {
         if (messageEvent.path != PhoneLink.PATH_SESSION) return
         PhoneLink.rememberPhone(messageEvent.sourceNodeId)

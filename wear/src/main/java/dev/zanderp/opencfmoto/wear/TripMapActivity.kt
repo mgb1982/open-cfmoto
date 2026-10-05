@@ -14,6 +14,7 @@ import android.os.Looper
 import android.view.GestureDetector
 import android.view.InputDevice
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -27,16 +28,19 @@ import org.json.JSONObject
 import java.io.File
 import java.util.Locale
 import kotlin.math.abs
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
  * One ride's map. The phone renders each view (map + track) and sends it as a Data Layer asset.
  *
- * Coordinates: (u, v) is the centre of what the rider looks at, in the whole-ride frame (0..1 each
- * way; z = 0 shows exactly that frame). The bezel zooms around the current centre (0 … [MAX_ZOOM]).
- * Zoomed images are ~3 screens wide: a finger pans within them, and lifting it near an edge asks the
- * phone for a new image centred where the rider is looking. Swipe-to-dismiss is off (it would fight
- * panning): the back button closes, or a fling right while fully zoomed out.
+ * The VIEW is (zoom, u, v): zoom 0 … [MAX_ZOOM] (continuous; each unit is ×[ZOOM_BASE]) and the
+ * screen centre (u, v) in the whole-ride frame (0..1 each way; zoom 0 shows exactly that frame).
+ * The shown bitmap knows which view it was rendered for, so any view is drawn at once by scaling and
+ * shifting it (blurry or with blank edges until the sharp image arrives). Gestures: drag pans,
+ * pinch or bezel zooms, tap hides/shows the numbers. When a gesture ends and the bitmap no longer
+ * covers the view sharply, the phone is asked for a new one. Swipe-to-dismiss is off (it would fight
+ * panning): the back button closes, or a fast fling right while fully zoomed out.
  */
 class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
 
@@ -46,23 +50,28 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     private lateinit var stats: TextView
     private lateinit var tripId: String
 
-    private var zoom = 0
+    // The view.
+    private var zoom = 0.0
     private var u = 0.5
     private var v = 0.5
     private var rotaryAcc = 0f
 
-    /** What the shown bitmap covers: centre and zoom it was requested with. */
-    private var imgZ = 0
+    // What the shown bitmap was rendered for.
+    private var bmp: Bitmap? = null
+    private var imgZ = 0.0
     private var imgU = 0.5
     private var imgV = 0.5
-    private var bmpSize = 0
-    private var tx = 0f
-    private var ty = 0f
 
     private var pendingKey: String? = null
-    private val pendingParams = HashMap<String, Triple<Int, Double, Double>>()
+    private val pendingParams = HashMap<String, Triple<Double, Double, Double>>()
+    private var scaling = false
 
     private val screen: Int get() = resources.displayMetrics.widthPixels
+
+    /** Whole-ride frame units per screen pixel at a zoom. */
+    private fun unitsPerPx(z: Double) = 1.0 / (ZOOM_BASE.pow(z) * screen)
+
+    private val requestSoon = Runnable { requestIfNeeded() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,24 +90,37 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
                 return true
             }
             override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dx: Float, dy: Float): Boolean {
-                if (bmpSize <= screen) return false
-                tx -= dx
-                ty -= dy
-                applyMatrix()
+                if (scaling || zoom < 0.05) return false
+                val k = unitsPerPx(zoom)
+                u = (u + dx * k).coerceIn(-0.25, 1.25)
+                v = (v + dy * k).coerceIn(-0.25, 1.25)
+                applyView()
                 return true
             }
             override fun onFling(e1: MotionEvent?, e2: MotionEvent, vx: Float, vy: Float): Boolean {
-                if (zoom == 0 && bmpSize <= screen && vx > 1200 && abs(vx) > abs(vy)) {
+                if (zoom < 0.05 && vx > 1200 && abs(vx) > abs(vy)) {
                     finish()
                     return true
                 }
                 return false
             }
         })
+        val pinch = ScaleGestureDetector(this, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScaleBegin(d: ScaleGestureDetector): Boolean { scaling = true; return true }
+            override fun onScale(d: ScaleGestureDetector): Boolean {
+                zoomAround(zoom + ln(d.scaleFactor.toDouble()) / ln(ZOOM_BASE), d.focusX, d.focusY)
+                return true
+            }
+            override fun onScaleEnd(d: ScaleGestureDetector) { scaling = false }
+        })
         image.setOnTouchListener { _, ev ->
+            pinch.onTouchEvent(ev)
             val handled = gestures.onTouchEvent(ev)
-            if (ev.actionMasked == MotionEvent.ACTION_UP) onPanEnd()
-            handled
+            if (ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL) {
+                handler.removeCallbacks(requestSoon)
+                handler.postDelayed(requestSoon, 150)
+            }
+            handled || scaling
         }
         findViewById<View>(R.id.root_map).requestFocus()
     }
@@ -106,7 +128,7 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     override fun onResume() {
         super.onResume()
         Wearable.getDataClient(this).addListener(this)
-        if (bmpSize == 0) request(zoom, u, v)
+        if (bmp == null) request()
     }
 
     override fun onPause() {
@@ -115,26 +137,76 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         super.onPause()
     }
 
+    // ---- View math ----
+
+    /** Zoom to [nz], keeping the map point under (fx, fy) where it is. */
+    private fun zoomAround(nz: Double, fx: Float, fy: Float) {
+        val z2 = nz.coerceIn(0.0, MAX_ZOOM)
+        val ox = fx - screen / 2.0
+        val oy = fy - screen / 2.0
+        val fu = u + ox * unitsPerPx(zoom)
+        val fv = v + oy * unitsPerPx(zoom)
+        zoom = z2
+        if (zoom < 0.05) { zoom = 0.0; u = 0.5; v = 0.5 } else {
+            u = (fu - ox * unitsPerPx(zoom)).coerceIn(-0.25, 1.25)
+            v = (fv - oy * unitsPerPx(zoom)).coerceIn(-0.25, 1.25)
+        }
+        applyView()
+    }
+
+    /** Draw the current view from the bitmap we have (scaled/shifted as needed). */
+    private fun applyView() {
+        val b = bmp ?: return
+        // Bitmap px → frame units, for the view it was rendered at.
+        val imgUnitsPerPx = (b.width.toDouble() / screen) / ZOOM_BASE.pow(imgZ) / b.width
+        val s = (imgUnitsPerPx / unitsPerPx(zoom)).toFloat()
+        val ix = ((u - imgU) / imgUnitsPerPx + b.width / 2.0).toFloat()
+        val iy = ((v - imgV) / imgUnitsPerPx + b.height / 2.0).toFloat()
+        image.imageMatrix = Matrix().apply {
+            setTranslate(-ix, -iy)
+            postScale(s, s)
+            postTranslate(screen / 2f, screen / 2f)
+        }
+        image.invalidate()
+    }
+
+    /** Is the bitmap sharp for this view and does it cover the whole screen? */
+    private fun bitmapFits(): Boolean {
+        val b = bmp ?: return false
+        if (abs(zoom - imgZ) > 0.08) return false
+        val imgUnitsPerPx = (b.width.toDouble() / screen) / ZOOM_BASE.pow(imgZ) / b.width
+        val halfView = screen / 2.0 * unitsPerPx(zoom)
+        val halfImg = b.width / 2.0 * imgUnitsPerPx
+        return abs(u - imgU) + halfView <= halfImg + 1e-6 && abs(v - imgV) + halfView <= halfImg + 1e-6
+    }
+
     // ---- Requests ----
 
-    private fun keyFor(z: Int, cu: Double, cv: Double) =
-        String.format(Locale.ROOT, "%d_%.3f_%.3f", z, cu, cv)
+    private fun keyFor(z: Double, cu: Double, cv: Double) =
+        if (z < 0.05) WearKeys.OVERVIEW else String.format(Locale.ROOT, "%.2f_%.3f_%.3f", z, cu, cv)
 
-    /** Only the whole-ride view is kept on disk ("v2": light style). */
-    private fun overviewFile() = File(cacheDir, "tripmap2_${tripId}_z0.jpg")
+    private fun requestIfNeeded() {
+        if (!bitmapFits()) request()
+    }
 
-    private fun request(z: Int, cu: Double, cv: Double) {
+    private fun request() {
+        val z = zoom
+        val cu = u
+        val cv = v
         val key = keyFor(z, cu, cv)
+        if (key == pendingKey && loading.visibility == View.VISIBLE) return
         pendingKey = key
         pendingParams[key] = Triple(z, cu, cv)
-        if (z == 0) {
-            val f = overviewFile()
+        if (key == WearKeys.OVERVIEW) {
+            val f = WearKeys.overviewFile(this, tripId)
             if (f.exists()) {
-                BitmapFactory.decodeFile(f.path)?.let { showBitmap(it, z, cu, cv); return }
+                BitmapFactory.decodeFile(f.path)?.let { showBitmap(it, 0.0, 0.5, 0.5); return }
             }
         }
         loading.visibility = View.VISIBLE
         loading.setText(R.string.map_loading)
+        // Keep the label readable over a blurry preview: only show it centred when there's no map.
+        loading.alpha = if (bmp == null) 1f else 0.85f
         val req = JSONObject()
             .put("id", tripId)
             .put("key", key)
@@ -144,7 +216,6 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             .put("px", screen)
             .put("density", resources.displayMetrics.density.toDouble())
         PhoneLink.send(this, PhoneLink.PATH_TRIPMAP, req.toString())
-        handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             if (loading.visibility == View.VISIBLE && pendingKey == key) loading.setText(R.string.map_no_phone)
         }, 25_000L)
@@ -164,10 +235,12 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
                     val bytes = try { resp.inputStream.use { it.readBytes() } } catch (_: Exception) { null }
                     if (bytes != null) {
                         // Track-only fallbacks (phone offline) aren't cached, so the map comes later.
-                        if (withMap && params.first == 0) try { overviewFile().writeBytes(bytes) } catch (_: Exception) {}
-                        val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                        if (bmp != null) runOnUiThread {
-                            if (key == pendingKey) showBitmap(bmp, params.first, params.second, params.third)
+                        if (withMap && key == WearKeys.OVERVIEW) {
+                            try { WearKeys.overviewFile(this, tripId).writeBytes(bytes) } catch (_: Exception) {}
+                        }
+                        val b = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        if (b != null) runOnUiThread {
+                            if (key == pendingKey) showBitmap(b, params.first, params.second, params.third)
                         }
                     }
                 }, "tripmap-read").start()
@@ -175,47 +248,17 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
         }
     }
 
-    // ---- Display & panning ----
-
-    private fun showBitmap(bmp: Bitmap, z: Int, cu: Double, cv: Double) {
-        // Draw 1 bitmap px = 1 screen px (the matrix offsets are in screen px).
-        bmp.density = resources.displayMetrics.densityDpi
-        image.setImageBitmap(bmp)
+    private fun showBitmap(b: Bitmap, z: Double, cu: Double, cv: Double) {
+        // Draw 1 bitmap px = 1 screen px before our own matrix.
+        b.density = resources.displayMetrics.densityDpi
+        bmp = b
         imgZ = z; imgU = cu; imgV = cv
-        bmpSize = bmp.width
-        tx = (screen - bmpSize) / 2f
-        ty = (screen - bmp.height) / 2f
-        applyMatrix()
+        image.setImageBitmap(b)
+        applyView()
         loading.visibility = View.GONE
     }
 
-    private fun applyMatrix() {
-        if (bmpSize > screen) {
-            tx = tx.coerceIn((screen - bmpSize).toFloat(), 0f)
-            ty = ty.coerceIn((screen - bmpSize).toFloat(), 0f)
-        }
-        image.imageMatrix = Matrix().apply { setTranslate(tx, ty) }
-    }
-
-    /** Where the screen centre is, in whole-ride (u, v), given the shown image and its offset. */
-    private fun viewCentre(): Pair<Double, Double> {
-        if (bmpSize == 0) return u to v
-        val iu = (screen / 2f - tx) / bmpSize
-        val iv = (screen / 2f - ty) / bmpSize
-        // The image spans (bmp / screen) screens; one screen at zoom z is 1/1.8^z of the frame.
-        val extent = (bmpSize.toDouble() / screen) / 1.8.pow(imgZ)
-        return (imgU + (iu - 0.5) * extent) to (imgV + (iv - 0.5) * extent)
-    }
-
-    private fun onPanEnd() {
-        if (bmpSize <= screen) return
-        val (cu, cv) = viewCentre()
-        u = cu; v = cv
-        val iu = (screen / 2f - tx) / bmpSize
-        val iv = (screen / 2f - ty) / bmpSize
-        // Near an edge of what we have: fetch a fresh image centred here (current one stays up).
-        if (abs(iu - 0.5f) > 0.22f || abs(iv - 0.5f) > 0.22f) request(zoom, u, v)
-    }
+    // ---- Bezel: half a zoom step per click, request once it settles ----
 
     override fun dispatchGenericMotionEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_SCROLL && ev.isFromSource(InputDevice.SOURCE_ROTARY_ENCODER)) {
@@ -223,13 +266,9 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
             val steps = rotaryAcc.toInt()
             if (steps != 0) {
                 rotaryAcc -= steps
-                val nz = (zoom + steps).coerceIn(0, MAX_ZOOM)
-                if (nz != zoom) {
-                    val (cu, cv) = viewCentre()
-                    zoom = nz
-                    if (zoom == 0) { u = 0.5; v = 0.5 } else { u = cu; v = cv }
-                    request(zoom, u, v)
-                }
+                zoomAround(zoom + steps * 0.5, screen / 2f, screen / 2f)
+                handler.removeCallbacks(requestSoon)
+                handler.postDelayed(requestSoon, 350)
             }
             return true
         }
@@ -239,7 +278,8 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
     companion object {
         private const val EXTRA_ID = "trip_id"
         private const val EXTRA_LABEL = "trip_label"
-        private const val MAX_ZOOM = 4
+        private const val MAX_ZOOM = 4.0
+        private const val ZOOM_BASE = 1.8
 
         fun intent(ctx: Context, t: TripSummary): Intent =
             Intent(ctx, TripMapActivity::class.java)
@@ -250,4 +290,10 @@ class TripMapActivity : ComponentActivity(), DataClient.OnDataChangedListener {
                         ctx.getString(R.string.trip_line, t.movingText(), t.avgKmh, t.maxKmh),
                 )
     }
+}
+
+/** Shared by the map screen and the background listener that stores pre-rendered overviews. */
+object WearKeys {
+    const val OVERVIEW = "overview"
+    fun overviewFile(ctx: Context, tripId: String) = File(ctx.cacheDir, "tripmap3_${tripId}_overview.img")
 }

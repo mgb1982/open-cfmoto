@@ -39,19 +39,49 @@ object WearTrips {
 
     private const val MAX_TRIPS = 10
     private const val SNAPSHOT_TIMEOUT_MS = 15_000L
-    private const val MAX_ZOOM_STEP = 4
+    private const val MAX_ZOOM = 4.0
     /** Zoomed images cover this many screens across, so the watch can pan them. */
-    private const val PAN_FACTOR = 3
-    private const val MAX_IMAGE_PX = 1400
+    private const val PAN_FACTOR = 2
+    private const val MAX_IMAGE_PX = 1000
+    /** Overview maps rendered ahead when the watch opens the list, so the first tap is instant. */
+    private const val PREFETCH = 3
+    const val OVERVIEW_KEY = "overview"
 
     private val main = Handler(Looper.getMainLooper())
 
-    /** Reply to the watch with the last [MAX_TRIPS] rides (summary only). */
-    fun sendList(ctx: Context, node: String) {
+    /** One map to render. Jobs run one at a time on the main thread (MapSnapshotter's home). */
+    private class Job(
+        val ctx: Context, val id: String, val key: String, val z: Double,
+        val u: Double, val v: Double, val px: Int, val density: Float,
+    )
+    private val queue = ArrayDeque<Job>()
+    private var busy = false
+
+    private fun enqueue(job: Job, urgent: Boolean) = main.post {
+        queue.removeAll { it.id == job.id && it.key == job.key }
+        if (urgent) queue.addFirst(job) else queue.addLast(job)
+        if (!busy) next()
+    }
+
+    private fun next() {
+        val job = queue.removeFirstOrNull() ?: run { busy = false; return }
+        busy = true
+        prepare(job)
+    }
+
+    private fun done() = main.post { next() }
+
+    /** Reply to the watch with the last [MAX_TRIPS] rides (summary only); then pre-render overviews. */
+    fun sendList(ctx: Context, node: String, requestText: String = "") {
+        val req = try { JSONObject(requestText) } catch (_: Exception) { null }
+        val px = (req?.optInt("px", 0) ?: 0)
+        val density = (req?.optDouble("density", 2.0) ?: 2.0).toFloat().coerceIn(1f, 4f)
         Thread({
             val arr = JSONArray()
+            val ids = ArrayList<String>()
             try {
                 for (t in TripStore.list(ctx).take(MAX_TRIPS)) {
+                    ids.add(t.id)
                     arr.put(
                         JSONObject()
                             .put("id", t.id)
@@ -70,6 +100,9 @@ object WearTrips {
                 Wearable.getMessageClient(ctx).sendMessage(node, PATH_TRIPS, arr.toString().toByteArray(Charsets.UTF_8))
             } catch (_: Exception) {
             }
+            if (px in 200..1000) {
+                for (id in ids.take(PREFETCH)) enqueue(Job(ctx, id, OVERVIEW_KEY, 0.0, 0.5, 0.5, px, density), urgent = false)
+            }
         }, "wear-trips").start()
     }
 
@@ -80,23 +113,33 @@ object WearTrips {
      */
     fun sendMap(ctx: Context, requestJson: String) {
         val req = try { JSONObject(requestJson) } catch (_: Exception) { return }
-        val id = req.optString("id")
-        val key = req.optString("key")
-        val z = req.optInt("z", 0).coerceIn(0, MAX_ZOOM_STEP)
-        val u = req.optDouble("u", 0.5).coerceIn(-0.5, 1.5)
-        val v = req.optDouble("v", 0.5).coerceIn(-0.5, 1.5)
-        val px = req.optInt("px", 450).coerceIn(200, 1000)
-        val density = req.optDouble("density", 2.0).toFloat().coerceIn(1f, 4f)
-        val outPx = if (z == 0) px else (px * PAN_FACTOR).coerceAtMost(MAX_IMAGE_PX)
+        enqueue(
+            Job(
+                ctx = ctx,
+                id = req.optString("id"),
+                key = req.optString("key"),
+                z = req.optDouble("z", 0.0).coerceIn(0.0, MAX_ZOOM),
+                u = req.optDouble("u", 0.5).coerceIn(-0.5, 1.5),
+                v = req.optDouble("v", 0.5).coerceIn(-0.5, 1.5),
+                px = req.optInt("px", 450).coerceIn(200, 1000),
+                density = req.optDouble("density", 2.0).toFloat().coerceIn(1f, 4f),
+            ),
+            urgent = true,
+        )
+    }
+
+    private fun prepare(job: Job) {
+        val outPx = if (job.z < 0.05) job.px else (job.px * PAN_FACTOR).coerceAtMost(MAX_IMAGE_PX)
         Thread({
-            val trip = try { TripStore.get(ctx, id) } catch (_: Exception) { null }
+            val trip = try { TripStore.get(job.ctx, job.id) } catch (_: Exception) { null }
             if (trip == null || trip.points.size < 2) {
-                LogBus.log("[WEAR] map for trip $id: no track")
+                LogBus.log("[WEAR] map for trip ${job.id}: no track")
+                done()
                 return@Thread
             }
             val pts = downsample(trip.points.map { LatLng(it.lat, it.lon) }, 600)
-            val bounds = frame(pts, z, u, v, outPx.toDouble() / px)
-            main.post { render(ctx.applicationContext, id, key, outPx, density, pts, bounds) }
+            val bounds = frame(pts, job.z, job.u, job.v, outPx.toDouble() / job.px)
+            main.post { render(job.ctx.applicationContext, job.id, job.key, outPx, job.density, pts, bounds) }
         }, "wear-tripmap").start()
     }
 
@@ -105,16 +148,19 @@ object WearTrips {
         pts: List<LatLng>, bounds: LatLngBounds,
     ) {
         var done = false
+        val t0 = android.os.SystemClock.elapsedRealtime()
         fun finish(base: Bitmap?, project: ((LatLng) -> PointF)?, withMap: Boolean) {
             if (done) return
             done = true
+            val renderMs = android.os.SystemClock.elapsedRealtime() - t0
             Thread({
                 val bmp = if (base != null && project != null) {
                     base.copy(Bitmap.Config.ARGB_8888, true).also { drawTrack(it, pts, project, density) }
                 } else {
                     plainTrack(px, pts, bounds, density)
                 }
-                publish(ctx, id, key, bmp, withMap)
+                publish(ctx, id, key, bmp, withMap, renderMs)
+                done()
             }, "wear-tripmap-draw").start()
         }
 
@@ -162,10 +208,12 @@ object WearTrips {
         }
     }
 
-    private fun publish(ctx: Context, id: String, key: String, bmp: Bitmap, withMap: Boolean) {
+    private fun publish(ctx: Context, id: String, key: String, bmp: Bitmap, withMap: Boolean, renderMs: Long) {
         try {
             val out = ByteArrayOutputStream()
-            bmp.compress(Bitmap.CompressFormat.JPEG, 82, out)
+            // WebP is ~30-40% smaller than JPEG at the same look: fewer seconds over Bluetooth.
+            if (android.os.Build.VERSION.SDK_INT >= 30) bmp.compress(Bitmap.CompressFormat.WEBP_LOSSY, 72, out)
+            else bmp.compress(Bitmap.CompressFormat.JPEG, 75, out)
             // One data item per trip (replaced on each request); "key" says which view it is.
             val req = PutDataMapRequest.create("$PATH_TRIPMAP/$id")
             req.dataMap.putString("key", key)
@@ -173,7 +221,7 @@ object WearTrips {
             req.dataMap.putBoolean("withMap", withMap)
             req.dataMap.putLong("t", System.currentTimeMillis())
             Wearable.getDataClient(ctx).putDataItem(req.asPutDataRequest().setUrgent())
-            LogBus.log("[WEAR] trip map $id [$key] ${bmp.width}px sent (${out.size() / 1024} KB, ${if (withMap) "map" else "track only"})")
+            LogBus.log("[WEAR] trip map $id [$key] ${bmp.width}px sent (${out.size() / 1024} KB, rendered in ${renderMs} ms, ${if (withMap) "map" else "track only"})")
         } catch (e: Exception) {
             LogBus.log("[WEAR] trip map send failed: ${e.message}")
         }
@@ -184,7 +232,7 @@ object WearTrips {
      * (0..1, 0..1) space the watch's u/v live in. The view is that frame zoomed in by [z] around
      * (u, v); the image covers [cover]× the view so it can be panned.
      */
-    private fun frame(pts: List<LatLng>, z: Int, u: Double, v: Double, cover: Double): LatLngBounds {
+    private fun frame(pts: List<LatLng>, z: Double, u: Double, v: Double, cover: Double): LatLngBounds {
         var minLat = 90.0; var maxLat = -90.0; var minLon = 180.0; var maxLon = -180.0
         for (p in pts) {
             if (p.latitude < minLat) minLat = p.latitude
