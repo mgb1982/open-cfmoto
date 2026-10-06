@@ -26,6 +26,7 @@ object AnonymousTelemetry {
     private const val PREFS = "opencfmoto_telemetry"
     private const val KEY_UUID = "anon_uuid"
     private const val KEY_LAST_PING_MS = "last_ping_ms"
+    private const val KEY_PING_ENDPOINT = "last_ping_endpoint"
     private const val KEY_CRASH_SENT = "crash_fingerprint_sent"
     private const val QUEUE_FILE = "telemetry_queue.json"
     private const val MAX_QUEUE = 24
@@ -114,7 +115,11 @@ object AnonymousTelemetry {
     }
 
     private fun maybeEnqueuePing(ctx: Context) {
-        val last = prefs(ctx).getLong(KEY_LAST_PING_MS, 0L)
+        val p = prefs(ctx)
+        // A new receiver (e.g. v1 → v1.1 moved from the upstream Worker to RideScreen AA's own)
+        // hasn't seen this install yet: ping now instead of waiting out the 20 h interval.
+        val sameEndpoint = p.getString(KEY_PING_ENDPOINT, null) == endpoint()
+        val last = if (sameEndpoint) p.getLong(KEY_LAST_PING_MS, 0L) else 0L
         if (System.currentTimeMillis() - last < PING_INTERVAL_MS) return
         enqueue(ctx, "ping", null)
     }
@@ -189,7 +194,8 @@ object AnonymousTelemetry {
                     }
                     break
                 } else if (item.optString("type") == "ping") {
-                    prefs(ctx).edit().putLong(KEY_LAST_PING_MS, System.currentTimeMillis()).apply()
+                    prefs(ctx).edit().putLong(KEY_LAST_PING_MS, System.currentTimeMillis())
+                        .putString(KEY_PING_ENDPOINT, url).apply()
                 }
             }
             writeQueue(ctx, kept)
