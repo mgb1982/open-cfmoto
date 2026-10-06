@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="status_no_phone">Sense dades del mòbil</string>
+    <string name="status_streaming">● Connectat al quadre</string>
+    <string name="status_reconnecting">● Reconnectant…</string>
+    <string name="status_idle">Sense viatge en curs</string>
+    <string name="label_dist">km</string>
+    <string name="label_time">en marxa</string>
+    <string name="label_max">màx km/h</string>
+    <string name="label_avg">mitjana km/h</string>
+    <string name="hint_logging_off">El registre de viatges està desactivat al mòbil</string>
+    <string name="channel_ride">Viatge en curs</string>
+    <string name="ride_active">Viatge en curs — toca per veure les dades</string>
+    <string name="label_total">temps total</string>
+    <string name="label_alt">altitud m</string>
+    <string name="label_heading">rumb</string>
+    <string name="label_gps">GPS ±m</string>
+    <string name="label_battery">mòbil</string>
+    <string name="label_volume">volum</string>
+    <string name="status_clock_resync">⏱ Ajustant l\'hora…</string>
+    <string name="trips_title">Viatges</string>
+    <string name="trips_loading">Carregant viatges…</string>
+    <string name="trips_none">Encara no hi ha viatges desats</string>
+    <string name="trips_no_phone">El mòbil no respon</string>
+    <string name="trip_line">%1$s · mitjana %2$d · màx %3$d</string>
+    <string name="map_loading">Dibuixant el mapa…</string>
+    <string name="map_no_phone">Sense mapa — tens el mòbil a prop?</string>
+    <string name="map_desc">Mapa del viatge</string>
+    <string name="pill_max">màx %d</string>
+    <string name="pill_avg">mitj. %d</string>
+</resources>
