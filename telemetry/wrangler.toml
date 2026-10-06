@@ -1,6 +1,7 @@
 name = "ridescreen-telemetry"
 main = "src/index.js"
 compatibility_date = "2026-09-01"
+# Deployed by .github/workflows/telemetry.yml
 workers_dev = true
 
 # Weekly summary to Telegram (Mondays 07:00 UTC = 08:00/09:00 in Barcelona) + 180-day cleanup.
