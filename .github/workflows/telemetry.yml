@@ -73,15 +73,24 @@ jobs:
       - name: Telegram secrets + webhook
         if: steps.check.outputs.skip != '1' && env.TG_TOKEN != '' && env.TG_CHAT != ''
         run: |
+          # Secrets pasted from a phone often carry a stray space/newline.
+          TG_TOKEN="$(printf '%s' "$TG_TOKEN" | tr -d '[:space:]')"
+          TG_CHAT="$(printf '%s' "$TG_CHAT" | tr -d '[:space:]')"
+          [[ "$TG_TOKEN" =~ ^[0-9]+:[A-Za-z0-9_-]+$ ]] || echo "::error::TELEGRAM_BOT_TOKEN doesn't look like 123456:ABC… (length ${#TG_TOKEN})"
+          [[ "$TG_CHAT" =~ ^-?[0-9]+$ ]] || echo "::error::TELEGRAM_CHAT_ID should be just the number (length ${#TG_CHAT})"
           printf '%s' "$TG_TOKEN" | npx wrangler secret put TELEGRAM_BOT_TOKEN
           printf '%s' "$TG_CHAT"  | npx wrangler secret put TELEGRAM_CHAT_ID
           SECRET="$(node -e 'const c=require("crypto");process.stdout.write(c.createHash("sha256").update("ridescreen-tg|"+process.argv[1]).digest("hex").slice(0,32))' "$TG_TOKEN")"
           curl -fsS "https://api.telegram.org/bot$TG_TOKEN/setWebhook" \
-            --data-urlencode "url=$URL/tg/$SECRET" -d 'allowed_updates=["message"]' -d drop_pending_updates=true > /dev/null
+            --data-urlencode "url=$URL/tg/$SECRET" -d 'allowed_updates=["message"]' -d drop_pending_updates=true > /dev/null \
+            || { echo "::error::Telegram setWebhook failed (curl $?) — check TELEGRAM_BOT_TOKEN"; exit 1; }
           curl -fsS "https://api.telegram.org/bot$TG_TOKEN/setMyCommands" -H 'content-type: application/json' -d '{"commands":[
             {"command":"resumen","description":"Usuarios, versiones y fallos (7 días)"},
             {"command":"fallos","description":"Fallos agrupados (30 días)"},
-            {"command":"versiones","description":"Instalaciones por versión"}]}' > /dev/null
+            {"command":"versiones","description":"Instalaciones por versión"}]}' > /dev/null || true
+          curl -fsS "https://api.telegram.org/bot$TG_TOKEN/sendMessage" -d "chat_id=$TG_CHAT" \
+            --data-urlencode "text=✅ RideScreen AA: servidor de informes desplegado. Prueba /resumen" > /dev/null \
+            || echo "::warning::Couldn't message chat $TG_CHAT — did you press Start in your bot? Is TELEGRAM_CHAT_ID right?"
           echo "Telegram webhook set"
 
       - name: Smoke test
