@@ -1,18 +1,26 @@
-Versión no oficial de [OpenCfMoto](https://github.com/zanderp/open-cfmoto) (Android Auto inalámbrico en el cuadro) con arreglos para las **Zontes 125X / ZT125T-X**. La mantiene un usuario, no zanderp. El código fuente está en este repositorio (licencia AGPL-3.0).
+**RideScreen AA** es Android Auto inalámbrico en el cuadro de tu moto (cuadros EasyConn/Carbit), con arreglos y extras pensados para las **Zontes 125X / ZT125T-X**. Es la continuación de la versión no oficial de OpenCfMoto que se ha ido compartiendo en el grupo, ahora con nombre, diseño e icono propios.
 
-### Qué cambia respecto a la oficial
-- **El reloj del cuadro ya no se pone a 00:00 / 13:49 al conectar.** La app replica dos mensajes que envía la app oficial de Zontes. Si detecta que el cuadro ha pedido la hora tarde (la señal de que no la ha cogido), reconecta sola unos 10 s después, hasta 3 veces. Durante esos ~3 s la imagen del cuadro se corta: es normal. En la mayoría de trayectos no hace falta y no verás ningún corte.
-- **Volumen según la velocidad** (desactivado por defecto, en Controles): sube el volumen multimedia del móvil (navegación y música) a medida que vas más rápido, para compensar el ruido del viento. Niveles Bajo / Medio / Alto o curva personalizada. Si cambias el volumen a mano, lo respeta como nueva base.
+Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zanderp). No es una app oficial de Zontes ni de CFMoto. Código fuente en este repositorio, licencia AGPL-3.0.
 
-### Instalación
-1. Descarga el archivo `.apk` de abajo (en *Assets*).
-2. Si tienes instalada la versión oficial de OpenCfMoto, **desinstálala primero**: al estar firmadas con claves distintas, Android no deja instalar una encima de la otra.
-3. Ábrelo y permite la instalación desde tu navegador o gestor de archivos si te lo pide.
-   - Puede salir el aviso de **Play Protect** de "app no segura" o "app bloqueada". Es porque la app es nueva y Google aún no la conoce, no porque haga nada raro. Pulsa **Más detalles → Instalar de todas formas**. El código fuente es público en este repositorio.
-4. Las próximas versiones de esta página se instalarán encima, sin perder la configuración.
+### Novedades de la v1
+- **Nuevo diseño:** verde mate y dorado, con la **foto de tu moto** en la pantalla principal (ponla en Garaje), los km y la velocidad máxima del día, y el botón Conectar siempre a mano abajo.
+- **Reloj del cuadro siempre en hora:** si al conectar el cuadro se queda a 00:00, la app lo detecta y lo corrige sola **en unos 3 segundos** (reconecta un momento; verás "⏱ Ajustando hora…"). No hace falta tocar nada.
+- **App para relojes Wear OS (opcional):** se abre sola al conectar con la moto y muestra el viaje en directo (velocidad, km, tiempo, máxima y media). Además trae una cruceta para manejar Android Auto (con el **bisel del Galaxy Watch Classic** como rueda), una pantalla con hora, altitud, rumbo y batería del móvil, y tus **últimos viajes con su mapa** (zoom con el bisel o con los dedos).
+- **Volumen según la velocidad** (en Controles, desactivado por defecto).
+- **Los botones del manillar controlan la música por defecto.** Si quieres que muevan Android Auto, actívalo en Controles → *Los botones del manillar controlan Android Auto*.
 
-### Ajustes recomendados
-- Ajustes → **Clock lab (EXPERIMENTAL)** (en catalán, *Laboratori del rellotge*): preset **Última**, y **Resincronizar el reloj del cuadro (Zontes)** en **Inteligente** (viene así por defecto).
+### Instalación en el móvil
+1. Descarga **`RideScreen-AA-v1.apk`** (abajo, en *Assets*).
+2. Si vienes de la versión del grupo (zontes-1/2), se instala **encima** sin perder nada. Si tienes la OpenCfMoto **oficial**, desinstálala primero: están firmadas con claves distintas.
+3. Si sale el aviso de **Play Protect** ("app no segura" o "bloqueada"), es porque Google aún no conoce la app: **Más detalles → Instalar de todas formas**.
+4. Las próximas versiones te las ofrecerá la propia app.
+
+### Instalación en el reloj (opcional, Wear OS)
+El reloj no instala APK directamente: se hace por depuración inalámbrica, una sola vez.
+1. En el reloj: Ajustes → Información del reloj → Software → toca **Versión de software** 5 veces (activa las opciones de desarrollador).
+2. Ajustes → Conexiones → **Wi-Fi en "Activado"** (no Automático), en la misma red que el móvil. Si no te muestra IP, desactiva un momento el Bluetooth del móvil.
+3. Opciones de desarrollador → **Depuración ADB** y **Depuración inalámbrica**. Sube el tiempo de pantalla para que no se apague mientras emparejas.
+4. Desde el móvil, con **Wear Installer 2** o **Bugjaeger** (Play Store): empareja con el código de "Emparejar nuevo dispositivo" y luego instala **`RideScreen-AA-v1-WearOS-reloj.apk`**. Ojo: el puerto para emparejar y el de conectar son distintos.
 
 ### Si algo falla
-Desde la app, **Compartir registros** y pásalo por el grupo, indicando qué hora mostraba el cuadro antes de conectar y después. Los registros ya ocultan los números de serie y las contraseñas.
+Desde la app, **Compartir registros** y pásalo por el grupo contando qué ha pasado. Los registros ya ocultan números de serie y contraseñas.

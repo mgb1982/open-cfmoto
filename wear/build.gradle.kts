@@ -17,7 +17,8 @@ android {
         minSdk = 30          // Wear OS 3 (Galaxy Watch 4 and newer)
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0" + ((project.findProperty("versionSuffix") as String?) ?: "")
+        versionName = ((project.findProperty("appVersion") as String?) ?: "1") +
+            ((project.findProperty("versionSuffix") as String?) ?: "-dev")
     }
 
     signingConfigs {

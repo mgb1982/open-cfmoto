@@ -22,7 +22,10 @@ android {
         versionCode = 77
         // Fork builds: CI passes -PversionSuffix (e.g. "-zontes2" for a release, "-dev" otherwise) so
         // the About screen and the log's [BUILD] line tell which fork build is installed.
-        versionName = "2.0.18" + ((project.findProperty("versionSuffix") as String?) ?: "")
+        // RideScreen AA: CI passes -PappVersion (from the release tag, e.g. "1", "1.1") and
+        // -PversionSuffix ("" for a release, "-dev" otherwise). Shown as "v<versionName>".
+        versionName = ((project.findProperty("appVersion") as String?) ?: "1") +
+            ((project.findProperty("versionSuffix") as String?) ?: "-dev")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

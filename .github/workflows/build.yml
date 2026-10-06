@@ -5,7 +5,7 @@ on:
     # Pushing a branch release/zontes-N (or a tag zontes-N) publishes a public GitHub Release
     # tagged zontes-N with the APK attached; the tag is created GitHub-side.
     branches: [main, 'test/**', 'feature/**', 'release/**']
-    tags: ['zontes-*']
+    tags: ['v*']
 
 permissions:
   contents: write
@@ -26,16 +26,19 @@ jobs:
       # instead of "app not installed" + uninstall. The key lives in the DEBUG_KEYSTORE_B64 repo
       # secret (base64 JKS, alias androiddebugkey, passwords "android" — what the debugRelease
       # signingConfig and the debug build both read from ~/.android/debug.keystore).
-      - name: Version suffix
+      # RideScreen AA versioning: pushing branch release/v1 (or tag v1, v1.1, …) builds versionName
+      # "1" and publishes a GitHub Release tagged v1. Everything else is "<n>-dev".
+      - name: Version
         shell: bash
         run: |
           case "$GITHUB_REF" in
-            refs/heads/release/*) S="-zontes${GITHUB_REF_NAME#release/zontes-}" ;;
-            refs/tags/zontes-*)   S="-zontes${GITHUB_REF_NAME#zontes-}" ;;
-            *)                    S="-dev" ;;
+            refs/heads/release/v*) V="${GITHUB_REF_NAME#release/v}"; S="" ;;
+            refs/tags/v*)          V="${GITHUB_REF_NAME#v}";         S="" ;;
+            *)                     V="1";                            S="-dev" ;;
           esac
+          echo "APP_VERSION=$V" >> "$GITHUB_ENV"
           echo "VERSION_SUFFIX=$S" >> "$GITHUB_ENV"
-          echo "versionName suffix: $S"
+          echo "versionName: $V$S"
       - name: Install fixed signing key
         env:
           KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
@@ -55,7 +58,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          ./gradlew assembleDebug -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
+          ./gradlew assembleDebug -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
           rc=$?
           if [ $rc -ne 0 ]; then
             grep -E "What went wrong|rror:|^e: " debug-build.log | grep -v "^\s*at " | head -8 \
@@ -66,7 +69,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          ./gradlew assembleRelease -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1
+          ./gradlew assembleRelease -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1
           rc=$?
           if [ $rc -ne 0 ]; then
             # Annotations are readable through the API even when raw logs are not.
@@ -88,23 +91,24 @@ jobs:
           done
       - name: Prepare release APK
         id: rel
-        if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/release/v')
         shell: bash
         run: |
-          TAG="${GITHUB_REF_NAME#release/}"
+          TAG="v${APP_VERSION}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           mkdir -p dist
-          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" "dist/OpenCfMoto-Zontes-$TAG.apk"
+          # Phone APK first; the in-app updater also skips any asset with "wear" in its name.
+          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" "dist/RideScreen-AA-$TAG.apk"
           # Optional Wear OS companion (install on the watch, not the phone).
           W="$(find wear/build/outputs/apk/release -name '*.apk' | head -1)"
-          [ -n "$W" ] && cp "$W" "dist/OpenCfMoto-Zontes-$TAG-RELOJ-WearOS.apk"
+          [ -n "$W" ] && cp "$W" "dist/RideScreen-AA-$TAG-WearOS-reloj.apk"
       - name: Create release
         if: steps.rel.outputs.tag != ''
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.rel.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: OpenCfMoto para Zontes · ${{ steps.rel.outputs.tag }}
+          name: RideScreen AA ${{ steps.rel.outputs.tag }}
           body_path: .github/release-notes.md
           files: dist/*.apk
           prerelease: false

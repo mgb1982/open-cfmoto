@@ -16,9 +16,8 @@ import java.net.URL
 object UpdateChecker {
 
     /**
-     * Zontes fork: releases are published as zontes-N on this repo and signed with the fork's key,
-     * so an upstream (zanderp) APK can't install over it — never offer one. Fork builds compare the
-     * zontes number (versionName "2.0.18-zontesN"); "-dev" builds only see releases on a manual check.
+     * RideScreen AA: releases are published as vN on this repo and signed with the fork's key, so an
+     * upstream (zanderp) APK can't install over it — never offer one. See [isNewerFork].
      */
     const val REPO = "mgb1982/open-cfmoto"
 
@@ -64,7 +63,9 @@ object UpdateChecker {
                 if (assets != null) {
                     for (i in 0 until assets.length()) {
                         val a = assets.getJSONObject(i)
-                        if (a.optString("name").endsWith(".apk", ignoreCase = true)) {
+                        val name = a.optString("name")
+                        // Releases also carry the Wear OS companion: never offer that to the phone.
+                        if (name.endsWith(".apk", ignoreCase = true) && !name.contains("wear", ignoreCase = true)) {
                             apk = a.optString("browser_download_url")
                             break
                         }
@@ -85,17 +86,17 @@ object UpdateChecker {
     }
 
     /**
-     * Fork versioning: tag "zontes-N" vs versionName "...-zontesM". Null when the tag isn't a fork
-     * release (fall back to [isNewer]). A "-dev" build is never nagged automatically; on a manual
-     * check it is offered the latest release.
+     * RideScreen AA versioning: tags "v1", "v1.1", … vs versionName "1", "1.1" (release) or "1-dev".
+     * Null when the tag isn't one of ours (fall back to [isNewer]). A "-dev" build is never nagged
+     * automatically; on a manual check it is offered the latest release. Builds from before the
+     * rename ("…-zontesN") are always offered a RideScreen release.
      */
     internal fun isNewerFork(latestTag: String, currentVersion: String, manual: Boolean): Boolean? {
-        val latest = Regex("zontes-?(\\d+)", RegexOption.IGNORE_CASE).find(latestTag)
-            ?.groupValues?.get(1)?.toIntOrNull() ?: return null
-        val current = Regex("zontes(\\d+)", RegexOption.IGNORE_CASE).find(currentVersion)
-            ?.groupValues?.get(1)?.toIntOrNull()
-            ?: return manual
-        return latest > current
+        val latest = Regex("^v(\\d+(?:\\.\\d+)*)$", RegexOption.IGNORE_CASE).find(latestTag.trim())
+            ?.groupValues?.get(1) ?: return null
+        if (currentVersion.endsWith("-dev", ignoreCase = true)) return manual
+        if (currentVersion.contains("zontes", ignoreCase = true)) return true
+        return isNewer(latest, currentVersion)
     }
 
     internal fun isNewer(latest: String, current: String): Boolean {
