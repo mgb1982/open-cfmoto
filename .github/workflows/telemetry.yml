@@ -1,0 +1,93 @@
+name: Deploy telemetry Worker
+# Deploys telemetry/ (Cloudflare Worker + D1) that receives the app's anonymous pings and
+# crash/error reports and alerts on Telegram. Needs these repo secrets:
+#   CLOUDFLARE_API_TOKEN   token with Workers Scripts:Edit + D1:Edit (+ Account Settings:Read)
+#   CLOUDFLARE_ACCOUNT_ID  the account id (right column of the Cloudflare dashboard)
+#   TELEGRAM_BOT_TOKEN     from @BotFather (optional: without it there are no alerts)
+#   TELEGRAM_CHAT_ID       your chat id with the bot (optional, same as above)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'feature/**']
+    paths: ['telemetry/**', '.github/workflows/telemetry.yml']
+
+concurrency: telemetry-deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: telemetry
+        shell: bash
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+      DB_NAME: ridescreen-telemetry
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets
+        id: check
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID not set — skipping deploy"
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.skip != '1'
+        with:
+          node-version: '22'
+      - name: Install wrangler
+        if: steps.check.outputs.skip != '1'
+        run: npm install --no-audit --no-fund
+
+      - name: Find or create the D1 database
+        if: steps.check.outputs.skip != '1'
+        run: |
+          find_id() { npx wrangler d1 list --json 2>/dev/null | jq -r --arg n "$DB_NAME" '.[] | select(.name==$n) | .uuid' | head -1; }
+          ID="$(find_id)"
+          if [ -z "$ID" ]; then
+            npx wrangler d1 create "$DB_NAME" > create.log 2>&1 || { sed 's/^/::error::/' create.log | head -5; exit 1; }
+            ID="$(find_id)"
+          fi
+          [ -n "$ID" ] || { echo "::error::Could not find or create D1 database $DB_NAME"; exit 1; }
+          sed -i "s/^database_id = .*/database_id = \"$ID\"/" wrangler.toml
+          echo "D1 $DB_NAME = $ID"
+
+      - name: Apply database migrations
+        if: steps.check.outputs.skip != '1'
+        run: npx wrangler d1 migrations apply "$DB_NAME" --remote
+
+      - name: Deploy Worker
+        if: steps.check.outputs.skip != '1'
+        run: |
+          set -o pipefail
+          npx wrangler deploy 2>&1 | tee deploy.log || {
+            grep -iE "error|subdomain" deploy.log | head -5 | sed 's/^/::error::/'; exit 1; }
+          URL="$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)"
+          [ -n "$URL" ] || { echo "::error::No workers.dev URL in the deploy output (is a workers.dev subdomain registered? Open Workers & Pages once in the dashboard)"; exit 1; }
+          echo "URL=$URL" >> "$GITHUB_ENV"
+
+      - name: Telegram secrets + webhook
+        if: steps.check.outputs.skip != '1' && env.TG_TOKEN != '' && env.TG_CHAT != ''
+        run: |
+          printf '%s' "$TG_TOKEN" | npx wrangler secret put TELEGRAM_BOT_TOKEN
+          printf '%s' "$TG_CHAT"  | npx wrangler secret put TELEGRAM_CHAT_ID
+          SECRET="$(node -e 'const c=require("crypto");process.stdout.write(c.createHash("sha256").update("ridescreen-tg|"+process.argv[1]).digest("hex").slice(0,32))' "$TG_TOKEN")"
+          curl -fsS "https://api.telegram.org/bot$TG_TOKEN/setWebhook" \
+            --data-urlencode "url=$URL/tg/$SECRET" -d 'allowed_updates=["message"]' -d drop_pending_updates=true > /dev/null
+          curl -fsS "https://api.telegram.org/bot$TG_TOKEN/setMyCommands" -H 'content-type: application/json' -d '{"commands":[
+            {"command":"resumen","description":"Usuarios, versiones y fallos (7 días)"},
+            {"command":"fallos","description":"Fallos agrupados (30 días)"},
+            {"command":"versiones","description":"Instalaciones por versión"}]}' > /dev/null
+          echo "Telegram webhook set"
+
+      - name: Smoke test
+        if: steps.check.outputs.skip != '1'
+        run: |
+          sleep 5
+          curl -fsS "$URL/" ; echo
+          echo "::notice title=Telemetry URL::$URL  (set it as the TELEMETRY_URL repo variable for app builds)"
+          echo "### Telemetry Worker deployed: \`$URL\`" >> "$GITHUB_STEP_SUMMARY"

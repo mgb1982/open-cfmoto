@@ -38,10 +38,12 @@ android {
         buildConfigField("String", "ORS_API_KEY", "\"$orsDefaultKey\"")
 
         // Anonymous telemetry Worker base URL (no trailing slash). Empty disables uploads.
-        // Override: -PtelemetryUrl=https://….workers.dev  or TELEMETRY_URL env / gradle.properties
+        // RideScreen AA builds get it from the TELEMETRY_URL repo variable (our own Worker in
+        // telemetry/, see .github/workflows/telemetry.yml); local builds send nothing unless
+        // -PtelemetryUrl=https://….workers.dev or the TELEMETRY_URL env var is given.
         val telemetryUrl = (project.findProperty("telemetryUrl") as String?)
             ?: System.getenv("TELEMETRY_URL")
-            ?: "https://opencfmoto-telemetry.hello-3d9.workers.dev"
+            ?: ""
         buildConfigField("String", "TELEMETRY_URL", "\"$telemetryUrl\"")
 
         // Short git hash for Share Logs triage (configuration-cache safe).

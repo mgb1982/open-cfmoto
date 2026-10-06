@@ -56,6 +56,8 @@ jobs:
 
       - name: Build debug APK
         shell: bash
+        env:
+          TELEMETRY_URL: ${{ vars.TELEMETRY_URL }}
         run: |
           set +e
           ./gradlew assembleDebug -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
@@ -67,6 +69,8 @@ jobs:
           exit $rc
       - name: Build release APK
         shell: bash
+        env:
+          TELEMETRY_URL: ${{ vars.TELEMETRY_URL }}
         run: |
           set +e
           ./gradlew assembleRelease -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1

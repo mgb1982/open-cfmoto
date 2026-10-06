@@ -1,6 +1,10 @@
 # OpenCfMoto — Privacy & Permissions
 
-_Last updated: 2026-07-29_
+_Last updated: 2026-10-06 (RideScreen AA v1.1)_
+
+> **RideScreen AA** is a fork of OpenCfMoto maintained by Manel (GitHub: mgb1982). Everything
+> below applies to it; the only difference is **who receives the anonymous reports** — since
+> v1.1 they go to a service run by the fork maintainer, not to the original OpenCfMoto project.
 
 OpenCfMoto is a **local-first** app. It connects your phone to a CFMoto MotoPlay
 dashboard (T-Box) over the bike's own Wi-Fi and projects Android Auto or your
@@ -17,7 +21,7 @@ This document explains what the app can access, why, and where data goes.
 - **No account, no sign-in.** The app never asks who you are.
 - **Optional anonymous telemetry (default on).** A random UUID, app version, and
   (when something breaks) a redacted crash/error snippet may be sent to a
-  Cloudflare Worker operated for this project — so we can see roughly how many
+  Cloudflare Worker operated by the RideScreen AA maintainer — so we can see roughly how many
   phones use the app and fix crashes. Turn it off anytime under
   **Setup → Privacy → Anonymous usage & crash reports**.
 - **Your ride data stays on the device** (bike profiles, trip GPS logs).
@@ -98,9 +102,17 @@ If the phone has no internet (or is only on the bike SoftAP), events stay in a
 small local queue and upload later over cellular/home Wi‑Fi. Turning the toggle
 **Off** stops uploads and clears the outbound queue.
 
-The ingest service is a Cloudflare Worker + D1 database for this project
-([opencfmoto-telemetry](https://github.com/zanderp/opencfmoto-telemetry)).
-Aggregates (unique UUIDs, versions, crash counts) are used for maintenance only.
+The ingest service is a Cloudflare Worker + D1 database run by the RideScreen AA
+maintainer; its full source is in this repository under [`telemetry/`](telemetry/).
+It stores only what the app sends (the random UUID, version info, Android API
+level, UI language and the redacted crash/error text). It does **not** store your
+IP address, country or any request headers. Records are deleted automatically
+after 180 days without activity. New crashes and errors trigger a private
+Telegram notification to the maintainer so they can be fixed quickly; the data is
+not shared with anyone else and is used for maintenance only.
+
+Builds of RideScreen AA up to v1 sent these reports to the original OpenCfMoto
+project's service ([opencfmoto-telemetry](https://github.com/zanderp/opencfmoto-telemetry)).
 
 ## Data that leaves the phone (other)
 
@@ -129,8 +141,9 @@ overlay dimming/seamless-resume simply stays off unless granted.
 
 ## Contact
 
-OpenCfMoto is an independent, unofficial project. Questions about privacy or
-licensing: <https://alexandru.rocks>.
+RideScreen AA questions: open an issue at <https://github.com/mgb1982/open-cfmoto/issues>.
+OpenCfMoto (the original project) is an independent, unofficial project by
+Alexandru: <https://alexandru.rocks>.
 
 CFMOTO, MotoPlay, EasyConn, Android Auto, and Google are trademarks of their
 respective owners; this project is not affiliated with or endorsed by them.
