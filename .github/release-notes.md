@@ -7,7 +7,6 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 - **Reloj del cuadro siempre en hora:** si al conectar el cuadro se queda a 00:00, la app lo detecta y lo corrige sola **en unos 3 segundos** (reconecta un momento; verás "⏱ Ajustando hora…"). No hace falta tocar nada.
 - **App para relojes Wear OS (opcional):** se abre sola al conectar con la moto y muestra el viaje en directo (velocidad, km, tiempo, máxima y media). Además trae una cruceta para manejar Android Auto (con el **bisel del Galaxy Watch Classic** como rueda), una pantalla con hora, altitud, rumbo y batería del móvil, y tus **últimos viajes con su mapa** (zoom con el bisel o con los dedos).
 - **Volumen según la velocidad** (en Controles, desactivado por defecto).
-- **Los botones del manillar controlan la música por defecto.** Si quieres que muevan Android Auto, actívalo en Controles → *Los botones del manillar controlan Android Auto*.
 
 ### Instalación en el móvil
 1. Descarga **`RideScreen-AA-v1.apk`** (abajo, en *Assets*).
