@@ -39,6 +39,8 @@ jobs:
           echo "APP_VERSION=$V" >> "$GITHUB_ENV"
           echo "VERSION_SUFFIX=$S" >> "$GITHUB_ENV"
           echo "versionName: $V$S"
+          if [ -n "${{ vars.TELEMETRY_URL }}" ]; then echo "::notice::Crash reports → ${{ vars.TELEMETRY_URL }}"
+          else echo "::warning::TELEMETRY_URL repo variable not set — this build sends no crash reports"; fi
       - name: Install fixed signing key
         env:
           KEYSTORE_B64: ${{ secrets.DEBUG_KEYSTORE_B64 }}
