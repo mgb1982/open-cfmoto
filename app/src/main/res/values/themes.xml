@@ -31,8 +31,9 @@
         <item name="elevationOverlayEnabled">false</item>
 
         <!-- Archivo everywhere; Archivo Black for headline numbers and titles (TextAppearance.Ocm.Display). -->
+        <!-- Only android:fontFamily here: a theme-level app:fontFamily makes AppCompat override every
+             view's own android:fontFamily (headlines in Archivo Black came out regular). -->
         <item name="android:fontFamily">@font/archivo</item>
-        <item name="fontFamily">@font/archivo</item>
         <item name="textAppearanceDisplaySmall">@style/TextAppearance.Ocm.Display</item>
         <item name="textAppearanceHeadlineLarge">@style/TextAppearance.Ocm.Headline</item>
         <item name="textAppearanceHeadlineMedium">@style/TextAppearance.Ocm.Headline</item>
