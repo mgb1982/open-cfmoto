@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Draft + terminology pass — improve via PR: docs/TRANSLATIONS.md -->
 <resources>
-    <string name="app_name">Open CfMoto</string>
+    <string name="app_name">RideScreen AA</string>
     <string name="about_copyright">© 2026 Alexandru</string>
     <string name="about_copyright_body">Karbantartja Alexandru (zanderp). Szabad szoftver a GNU AGPL v3 vagy újabb alatt — a teljes szerzői jogi és attribúciós szöveg a LICENSE és NOTICE fájlokban található a repóban.</string>
     <string name="about_license_body">Az AGPL alatt használhatod, tanulmányozhatod, megoszthatod és módosíthatod ezt az alkalmazást. Ha módosított verziót terjesztesz (beleértve hálózati szolgáltatásként is), a teljes megfelelő forráskódot ugyanezen licenc alatt kell elérhetővé tenned.</string>
     <string name="about_credits">Az open-cfmoto közösségi örökségre épül:\n\n• dcoletto / coletz — eredeti QR és EasyConn munka\n• BojanJ — Android Auto vevő integráció\n• richardbizik — 1000 MT‑X támogatás\n• ionutradu252 / open-cflink — kormányvezérlés, margók, újracsatlakozás és finomítások\n• eugen0309 — Wi‑Fi Direct / CL‑C450 útvonal\n• headunit-revived — Android Auto vetítési stack (AGPL)\n\nÉs mindenki, aki tesztelte a motorokat, megosztotta a naplókat és jelentette a hibákat.</string>
-    <string name="about_disclaimer">Az OpenCfMoto független közösségi projekt. Nem áll kapcsolatban a CFMOTO-val, a Carbit-tel, a Google-lal, az Android Autóval vagy más EasyConnect-stílusú műszerfalakat licencelő márkákkal (köztük Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli és Longjia), és nem támogatják vagy szponzorálják őket. A CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto és kapcsolódó védjegyek a megfelelő tulajdonosok védjegyei. Saját felelősségre használd — állítsd be az útvonalat indulás előtt.</string>
+    <string name="about_disclaimer">Az RideScreen AA független közösségi projekt. Nem áll kapcsolatban a CFMOTO-val, a Carbit-tel, a Google-lal, az Android Autóval vagy más EasyConnect-stílusú műszerfalakat licencelő márkákkal (köztük Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli és Longjia), és nem támogatják vagy szponzorálják őket. A CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto és kapcsolódó védjegyek a megfelelő tulajdonosok védjegyei. Saját felelősségre használd — állítsd be az útvonalat indulás előtt.</string>
     <string name="supported_bikes_intro">Működik CFMoto MotoPlay / EasyConnect és más Carbit-keretrendszerű műszerfalakkal, amelyek párosító QR-kódot mutatnak. T‑BOX nem szükséges. USA és nemzetközi — ha látod a QR-kódot, próbáld a Csatlakozást.</string>
-    <string name="supported_bikes_confirmed_title">OpenCfMoto-val megerősítve</string>
+    <string name="supported_bikes_confirmed_title">RideScreen AA-val megerősítve</string>
     <string name="supported_bikes_confirmed">CFMoto: 800MT (MT‑X / Explore / Explore GT) · 1000 MT‑X · 800NK (US CRCP) · 800NK Advanced · 675NK · 700MT Adventure · 450MT · 450SR (+ SR‑S / TC) · 450CL‑C / CL‑C450 · 450NK · 150SC scooter · CFORCE 850 / 1000 · GOES Terrox 1000 / Gladiator G3 1000\nEgyéb: Voge DS800 Rally / DS900X · Moto Morini X-Cape 649 / 700 / Seiemmezzo · Benelli TRK 702 / 702X · Rieju 307 · Zontes 125X · Morbidelli T1002VX / T352X · QJ Motor SRK800RR / SRK450RR / SRK250RD / SRT 600 / SRV600</string>
     <string name="supported_bikes_other_title">Egyéb márkák (Carbit / EasyConnect)</string>
     <string name="supported_bikes_other">Ugyanaz a Carbit QR útvonal — próbáld a Csatlakozást, ha a műszerfal párosító QR-kódot mutat. Eredményeket jelentsd Discordon.\nVoge (DS800 Rally / DS900X megerősítve) · Moto Morini (X-Cape 649 / 700 / Seiemmezzo megerősítve; MotoFun) · Zontes (125X confirmed) · Benelli (pl. TRK 702 / 702X) · QJ Motor (SRK800RR / SRK250RD / SRK450RR / SRT/SRV 600 confirmed; 600SX / 550SX testing; Fort 4.0) · Morbidelli / MBP (T1002VX megerősítve) · Longjia (pl. V-Bob 650; MotoFUN / Carbit Ride — nem megerősített)</string>
@@ -174,7 +174,7 @@
     <string name="gpx_downloading_roadside_poi">Útszéli POI letöltése…</string>
     <string name="gpx_no_roadside_poi_in_corridor">Nincs útszéli POI a folyosón</string>
     <string name="gpx_roadside_poi_count">Útszéli POI: %1$d (benzinkút, parkoló, étterem…)</string>
-    <string name="gpx_export_map_subject">OpenCfMoto térkép adatok</string>
+    <string name="gpx_export_map_subject">RideScreen AA térkép adatok</string>
     <string name="gpx_export_map_chooser">Térkép adatok exportálása</string>
     <string name="gpx_export_failed">Export sikertelen: %1$s</string>
     <string name="gpx_free_ride_place">Szabad vezetés</string>
@@ -233,7 +233,7 @@
     <string name="main_search_a_place_or_address">Hely vagy cím keresése…</string>
     <string name="main_go">Indítás</string>
     <string name="main_rider_tips">Motoros tippek</string>
-    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Csatlakozás — Android Auto indítása a műszerfalon (kapcsolat közben Leállítás lesz).\n• Térkép — OpenCfMoto térkép / GPX (nem Google Maps). Tükrözés — telefon képernyő tükrözése.\n• Kapcsolat közben a Térkép / Tükrözés váltja, mit mutat a műszerfal.\n• Műszerfal nézet és Vezérlés — telefon HUD és D-pad / kormány.</string>
+    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Csatlakozás — Android Auto indítása a műszerfalon (kapcsolat közben Leállítás lesz).\n• Térkép — RideScreen AA térkép / GPX (nem Google Maps). Tükrözés — telefon képernyő tükrözése.\n• Kapcsolat közben a Térkép / Tükrözés váltja, mit mutat a műszerfal.\n• Műszerfal nézet és Vezérlés — telefon HUD és D-pad / kormány.</string>
     <string name="main_about_credits">Névjegy és köszönet</string>
     <string name="main_check_for_update">Frissítés keresése</string>
     <string name="main_report_a_problem">Probléma jelentése</string>
@@ -241,7 +241,7 @@
     <string name="main_report_hint_problem">Mi volt a probléma?</string>
     <string name="main_report_hint_bike_model">Modell (pl. 800NK Advanced)</string>
     <string name="main_report_hint_year">Évjárat (opcionális)</string>
-    <string name="main_mirror_leave_shared_app">Hagyd a megosztott alkalmazást a képernyőn (az OpenCfMoto az értesítésben marad)</string>
+    <string name="main_mirror_leave_shared_app">Hagyd a megosztott alkalmazást a képernyőn (az RideScreen AA az értesítésben marad)</string>
     <string name="main_share_problem_report">Probléma jelentés megosztása</string>
     <string name="main_diagnostics">Diagnosztika</string>
     <string name="main_share">Megosztás</string>
@@ -265,7 +265,7 @@
     <string name="setup_a_one_time_setup_so_android_auto_can_project_to_">Egyszeri előkészítés, hogy az Android Auto vetíthessen a CFMoto műszerfaladra, plusz kijelző- és akkumulátor beállítások.</string>
     <string name="setup_get_started">Kezdés</string>
     <string name="setup_1_android_auto">1. Android Auto</string>
-    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Az Android Auto futtatja a Maps/Waze-t. Az OpenCfMoto továbbítja a képernyőjét a motorra.</string>
+    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Az Android Auto futtatja a Maps/Waze-t. Az RideScreen AA továbbítja a képernyőjét a motorra.</string>
     <string name="setup_open_android_auto">Android Auto megnyitása</string>
     <string name="setup_install_android_auto">Android Auto telepítése</string>
     <string name="setup_2_permissions">2. Engedélyek</string>
@@ -392,7 +392,7 @@
     <string name="setup_share_json">JSON megosztása</string>
     <string name="setup_import">Importálás…</string>
     <string name="setup_supported_bikes">Támogatott motorok</string>
-    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">© 2026 Alexandru · OpenCfMoto · AGPL‑3.0</string>
+    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">RideScreen AA · based on OpenCfMoto © 2026 Alexandru · AGPL‑3.0</string>
     <string name="trip_trip_computer">Útinformáció</string>
     <string name="trip_saved_trips">Mentett túrák</string>
     <string name="trip_waiting_for_gps">GPS várakozás…</string>
@@ -513,15 +513,15 @@
 
     <!-- Notifications -->
     <string name="notif_aa_channel">Android Auto vevő</string>
-    <string name="notif_aa_title">OpenCfMoto — Android Auto</string>
+    <string name="notif_aa_title">RideScreen AA — Android Auto</string>
     <string name="notif_aa_reconnecting">Újracsatlakozás a motor műszerfalához…</string>
     <string name="notif_aa_receiving">Android Auto fogadása a motor műszerfalához — koppints a megnyitáshoz</string>
     <string name="notif_bike_reconnected">Motor újracsatlakozott</string>
     <string name="notif_tap_resume">Koppints a tükrözés folytatásához a műszerfalra</string>
-    <string name="notif_map_title">OpenCfMoto Térkép</string>
+    <string name="notif_map_title">RideScreen AA Térkép</string>
     <string name="notif_map_text">Térkép a műszerfalon — a kormány a gomb-hozzárendelésedet használja</string>
     <string name="notif_mirror_channel">Képernyő tükrözés</string>
-    <string name="notif_mirror_title">OpenCfMoto</string>
+    <string name="notif_mirror_title">RideScreen AA</string>
     <string name="notif_mirror_text">Képernyő tükrözése a motorra</string>
     <string name="notif_media_channel">Motor gomb vezérlés</string>
     <string name="notif_media_title">Android Auto vezérlés</string>
@@ -556,7 +556,7 @@
     <!-- Privacy / anonymous telemetry -->
     <string name="setup_privacy">Adatvédelem</string>
     <string name="setup_anonymous_telemetry">Névtelen használat és összeomlás jelentések</string>
-    <string name="setup_anonymous_telemetry_desc">Véletlenszerű eszközazonosítót, alkalmazás verziót és (ha van) összeomlás/hiba szöveget küld az OpenCfMoto projektnek, hogy lássuk hány telefon használja az alkalmazást és javítsuk a hibákat. Nincs fiók, nincs GPS útvonal, nincs Wi‑Fi jelszó, nincs motor név. Kikapcsolva = semmi nem töltődik fel.</string>
+    <string name="setup_anonymous_telemetry_desc">Véletlenszerű eszközazonosítót, alkalmazás verziót és (ha van) összeomlás/hiba szöveget küld az RideScreen AA projektnek, hogy lássuk hány telefon használja az alkalmazást és javítsuk a hibákat. Nincs fiók, nincs GPS útvonal, nincs Wi‑Fi jelszó, nincs motor név. Kikapcsolva = semmi nem töltődik fel.</string>
     <string name="setup_anonymous_telemetry_on">Bekapcsolva — névtelen pingek és összeomlás jelentések</string>
     <string name="setup_anonymous_telemetry_off">Kikapcsolva — semmi sem töltődik fel</string>
     <string name="setup_anonymous_id">Névtelen azonosító: %1$s</string>

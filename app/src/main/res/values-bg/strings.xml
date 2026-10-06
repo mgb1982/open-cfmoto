@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Draft from sashop2001/APOpenCfMoto — improve via PR: docs/TRANSLATIONS.md -->
+<!-- Draft from sashop2001/APRideScreen AA — improve via PR: docs/TRANSLATIONS.md -->
 <resources>
-    <string name="app_name">Open CfMoto</string>
+    <string name="app_name">RideScreen AA</string>
     <string name="about_copyright">© 2026 Alexandru</string>
     <string name="about_copyright_body">Поддържа се от Alexandru (zanderp). Безплатен софтуер под GNU AGPL v3 или по-нова версия — вижте LICENSE и NOTICE в хранилището за пълния текст относно авторските права.</string>
     <string name="about_license_body">Можете да използвате, изучавате, споделяте и модифицирате това приложение според AGPL. Ако разпространявате модифицирана версия (включително като мрежова услуга), трябва да предложите пълния съответен изходен код под същия лиценз.</string>
     <string name="about_credits">Изградено въз основа на общността на open-cfmoto:\n\n• dcoletto / coletz — първоначална работа по QR и EasyConn\n• BojanJ — интеграция на Android Auto receiver\n• richardbizik — поддръжка за 1000 MT‑X\n• ionutradu252 / open-cflink — управление от кормилото, полета, повторно свързване и полиране\n• eugen0309 — Wi‑Fi Direct / CL‑C450 свързване\n• Martin Escudero (martinescudero) — Android Auto 17.4+ сървърна свързаност\n• headunit-revived — стек за прожектиране на Android Auto (AGPL)\n\nИ всички, които тестваха моторите, споделяха логове и докладваха проблеми.</string>
-    <string name="about_disclaimer">OpenCfMoto е независим проект на общността. Не е свързан с, одобрен от или спонсориран от CFMOTO, Carbit, Google, Android Auto или други марки, лицензиращи табла в стил EasyConnect (включително Voge, Zontes, Moto Morini, Benelli, Rieju, QJ Motor, Morbidelli, Longjia и Kove). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto и свързаните с тях марки са търговски марки на съответните им собственици. Използвайте на свой собствен риск — задайте маршрута си преди да потеглите.</string>
+    <string name="about_disclaimer">RideScreen AA е независим проект на общността. Не е свързан с, одобрен от или спонсориран от CFMOTO, Carbit, Google, Android Auto или други марки, лицензиращи табла в стил EasyConnect (включително Voge, Zontes, Moto Morini, Benelli, Rieju, QJ Motor, Morbidelli, Longjia и Kove). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto и свързаните с тях марки са търговски марки на съответните им собственици. Използвайте на свой собствен риск — задайте маршрута си преди да потеглите.</string>
     <string name="supported_bikes_intro">Работи с CFMoto MotoPlay / EasyConnect и други табла с Carbit-фреймуърк, които показват QR код за сдвояване. Не се изисква T‑BOX. За САЩ и международни модели — ако виждате QR кода, опитайте Свързване (Connect).</string>
-    <string name="supported_bikes_confirmed_title">Потвърдени с OpenCfMoto</string>
+    <string name="supported_bikes_confirmed_title">Потвърдени с RideScreen AA</string>
     <string name="supported_bikes_confirmed">CFMoto: 800MT (MT‑X / Explore / Explore GT / Ibex 800) · 1000 MT‑X · 800NK (US CRCP) · 800NK Advanced · 675NK · 675SR‑R · 700MT Adventure · 450MT · 450SR (+ SR‑S / TC) · 450CL‑C / CL‑C450 · 450NK · 150SC скутер · CFORCE 850 / 1000 · GOES Terrox 1000 / Gladiator G3 1000\nДруги: Voge DS800 Rally / DS900X · Moto Morini X-Cape 649 / 700 / Seiemmezzo · Benelli TRK 702 / 702X · Rieju 307 · Zontes 125X · Morbidelli T1002VX / T352X · QJ Motor SRK800RR / SRK450RR / SRK250RD / SRT 600 / SRV600</string>
     <string name="supported_bikes_other_title">Други марки (Carbit / EasyConnect)</string>
     <string name="supported_bikes_other">Същият Carbit QR път — опитайте Свързване, ако таблото показва QR код за сдвояване. Споделете резултатите в Discord.\nVoge (DS800 Rally / DS900X потвърдени) · Moto Morini (X-Cape 649 / 700 / Seiemmezzo потвърдени; 1200 SoftAP експериментално; MotoFun) · Zontes (125X потвърден) · Benelli (напр. TRK 702 / 702X) · Rieju (307 потвърден) · QJ Motor (SRK800RR / SRK250RD / SRK450RR / SRT/SRV 600 потвърдени; 600SX / 550SX в процес на тестване; Fort 4.0) · Morbidelli / MBP (T1002VX / T352X потвърдени) · Longjia (напр. V-Bob 650; MotoFUN / Carbit Ride — непотвърдено) · Kove (Thinkerride SoftAP експериментално — все още без видео на таблото)</string>
@@ -181,7 +181,7 @@
     <string name="gpx_downloading_roadside_poi">Изтегляне на крайпътни POI…</string>
     <string name="gpx_no_roadside_poi_in_corridor">Няма крайпътни POI в коридора</string>
     <string name="gpx_roadside_poi_count">Крайпътни POI: %1$d (гориво, паркинг, храна…)</string>
-    <string name="gpx_export_map_subject">Данни за картата на OpenCfMoto</string>
+    <string name="gpx_export_map_subject">Данни за картата на RideScreen AA</string>
     <string name="gpx_export_map_chooser">Експортиране на данни за картата</string>
     <string name="gpx_export_failed">Неуспешно експортиране: %1$s</string>
     <string name="gpx_free_ride_place">Свободно каране</string>
@@ -240,7 +240,7 @@
     <string name="main_search_a_place_or_address">Търсене на място или адрес…</string>
     <string name="main_go">Тръгни</string>
     <string name="main_rider_tips">Съвети за водача</string>
-    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Свързване (Connect) — стартира Android Auto на таблото (става Спри, докато сте свързани).\n• Карта (Map) — Карта на OpenCfMoto / GPX (не Google Maps). Огледален (Mirror) — предава екрана на телефона.\n• Докато сте свързани, Карта / Огледален превключват какво показва таблото.\n• Изглед табло и Контроли — екранни бутони на телефона и управление от кормилото.</string>
+    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Свързване (Connect) — стартира Android Auto на таблото (става Спри, докато сте свързани).\n• Карта (Map) — Карта на RideScreen AA / GPX (не Google Maps). Огледален (Mirror) — предава екрана на телефона.\n• Докато сте свързани, Карта / Огледален превключват какво показва таблото.\n• Изглед табло и Контроли — екранни бутони на телефона и управление от кормилото.</string>
     <string name="main_about_credits">Относно и признания</string>
     <string name="main_check_for_update">Провери за актуализация</string>
     <string name="main_report_a_problem">Докладвай проблем</string>
@@ -248,7 +248,7 @@
     <string name="main_report_hint_problem">Какво се обърка?</string>
     <string name="main_report_hint_bike_model">Модел на мотора (напр. 800NK Advanced)</string>
     <string name="main_report_hint_year">Година (по избор)</string>
-    <string name="main_mirror_leave_shared_app">Оставете споделеното приложение на екрана (OpenCfMoto остава в известията)</string>
+    <string name="main_mirror_leave_shared_app">Оставете споделеното приложение на екрана (RideScreen AA остава в известията)</string>
     <string name="main_share_problem_report">Сподели доклад за проблем</string>
     <string name="main_diagnostics">Диагностика</string>
     <string name="main_share">Сподели</string>
@@ -272,7 +272,7 @@
     <string name="setup_a_one_time_setup_so_android_auto_can_project_to_">Еднократна настройка, за да може Android Auto да прожектира към вашето CFMoto табло, плюс опции за дисплея и батерията.</string>
     <string name="setup_get_started">Започнете</string>
     <string name="setup_1_android_auto">1. Android Auto</string>
-    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto изпълнява Maps/Waze. OpenCfMoto предава екрана му към мотора.</string>
+    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto изпълнява Maps/Waze. RideScreen AA предава екрана му към мотора.</string>
     <string name="setup_open_android_auto">Отвори Android Auto</string>
     <string name="setup_install_android_auto">Инсталирай Android Auto</string>
     <string name="setup_2_permissions">2. Разрешения</string>
@@ -407,7 +407,7 @@
     <string name="setup_share_json">Сподели JSON</string>
     <string name="setup_import">Импортирай…</string>
     <string name="setup_supported_bikes">Поддържани мотори</string>
-    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">© 2026 Alexandru · OpenCfMoto · AGPL‑3.0</string>
+    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">RideScreen AA · based on OpenCfMoto © 2026 Alexandru · AGPL‑3.0</string>
     <string name="trip_trip_computer">Бордови компютър</string>
     <string name="trip_saved_trips">Запазени пътувания</string>
     <string name="trip_waiting_for_gps">Изчакване на GPS…</string>
@@ -549,15 +549,15 @@
 
     <!-- Notifications -->
     <string name="notif_aa_channel">Приемник на Android Auto</string>
-    <string name="notif_aa_title">OpenCfMoto — Android Auto</string>
+    <string name="notif_aa_title">RideScreen AA — Android Auto</string>
     <string name="notif_aa_reconnecting">Повторно свързване към таблото на мотора…</string>
     <string name="notif_aa_receiving">Получаване на Android Auto за таблото на мотора — докоснете, за да отворите</string>
     <string name="notif_bike_reconnected">Моторът е свързан отново</string>
     <string name="notif_tap_resume">Докоснете, за да възобновите прожектирането към таблото</string>
-    <string name="notif_map_title">Карта на OpenCfMoto</string>
+    <string name="notif_map_title">Карта на RideScreen AA</string>
     <string name="notif_map_text">Карта на таблото — кормилото използва зададените от вас бутони</string>
     <string name="notif_mirror_channel">Огледално предаване на екрана</string>
-    <string name="notif_mirror_title">OpenCfMoto</string>
+    <string name="notif_mirror_title">RideScreen AA</string>
     <string name="notif_mirror_text">Огледално предаване на екрана към мотора</string>
     <string name="notif_media_channel">Управление от бутоните на мотора</string>
     <string name="notif_media_title">Управление на Android Auto</string>
@@ -592,7 +592,7 @@
     <!-- Privacy / anonymous telemetry -->
     <string name="setup_privacy">Поверителност</string>
     <string name="setup_anonymous_telemetry">Анонимни отчети за използване и сривове</string>
-    <string name="setup_anonymous_telemetry_desc">Изпраща произволно ID на устройството, версия на приложението и (ако има) текст за срив/грешка до проекта OpenCfMoto, за да можем да видим колко телефони използват приложението и да поправяме сривове. Без акаунт, без GPS маршрути, без Wi‑Fi пароли, без име на мотор. Изкл = нищо не се качва.</string>
+    <string name="setup_anonymous_telemetry_desc">Изпраща произволно ID на устройството, версия на приложението и (ако има) текст за срив/грешка до проекта RideScreen AA, за да можем да видим колко телефони използват приложението и да поправяме сривове. Без акаунт, без GPS маршрути, без Wi‑Fi пароли, без име на мотор. Изкл = нищо не се качва.</string>
     <string name="setup_anonymous_telemetry_on">Вкл — анонимни пингове и отчети за сривове</string>
     <string name="setup_anonymous_telemetry_off">Изкл — нищо не се качва</string>
     <string name="setup_anonymous_id">Анонимно ID: %1$s</string>

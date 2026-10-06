@@ -5,9 +5,9 @@
     <string name="about_copyright_body">Verwaltet von Alexandru (zanderp). Kostenlose Software unter GNU AGPL v3 oder höher – den vollständigen Urheberrechts- und Namensnennungstext finden Sie unter LIZENZ und HINWEIS im Repository.</string>
     <string name="about_license_body">Sie dürfen diese App unter der AGPL verwenden, studieren, teilen und ändern. Wenn Sie eine modifizierte Version weiterverbreiten (auch als Netzwerkdienst), müssen Sie die vollständige entsprechende Quelle unter derselben Lizenz anbieten.</string>
     <string name="about_credits">Basierend auf der Community-Linie von open-cfmoto:\n\n• dcoletto / coletz – Original-QR- und EasyConn-Arbeit\n• BojanJ – Android Auto-Receiver-Integration\n• richardbizik – 1000 MT-X-Unterstützung\n• ionutradu252 / open-cflink – Lenkersteuerung, Ränder, erneut verbinden und polieren\n• eugen0309 – Wi-Fi Direct / CL-C450-Pfad\n• Steuergerät wiederbelebt – Android Auto Projection Stack (AGPL)\n\nUnd alle, die Fahrräder getestet, Protokolle geteilt und Probleme gemeldet haben.</string>
-    <string name="about_disclaimer">OpenCfMoto ist ein unabhängiges Community-Projekt. Es steht in keiner Verbindung zu CFMOTO, Carbit, Google, Android Auto oder anderen Marken, die Armaturenbretter im EasyConnect-Stil lizenzieren (einschließlich Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli und Longjia), wird von diesen nicht unterstützt oder gesponsert. CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto und verwandte Marken sind Marken ihrer jeweiligen Eigentümer. Die Nutzung erfolgt auf eigene Gefahr – legen Sie Ihre Route vor der Fahrt fest.</string>
+    <string name="about_disclaimer">RideScreen AA ist ein unabhängiges Community-Projekt. Es steht in keiner Verbindung zu CFMOTO, Carbit, Google, Android Auto oder anderen Marken, die Armaturenbretter im EasyConnect-Stil lizenzieren (einschließlich Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli und Longjia), wird von diesen nicht unterstützt oder gesponsert. CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto und verwandte Marken sind Marken ihrer jeweiligen Eigentümer. Die Nutzung erfolgt auf eigene Gefahr – legen Sie Ihre Route vor der Fahrt fest.</string>
     <string name="supported_bikes_intro">Funktioniert mit CFMoto MotoPlay / EasyConnect und anderen Carbit-Framework-Dashboards, die einen Kopplungs-QR anzeigen. Keine T-BOX erforderlich. USA und international – wenn Sie den QR sehen, versuchen Sie es mit Connect.</string>
-    <string name="supported_bikes_confirmed_title">Bestätigt mit OpenCfMoto</string>
+    <string name="supported_bikes_confirmed_title">Bestätigt mit RideScreen AA</string>
     <string name="supported_bikes_confirmed">CFMoto: 800MT (MT‑X / Explore / Explore GT) · 1000 MT‑X · 800NK (US CRCP) · 800NK Advanced · 675NK · 700MT Adventure · 450MT · 450SR (+ SR‑S / TC) · 450CL‑C / CL‑C450 · 450NK · 150SC scooter · CFORCE 850 / 1000 · GOES Terrox 1000 / Gladiator G3 1000\nSonstiges: Voge DS800 Rally / DS900X · Moto Morini X-Cape 649 / 700 / Seiemmezzo · Benelli TRK 702 / 702X · Rieju 307 · Zontes 125X · Morbidelli T1002VX / T352X · QJ Motor SRK800RR / SRK450RR / SRK250RD / SRT 600 / SRV600</string>
     <string name="supported_bikes_other_title">Andere Marken (Carbit / EasyConnect)</string>
     <string name="supported_bikes_other">Gleicher Carbit-QR-Pfad – versuchen Sie Connect, wenn auf dem Armaturenbrett ein Kopplungs-QR angezeigt wird. Ergebnisse in Discord melden.\nVoge (DS800 Rally / DS900X bestätigt) · Moto Morini (X-Cape 649 / 700 / Seiemmezzo bestätigt; MotoFun) · Zontes (125X confirmed) · Benelli (z. B. TRK 702 / 702X) · QJ Motor (SRK800RR / SRK250RD / SRK450RR / SRT/SRV 600 confirmed; 600SX / 550SX testing; Fort 4.0) · Morbidelli / MBP (T1002VX bestätigt) · Longjia (e.g. V-Bob 650; MotoFUN / Carbit Ride — unconfirmed)</string>
@@ -173,7 +173,7 @@
     <string name="main_search_a_place_or_address">Ort oder Adresse suchen…</string>
     <string name="main_go">Los</string>
     <string name="main_rider_tips">Fahrertipps</string>
-    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Verbinden – Android Auto auf dem Armaturenbrett starten (wird bei der Verbindung zu „Stopp“).\n• Karte – OpenCfMoto-Karte/GPX (nicht Google Maps). Spiegel – Telefonbildschirm spiegeln.\n• Während die Verbindung besteht, können Sie mit Karte/Spiegel umschalten, was auf dem Armaturenbrett angezeigt wird.\n• Armaturenbrettansicht und Bedienelemente – Telefon-HUD und D-Pad/Lenker.</string>
+    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Verbinden – Android Auto auf dem Armaturenbrett starten (wird bei der Verbindung zu „Stopp“).\n• Karte – RideScreen AA-Karte/GPX (nicht Google Maps). Spiegel – Telefonbildschirm spiegeln.\n• Während die Verbindung besteht, können Sie mit Karte/Spiegel umschalten, was auf dem Armaturenbrett angezeigt wird.\n• Armaturenbrettansicht und Bedienelemente – Telefon-HUD und D-Pad/Lenker.</string>
     <string name="main_about_credits">Über &amp; Credits</string>
     <string name="main_check_for_update">Nach Update suchen</string>
     <string name="main_report_a_problem">Problem melden</string>
@@ -196,7 +196,7 @@
     <string name="setup_a_one_time_setup_so_android_auto_can_project_to_">Eine einmalige Einrichtung, damit Android Auto auf Ihr CFMoto-Armaturenbrett projizieren kann, plus Anzeige- und Akkuoptionen.</string>
     <string name="setup_get_started">Fangen Sie an</string>
     <string name="setup_1_android_auto">1. Android Auto</string>
-    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto führt Maps/Waze aus. OpenCfMoto leitet seinen Bildschirm an das Motorrad weiter.</string>
+    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto führt Maps/Waze aus. RideScreen AA leitet seinen Bildschirm an das Motorrad weiter.</string>
     <string name="setup_install_android_auto">Installieren Sie Android Auto</string>
     <string name="setup_2_permissions">2. Berechtigungen</string>
     <string name="setup_camera_scan_the_dash_qr_location_join_the_bike_w">Kamera (den Dash-QR scannen), Standort (mit dem Motorrad-WLAN verbinden), Benachrichtigungen (während der Fahrt weiterlaufen).</string>
@@ -285,7 +285,7 @@
     <string name="setup_share_json">Teilen Sie JSON</string>
     <string name="setup_import">Import…</string>
     <string name="setup_supported_bikes">Unterstützte Fahrräder</string>
-    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">© 2026 Alexandru · OpenCfMoto · AGPL-3.0</string>
+    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">RideScreen AA · based on OpenCfMoto © 2026 Alexandru · AGPL‑3.0</string>
     <string name="trip_trip_computer">Reisecomputer</string>
     <string name="trip_saved_trips">Gespeicherte Reisen</string>
     <string name="trip_waiting_for_gps">Warten auf GPS…</string>
@@ -373,15 +373,15 @@
     <string name="main_rival_title">Die offizielle CFMoto-App ist im Weg</string>
     <string name="main_bike_search_hint">Motorrad-Dash-Suche – hier eingeben</string>
     <string name="notif_aa_channel">Android Auto-Empfänger</string>
-    <string name="notif_aa_title">OpenCfMoto – Android Auto</string>
+    <string name="notif_aa_title">RideScreen AA – Android Auto</string>
     <string name="notif_aa_reconnecting">Verbindung zum Motorrad-Armaturenbrett wird wiederhergestellt…</string>
     <string name="notif_aa_receiving">Empfang von Android Auto für das Motorrad-Armaturenbrett – zum Öffnen tippen</string>
     <string name="notif_bike_reconnected">Motorrad wieder angeschlossen</string>
     <string name="notif_tap_resume">Tippen Sie, um die Projektion auf das Armaturenbrett fortzusetzen</string>
-    <string name="notif_map_title">OpenCfMoto-Karte</string>
+    <string name="notif_map_title">RideScreen AA-Karte</string>
     <string name="notif_map_text">Karte auf dem Armaturenbrett – der Lenker nutzt Ihre Tastenbelegung</string>
     <string name="notif_mirror_channel">Bildschirmspiegelung</string>
-    <string name="notif_mirror_title">OpenCfMoto</string>
+    <string name="notif_mirror_title">RideScreen AA</string>
     <string name="notif_mirror_text">Bildschirm zum Motorrad spiegeln</string>
     <string name="notif_media_channel">Motorradknopfsteuerung</string>
     <string name="notif_media_title">Android Auto-Steuerung</string>
@@ -412,7 +412,7 @@
     <string name="setup_toast_transport">WLAN-Transport: %1$s</string>
     <string name="setup_privacy">Datenschutz</string>
     <string name="setup_anonymous_telemetry">Anonyme Nutzungs- &amp; Absturzberichte</string>
-    <string name="setup_anonymous_telemetry_desc">Sendet eine zufällige Geräte-ID, App-Version und (falls vorhanden) Absturz-/Fehlertext an das OpenCfMoto-Projekt, damit wir sehen können, wie viele Telefone die App nutzen, und Abstürze beheben. Kein Konto, keine GPS-Routen, keine WLAN-Passwörter, kein Motorradname. Aus = nichts wird hochgeladen.</string>
+    <string name="setup_anonymous_telemetry_desc">Sendet eine zufällige Geräte-ID, App-Version und (falls vorhanden) Absturz-/Fehlertext an das RideScreen AA-Projekt, damit wir sehen können, wie viele Telefone die App nutzen, und Abstürze beheben. Kein Konto, keine GPS-Routen, keine WLAN-Passwörter, kein Motorradname. Aus = nichts wird hochgeladen.</string>
     <string name="setup_anonymous_telemetry_on">An — anonyme Pings &amp; Absturzberichte</string>
     <string name="setup_anonymous_telemetry_off">Aus — nichts wird hochgeladen</string>
     <string name="setup_anonymous_id">Anonyme ID: %1$s</string>

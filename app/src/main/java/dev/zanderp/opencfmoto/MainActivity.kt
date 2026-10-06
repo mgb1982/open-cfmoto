@@ -883,10 +883,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.hero_placeholder).visibility = if (bmp == null) View.VISIBLE else View.GONE
         findViewById<TextView>(R.id.hero_name).text = bike?.name ?: ""
         findViewById<TextView>(R.id.hero_sub).text = bike?.qr?.ssid ?: getString(R.string.main_no_bike_paired_yet)
-        // Wordmark: second half in gold ("Open" + "CfMoto").
+        // Wordmark: the last word in gold.
         findViewById<TextView>(R.id.brand_title).apply {
             val t = getString(R.string.brand_wordmark)
-            val split = 4.coerceAtMost(t.length)
+            // "RideScreen" + " AA" in gold.
+            val split = t.lastIndexOf(' ').takeIf { it > 0 } ?: t.length
             text = android.text.SpannableString(t).apply {
                 setSpan(
                     android.text.style.ForegroundColorSpan(ContextCompat.getColor(this@MainActivity, R.color.brand_gold)),

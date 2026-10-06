@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OpenCfMoto</string>
+    <string name="app_name">RideScreen AA</string>
     <string name="status_no_phone">No data from phone</string>
     <string name="status_streaming">● Connected to dash</string>
     <string name="status_reconnecting">● Reconnecting…</string>

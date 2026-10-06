@@ -5,9 +5,9 @@
     <string name="about_copyright_body">Onderhouden door Alexandru (zanderp). Gratis software onder de GNU AGPL v3 of hoger — zie LICENTIE en MEDEDELING in de repository voor de volledige copyright- en toeschrijvingstekst.</string>
     <string name="about_license_body">U mag deze app gebruiken, bestuderen, delen en wijzigen onder de AGPL. Als u een gewijzigde versie herdistribueert (ook als netwerkdienst), moet u de volledige bijbehorende bron onder dezelfde licentie aanbieden.</string>
     <string name="about_credits">Gebouwd op de open-cfmoto-gemeenschapslijn:\n\n• dcoletto / coletz — origineel QR- en EasyConn-werk\n• BojanJ — Integratie van Android Auto-ontvangers\n• richardbizik — 1000 MT‑X-ondersteuning\n• ionutradu252 / open-cflink — stuurbediening, marges, opnieuw verbinden en polijsten\n• eugen0309 — Wi‑Fi Direct/CL‑C450-pad\n• Autoradio nieuw leven ingeblazen: Android Auto-projectiestapel (AGPL)\n\nEn iedereen die motoren heeft getest, logs heeft gedeeld en problemen heeft gemeld.</string>
-    <string name="about_disclaimer">OpenCfMoto is een onafhankelijk gemeenschapsproject. Het is niet aangesloten bij, onderschreven door of gesponsord door CFMOTO, Carbit, Google, Android Auto of andere merken die licenties voor dashes in EasyConnect-stijl hebben (waaronder Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli en Longjia). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto en gerelateerde merken zijn handelsmerken van hun respectievelijke eigenaren. Gebruik op eigen risico: bepaal uw route voordat u gaat rijden.</string>
+    <string name="about_disclaimer">RideScreen AA is een onafhankelijk gemeenschapsproject. Het is niet aangesloten bij, onderschreven door of gesponsord door CFMOTO, Carbit, Google, Android Auto of andere merken die licenties voor dashes in EasyConnect-stijl hebben (waaronder Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli en Longjia). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto en gerelateerde merken zijn handelsmerken van hun respectievelijke eigenaren. Gebruik op eigen risico: bepaal uw route voordat u gaat rijden.</string>
     <string name="supported_bikes_intro">Werkt met CFMoto MotoPlay / EasyConnect en andere Carbit-framework-streepjes die een koppelings-QR weergeven. Geen T-BOX vereist. Amerikaans en internationaal: probeer Connect als u de QR ziet.</string>
-    <string name="supported_bikes_confirmed_title">Bevestigd met OpenCfMoto</string>
+    <string name="supported_bikes_confirmed_title">Bevestigd met RideScreen AA</string>
     <string name="supported_bikes_confirmed">CFMoto: 800MT (MT‑X / Explore / Explore GT) · 1000 MT‑X · 800NK (US CRCP) · 800NK Advanced · 675NK · 700MT Adventure · 450MT · 450SR (+ SR‑S / TC) · 450CL‑C / CL‑C450 · 450NK · 150SC scooter · CFORCE 850 / 1000 · GOES Terrox 1000 / Gladiator G3 1000\nOverig: Voge DS800 Rally / DS900X · Moto Morini X-Cape 649 / 700 / Seiemmezzo · Benelli TRK 702 / 702X · Rieju 307 · Zontes 125X · Morbidelli T1002VX / T352X · QJ Motor SRK800RR / SRK450RR / SRK250RD / SRT 600 / SRV600</string>
     <string name="supported_bikes_other_title">Andere merken (Carbit / EasyConnect)</string>
     <string name="supported_bikes_other">Hetzelfde Carbit QR-pad - probeer Connect als het dashboard een koppelings-QR weergeeft. Rapporteer resultaten in Discord.\nVoge (DS800 Rally / DS900X bevestigd) · Moto Morini (X-Cape 649 / 700 / Seiemmezzo bevestigd; MotoFun) · Zontes (125X confirmed) · Benelli (bijv. TRK 702 / 702X) · QJ Motor (SRK800RR / SRK250RD / SRK450RR / SRT/SRV 600 confirmed; 600SX / 550SX testing; Fort 4.0) · Morbidelli / MBP (T1002VX bevestigd) · Longjia (e.g. V-Bob 650; MotoFUN / Carbit Ride — unconfirmed)</string>
@@ -173,7 +173,7 @@
     <string name="main_search_a_place_or_address">Zoek een plaats of adres…</string>
     <string name="main_go">Gaan</string>
     <string name="main_rider_tips">Tips voor ruiters</string>
-    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Verbinden: start Android Auto op het dashboard (wordt Stop wanneer gekoppeld).\n• Kaart — OpenCfMoto-kaart / GPX (niet Google Maps). Spiegelen: telefoonscherm casten.\n• Terwijl de verbinding is gemaakt, schakelt Kaart/Spiegel over naar wat het dashboard laat zien.\n• Dashweergave en bedieningselementen: telefoon-HUD en D-pad/stuur.</string>
+    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Verbinden: start Android Auto op het dashboard (wordt Stop wanneer gekoppeld).\n• Kaart — RideScreen AA-kaart / GPX (niet Google Maps). Spiegelen: telefoonscherm casten.\n• Terwijl de verbinding is gemaakt, schakelt Kaart/Spiegel over naar wat het dashboard laat zien.\n• Dashweergave en bedieningselementen: telefoon-HUD en D-pad/stuur.</string>
     <string name="main_about_credits">Over &amp; kredieten</string>
     <string name="main_check_for_update">Controleer op update</string>
     <string name="main_report_a_problem">Meld een probleem</string>
@@ -196,7 +196,7 @@
     <string name="setup_a_one_time_setup_so_android_auto_can_project_to_">Een eenmalige installatie zodat Android Auto kan projecteren op uw CFMoto-dashboard, plus weergave- en batterijopties.</string>
     <string name="setup_get_started">Ga aan de slag</string>
     <string name="setup_1_android_auto">1. Android Auto</string>
-    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto voert Maps/Waze uit. OpenCfMoto stuurt zijn scherm door naar de motor.</string>
+    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto voert Maps/Waze uit. RideScreen AA stuurt zijn scherm door naar de motor.</string>
     <string name="setup_install_android_auto">Installeer Android Auto</string>
     <string name="setup_2_permissions">2. Machtigingen</string>
     <string name="setup_camera_scan_the_dash_qr_location_join_the_bike_w">Camera (scan de QR op het dashboard), Locatie (meld je aan bij de Wi-Fi van de motor), Meldingen (blijf rennen terwijl je motort).</string>
@@ -285,7 +285,7 @@
     <string name="setup_share_json">Deel JSON</string>
     <string name="setup_import">Importeren…</string>
     <string name="setup_supported_bikes">Ondersteunde motoren</string>
-    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">© 2026 Alexandru · OpenCfMoto · AGPL‑3.0</string>
+    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">RideScreen AA · based on OpenCfMoto © 2026 Alexandru · AGPL‑3.0</string>
     <string name="trip_trip_computer">Tripcomputer</string>
     <string name="trip_saved_trips">Opgeslagen reizen</string>
     <string name="trip_waiting_for_gps">Wachten op GPS…</string>
@@ -373,15 +373,15 @@
     <string name="main_rival_title">De officiële CFMoto-app staat in de weg</string>
     <string name="main_bike_search_hint">Zoektocht naar motordash — typ hier</string>
     <string name="notif_aa_channel">Android Auto-ontvanger</string>
-    <string name="notif_aa_title">OpenCfMoto — Android Auto</string>
+    <string name="notif_aa_title">RideScreen AA — Android Auto</string>
     <string name="notif_aa_reconnecting">Opnieuw verbinding maken met het motordashboard…</string>
     <string name="notif_aa_receiving">Android Auto ontvangen voor het motordashboard: tik om te openen</string>
     <string name="notif_bike_reconnected">Motor opnieuw aangesloten</string>
     <string name="notif_tap_resume">Tik om de projectie naar het dashboard te hervatten</string>
-    <string name="notif_map_title">OpenCfMoto-kaart</string>
+    <string name="notif_map_title">RideScreen AA-kaart</string>
     <string name="notif_map_text">Kaart op het dashboard - het stuur gebruikt uw knoptoewijzing</string>
     <string name="notif_mirror_channel">Schermspiegeling</string>
-    <string name="notif_mirror_title">OpenCfMoto</string>
+    <string name="notif_mirror_title">RideScreen AA</string>
     <string name="notif_mirror_text">Spiegelscherm naar motor</string>
     <string name="notif_media_channel">Bediening van de motorknop</string>
     <string name="notif_media_title">Android Auto-besturing</string>
@@ -412,7 +412,7 @@
     <string name="setup_toast_transport">Wi-Fi-transport: %1$s</string>
     <string name="setup_privacy">Privacy</string>
     <string name="setup_anonymous_telemetry">Anonieme gebruiks- &amp; crashrapporten</string>
-    <string name="setup_anonymous_telemetry_desc">Stuurt een willekeurig apparaat-id, appversie en (indien aanwezig) crash-/fouttekst naar het OpenCfMoto-project zodat we kunnen zien hoeveel telefoons de app gebruiken en crashes kunnen oplossen. Geen account, geen GPS-routes, geen wifi-wachtwoorden, geen motornaam. Uit = er wordt niets geüpload.</string>
+    <string name="setup_anonymous_telemetry_desc">Stuurt een willekeurig apparaat-id, appversie en (indien aanwezig) crash-/fouttekst naar het RideScreen AA-project zodat we kunnen zien hoeveel telefoons de app gebruiken en crashes kunnen oplossen. Geen account, geen GPS-routes, geen wifi-wachtwoorden, geen motornaam. Uit = er wordt niets geüpload.</string>
     <string name="setup_anonymous_telemetry_on">Aan — anonieme pings &amp; crashes</string>
     <string name="setup_anonymous_telemetry_off">Uit — niets wordt geüpload</string>
     <string name="setup_anonymous_id">Anoniem id: %1$s</string>

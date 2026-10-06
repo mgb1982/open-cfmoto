@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Open CfMoto</string>
+    <string name="app_name">RideScreen AA</string>
     <string name="about_copyright">© 2026 Alexandru</string>
     <string name="about_copyright_body">Maintained by Alexandru (zanderp). Free software under the GNU AGPL v3 or later — see LICENSE and NOTICE in the repository for the full copyright and attribution text.</string>
     <string name="about_license_body">You may use, study, share, and modify this app under the AGPL. If you redistribute a modified version (including as a network service), you must offer the complete corresponding source under the same license.</string>
     <string name="about_credits">Built on the open-cfmoto community lineage:\n\n• dcoletto / coletz — original QR &amp; EasyConn work\n• BojanJ — Android Auto receiver integration\n• richardbizik — 1000 MT‑X support\n• ionutradu252 / open-cflink — handlebar controls, margins, reconnect &amp; polish\n• eugen0309 — Wi‑Fi Direct / CL‑C450 path\n• headunit-revived — Android Auto projection stack (AGPL)\n\nAnd everyone who tested bikes, shared logs, and filed issues.</string>
-    <string name="about_disclaimer">OpenCfMoto is an independent community project. It is not affiliated with, endorsed by, or sponsored by CFMOTO, Carbit, Google, Android Auto, or other brands that license EasyConnect-style dashes (including Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli, and Longjia). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto, and related marks are trademarks of their respective owners. Use at your own risk — set your route before you ride.</string>
+    <string name="about_disclaimer">RideScreen AA is an independent community project. It is not affiliated with, endorsed by, or sponsored by CFMOTO, Carbit, Google, Android Auto, or other brands that license EasyConnect-style dashes (including Voge, Zontes, Moto Morini, Benelli, QJ Motor, Morbidelli, and Longjia). CFMOTO, MotoPlay, EasyConn, Carbit, Android, Android Auto, and related marks are trademarks of their respective owners. Use at your own risk — set your route before you ride.</string>
     <string name="supported_bikes_intro">Works with CFMoto MotoPlay / EasyConnect and other Carbit-framework dashes that show a pairing QR. No T‑BOX required. US and international — if you see the QR, try Connect.</string>
-    <string name="supported_bikes_confirmed_title">Confirmed with OpenCfMoto</string>
+    <string name="supported_bikes_confirmed_title">Confirmed with RideScreen AA</string>
     <string name="supported_bikes_confirmed">CFMoto: 800MT (MT‑X / Explore / Explore GT) · 1000 MT‑X · 800NK (US CRCP) · 800NK Advanced · 450SR (+ SR‑S / TC) · 450CL‑C / CL‑C450 · 150SC scooter\nOther: Voge DS800 Rally · Moto Morini X-Cape 649 · Moto Morini X-Cape 700 · Moto Morini Seiemmezzo · Morbidelli T1002VX</string>
     <string name="supported_bikes_other_title">Other brands (Carbit / EasyConnect)</string>
     <string name="supported_bikes_other">Same Carbit QR path — try Connect if the dash shows a pairing QR. Report results in Discord.\nVoge (DS800 Rally confirmed) · Moto Morini (X-Cape 649 / 700 / Seiemmezzo confirmed; MotoFun) · Zontes · Benelli (e.g. TRK 702 / 702X) · QJ Motor (600SX / 550SX testing; Fort 4.0) · Morbidelli / MBP (T1002VX confirmed) · Longjia (e.g. V-Bob 650; MotoFUN / Carbit Ride — unconfirmed)</string>
@@ -178,7 +178,7 @@
     <string name="main_search_a_place_or_address">Search a place or address…</string>
     <string name="main_go">Go</string>
     <string name="main_rider_tips">Rider tips</string>
-    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Connect — start Android Auto on the dash (becomes Stop while linked).\n• Map — OpenCfMoto map / GPX (not Google Maps). Mirror — cast phone screen.\n• While connected, Map / Mirror switch what the dash shows.\n• Dash view &amp; Controls — phone HUD and D-pad / handlebar.</string>
+    <string name="main_connect_start_android_auto_on_the_dash_becomes_s">• Connect — start Android Auto on the dash (becomes Stop while linked).\n• Map — RideScreen AA map / GPX (not Google Maps). Mirror — cast phone screen.\n• While connected, Map / Mirror switch what the dash shows.\n• Dash view &amp; Controls — phone HUD and D-pad / handlebar.</string>
     <string name="main_about_credits">About &amp; credits</string>
     <string name="main_check_for_update">Check for update</string>
     <string name="main_report_a_problem">Report a problem</string>
@@ -201,7 +201,7 @@
     <string name="setup_a_one_time_setup_so_android_auto_can_project_to_">A one-time setup so Android Auto can project to your CFMoto dash, plus display and battery options.</string>
     <string name="setup_get_started">Get started</string>
     <string name="setup_1_android_auto">1. Android Auto</string>
-    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto runs Maps/Waze. OpenCfMoto relays its screen to the bike.</string>
+    <string name="setup_android_auto_runs_maps_waze_opencfmoto_relays_it">Android Auto runs Maps/Waze. RideScreen AA relays its screen to the bike.</string>
     <string name="setup_install_android_auto">Install Android Auto</string>
     <string name="setup_2_permissions">2. Permissions</string>
     <string name="setup_camera_scan_the_dash_qr_location_join_the_bike_w">Camera (scan the dash QR), Location (join the bike Wi-Fi), Notifications (keep running while you ride).</string>
@@ -295,7 +295,7 @@
     <string name="setup_share_json">Share JSON</string>
     <string name="setup_import">Import…</string>
     <string name="setup_supported_bikes">Supported bikes</string>
-    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">© 2026 Alexandru · OpenCfMoto · AGPL‑3.0</string>
+    <string name="setup_2026_alexandru_opencfmoto_agpl_3_0">RideScreen AA · based on OpenCfMoto © 2026 Alexandru · AGPL‑3.0</string>
     <string name="trip_trip_computer">Trip computer</string>
     <string name="trip_saved_trips">Saved trips</string>
     <string name="trip_waiting_for_gps">Waiting for GPS…</string>
@@ -399,15 +399,15 @@
 
     <!-- Notifications -->
     <string name="notif_aa_channel">Android Auto receiver</string>
-    <string name="notif_aa_title">OpenCfMoto — Android Auto</string>
+    <string name="notif_aa_title">RideScreen AA — Android Auto</string>
     <string name="notif_aa_reconnecting">Reconnecting to the bike dash…</string>
     <string name="notif_aa_receiving">Receiving Android Auto for the bike dash — tap to open</string>
     <string name="notif_bike_reconnected">Bike reconnected</string>
     <string name="notif_tap_resume">Tap to resume projection to the dash</string>
-    <string name="notif_map_title">OpenCfMoto Map</string>
+    <string name="notif_map_title">RideScreen AA Map</string>
     <string name="notif_map_text">Map on the dash — handlebars use your button mapping</string>
     <string name="notif_mirror_channel">Screen mirroring</string>
-    <string name="notif_mirror_title">OpenCfMoto</string>
+    <string name="notif_mirror_title">RideScreen AA</string>
     <string name="notif_mirror_text">Mirroring screen to bike</string>
     <string name="notif_media_channel">Bike button control</string>
     <string name="notif_media_title">Android Auto control</string>
@@ -442,7 +442,7 @@
     <!-- Privacy / anonymous telemetry -->
     <string name="setup_privacy">Privacy</string>
     <string name="setup_anonymous_telemetry">Anonymous usage &amp; crash reports</string>
-    <string name="setup_anonymous_telemetry_desc">Sends a random device id, app version, and (if any) crash/error text to the OpenCfMoto project so we can see how many phones use the app and fix crashes. No account, no GPS routes, no Wi‑Fi passwords, no bike name. Off = nothing is uploaded.</string>
+    <string name="setup_anonymous_telemetry_desc">Sends a random device id, app version, and (if any) crash/error text to the RideScreen AA project so we can see how many phones use the app and fix crashes. No account, no GPS routes, no Wi‑Fi passwords, no bike name. Off = nothing is uploaded.</string>
     <string name="setup_anonymous_telemetry_on">On — anonymous pings &amp; crash reports</string>
     <string name="setup_anonymous_telemetry_off">Off — nothing uploaded</string>
     <string name="setup_anonymous_id">Anonymous id: %1$s</string>
