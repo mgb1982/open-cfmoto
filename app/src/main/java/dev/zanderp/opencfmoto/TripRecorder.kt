@@ -172,6 +172,10 @@ class TripRecorder(private val appContext: Context) : LocationListener {
         )
         TripStore.save(appContext, trip)
         LogBus.log("[trip] saved ride ${trip.distanceText()} in ${trip.durationText()}")
+        // RideScreen AA v2: name it ("Sants → Zona Franca"), check records, add the km to the bike.
+        try { TripNames.ensure(appContext, listOf(trip)) } catch (_: Exception) {}
+        try { Records.onTripSaved(appContext, trip) } catch (_: Exception) {}
+        try { Maintenance.onTripSaved(appContext, trip) } catch (_: Exception) {}
         try { onTripSaved?.invoke(trip) } catch (_: Exception) {}
     }
 

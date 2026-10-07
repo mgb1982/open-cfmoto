@@ -64,8 +64,11 @@ object RideShare {
             activity.getString(R.string.share_avg) to trip.avgKmh.toString(),
             activity.getString(R.string.share_max) to trip.maxKmh.toString(),
         )
-        val title = SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()).format(Date(trip.start))
+        val date = SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault()).format(Date(trip.start))
             .replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        val name = TripNames.cached(activity, trip)
+        val badge = Records.badge(activity, trip)
+        val title = listOfNotNull(name, date, badge?.let { "🏆 $it" }).joinToString(" · ")
         build(activity, listOf(trip.points.map { LatLng(it.lat, it.lon) }), title, stats, "ride-${trip.id}")
     }
 
@@ -200,7 +203,7 @@ object RideShare {
         p.color = GOLD
         c.drawText("AA", 60f + wm, 80f, p)
         p.typeface = regular; p.textSize = 30f; p.color = MUTED
-        c.drawText(title, 60f, 124f, p)
+        c.drawText(fit(p, title, W - 120f), 60f, 124f, p)
 
         // Map band (or a plain dark band with the track when the map can't load offline).
         val mapRect = RectF(0f, MAP_TOP.toFloat(), W.toFloat(), (MAP_TOP + MAP_H).toFloat())

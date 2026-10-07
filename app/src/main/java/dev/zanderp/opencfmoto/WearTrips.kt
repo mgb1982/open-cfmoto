@@ -89,6 +89,7 @@ object WearTrips {
                         JSONObject()
                             .put("id", t.id)
                             .put("start", t.start)
+                            .put("name", TripNames.cached(ctx, t) ?: "")
                             .put("end", t.end)
                             .put("dist", t.distanceMeters)
                             .put("mov", t.movingTimeMs)

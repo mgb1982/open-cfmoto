@@ -22,6 +22,7 @@ data class TripSummary(
     val movingMs: Long,
     val maxKmh: Int,
     val avgKmh: Int,
+    val name: String = "",
 ) {
     fun dateText(): String = SimpleDateFormat("EEE d MMM", Locale.getDefault()).format(Date(start))
     fun timeRange(): String {
@@ -48,6 +49,7 @@ data class TripSummary(
                     movingMs = o.optLong("mov"),
                     maxKmh = o.optInt("max"),
                     avgKmh = o.optInt("avg"),
+                    name = o.optString("name"),
                 )
             }
         } catch (_: Exception) {
@@ -71,7 +73,7 @@ class TripsAdapter(private val onPick: (TripSummary) -> Unit) : RecyclerView.Ada
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val t = items[position]
-        holder.date.text = "${t.dateText()} · ${t.timeRange()}"
+        holder.date.text = if (t.name.isNotBlank()) "${t.name} · ${t.timeRange()}" else "${t.dateText()} · ${t.timeRange()}"
         holder.km.text = t.kmText()
         holder.detail.text = holder.itemView.context.getString(
             R.string.trip_line, t.movingText(), t.avgKmh, t.maxKmh,

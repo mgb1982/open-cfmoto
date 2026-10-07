@@ -40,6 +40,19 @@
             android:text="@string/all_rides_button" />
     </LinearLayout>
 
+    <!-- Personal records (RideScreen AA v2). -->
+    <TextView
+        android:id="@+id/trips_records"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="6dp"
+        android:background="@drawable/bg_stat_tile"
+        android:padding="12dp"
+        android:textColor="@color/text_primary"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
     <!-- Day navigator (calendar-style). -->
     <LinearLayout
         android:id="@+id/trips_day_bar"

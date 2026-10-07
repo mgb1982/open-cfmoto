@@ -127,7 +127,24 @@ class TripsListActivity : AppCompatActivity() {
                 km,
             )
             for (trip in dayTrips) container.addView(buildCard(trip))
+            TripNames.ensure(this, dayTrips) { runOnUiThread { if (!isFinishing) renderDay() } }
         }
+        renderRecords()
+    }
+
+    /** 🏆 card at the top: longest ride, top speed, best day, longest streak. */
+    private fun renderRecords() {
+        val tv = findViewById<TextView?>(R.id.trips_records) ?: return
+        if (allTrips.size < 2) {
+            tv.visibility = View.GONE
+            return
+        }
+        val r = Records.compute(allTrips)
+        tv.text = getString(
+            R.string.records_line,
+            Records.km(r.longestKm), r.topKmh, Records.km(r.bestDayKm), r.bestStreak,
+        )
+        tv.visibility = View.VISIBLE
     }
 
     private fun buildCard(trip: Trip): View {
@@ -178,6 +195,15 @@ class TripsListActivity : AppCompatActivity() {
             col.addView(preview)
         }
 
+        TripNames.cached(this, trip)?.let { name ->
+            col.addView(TextView(this).apply {
+                text = name
+                setTextColor(ContextCompat.getColor(this@TripsListActivity, R.color.brand_orange))
+                textSize = 13f
+                maxLines = 1
+                ellipsize = android.text.TextUtils.TruncateAt.END
+            })
+        }
         col.addView(TextView(this).apply {
             text = trip.timeRangeText()
             setTextColor(ContextCompat.getColor(this@TripsListActivity, R.color.text_primary))
