@@ -131,6 +131,19 @@ project's service ([opencfmoto-telemetry](https://github.com/zanderp/opencfmoto-
   or after 12 hours at most. The positions and the link are **deleted 24 hours after it ends**. The
   name shown is the one you type (optional).
 
+## v2 additions
+
+- **Trip names** ("Sants → Zona Franca"). For each saved trip the app asks OpenStreetMap's
+  [Nominatim](https://nominatim.org) for the neighbourhood of its start and end points, **rounded to
+  about 100 m** (three decimals), at most one request per second. The name is stored on the phone;
+  nothing else about the trip is sent.
+- **Maintenance logbook, records, heat map, year in review.** Computed and stored **only on the
+  phone**. Share images are created only when you tap *Share* and go where you send them.
+- **Head unit server check.** A connection attempt to `127.0.0.1:5277` on the phone itself; nothing
+  leaves the device.
+- **Watch compass.** The watch asks for location permission to point at the parked bike; the position
+  stays on the watch.
+
 ## Data that leaves the phone (other)
 
 - **OpenStreetMap tiles:** Opening a trip's map downloads map imagery from

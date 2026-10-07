@@ -78,8 +78,8 @@ object TripNames {
 
     /** Neighbourhood-level name for a point, or null. */
     private fun place(lat: Double, lon: Double): String? {
-        val la = String.format(Locale.ROOT, "%.4f", lat)
-        val lo = String.format(Locale.ROOT, "%.4f", lon)
+        val la = String.format(Locale.ROOT, "%.3f", lat)
+        val lo = String.format(Locale.ROOT, "%.3f", lon)
         val lang = Locale.getDefault().language
         AppHttp.throttle("nominatim.openstreetmap.org", 1_100)
         val body = AppHttp.getText(
