@@ -69,6 +69,7 @@ class TripsListActivity : AppCompatActivity() {
             shiftDay(1)
         }
         findViewById<MaterialButton>(R.id.trips_all_map).setOnClickListener { TripMapActivity.startAll(this) }
+        findViewById<MaterialButton>(R.id.trips_year).setOnClickListener { YearInReviewActivity.start(this) }
         todayBtn.setOnClickListener {
             dayStartMs = startOfDay(System.currentTimeMillis())
             renderDay()

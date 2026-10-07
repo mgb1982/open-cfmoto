@@ -689,6 +689,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Support.onResume(this)
+        try { YearInReview.maybeNotify(this) } catch (_: Exception) {}
         // The active bike (and its name) may have changed in the Garage — reflect it on the label and
         // the Connect button.
         refreshBikeLabel()
