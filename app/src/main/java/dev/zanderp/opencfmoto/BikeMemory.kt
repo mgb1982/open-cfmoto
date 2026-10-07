@@ -76,6 +76,7 @@ object BikeMemory {
 
     fun select(ctx: Context, raw: String) {
         prefs(ctx).edit().putString(KEY_SELECTED, raw).apply()
+        try { ParkingWidget.updateAll(ctx) } catch (_: Exception) {}
     }
 
     /** Give a bike a new display name (blank keeps the current one). */
@@ -89,6 +90,8 @@ object BikeMemory {
     /** Attach (or clear, with null) a bike's photo path. */
     fun setPhoto(ctx: Context, raw: String, path: String?) {
         writeList(ctx, devices(ctx).map { if (it.raw == raw) it.copy(photoPath = path) else it })
+        // The home-screen widget uses the selected bike's photo as its background.
+        try { ParkingWidget.updateAll(ctx) } catch (_: Exception) {}
     }
 
     fun remove(ctx: Context, raw: String) {
