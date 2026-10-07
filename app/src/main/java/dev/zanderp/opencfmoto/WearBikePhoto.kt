@@ -19,14 +19,23 @@ object WearBikePhoto {
     const val PATH = "/ocm/bikephoto"
     private const val SIZE = 450
 
-    fun push(ctx: Context) {
+    @Volatile private var lastForcedAt = 0L
+
+    /** [force]: the watch reported it has no photo — resend even if we think it was sent (≤ 1 per 5 min). */
+    fun push(ctx: Context, force: Boolean = false) {
         val app = ctx.applicationContext
+        if (force) {
+            val now = System.currentTimeMillis()
+            if (now - lastForcedAt < 5 * 60_000L) return
+            lastForcedAt = now
+        }
         Thread({
             try {
                 val path = BikeMemory.selected(app)?.photoPath
                 val sig = path?.let { "$it:${File(it).lastModified()}" } ?: ""
                 val prefs = app.getSharedPreferences("wear_bike_photo", Context.MODE_PRIVATE)
-                if (prefs.getString("sent", null) == sig) return@Thread
+                if (!force && prefs.getString("sent", null) == sig) return@Thread
+                if (path == null && force) return@Thread // nothing to send
                 val req = PutDataMapRequest.create(PATH)
                 req.dataMap.putLong("t", System.currentTimeMillis())
                 val bytes = path?.let { encode(it) }

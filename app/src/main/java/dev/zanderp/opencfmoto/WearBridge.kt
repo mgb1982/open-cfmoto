@@ -102,7 +102,18 @@ object WearBridge {
                 val first = subscriber == null || SystemClock.elapsedRealtime() > leaseUntil
                 subscriber = event.sourceNodeId
                 leaseUntil = SystemClock.elapsedRealtime() + LEASE_MS
-                if (first) LogBus.log("[WEAR] watch subscribed (${event.sourceNodeId})")
+                if (first) {
+                    LogBus.log("[WEAR] watch subscribed (${event.sourceNodeId})")
+                    // Bring the watch up to date: where the bike is (also cleared state), and the
+                    // Garage photo if the watch says it doesn't have it.
+                    val node = event.sourceNodeId
+                    try {
+                        Wearable.getMessageClient(ctx).sendMessage(
+                            node, PATH_PARKED, Parking.json(Parking.get(ctx)).toByteArray(Charsets.UTF_8),
+                        )
+                    } catch (_: Exception) {}
+                }
+                if (text.contains(";np")) WearBikePhoto.push(ctx, force = true)
                 if (!streaming) {
                     streaming = true
                     main.post(streamTick)

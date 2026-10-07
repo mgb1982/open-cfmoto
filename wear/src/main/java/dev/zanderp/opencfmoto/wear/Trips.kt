@@ -73,11 +73,12 @@ class TripsAdapter(private val onPick: (TripSummary) -> Unit) : RecyclerView.Ada
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val t = items[position]
-        holder.date.text = if (t.name.isNotBlank()) "${t.name} · ${t.timeRange()}" else "${t.dateText()} · ${t.timeRange()}"
+        // Named trips: the name on top, the date/time moves to the detail line (no cut-off names).
+        holder.date.text = if (t.name.isNotBlank()) t.name else "${t.dateText()} · ${t.timeRange()}"
         holder.km.text = t.kmText()
         holder.detail.text = holder.itemView.context.getString(
             R.string.trip_line, t.movingText(), t.avgKmh, t.maxKmh,
-        )
+        ).let { if (t.name.isNotBlank()) "${t.dateText()} · ${t.timeRange()}\n$it" else it }
         holder.itemView.setOnClickListener { onPick(t) }
     }
 

@@ -91,7 +91,9 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     /** Keep the phone streaming while we are on screen (lease is renewed every few seconds). */
     private val subscribeTick = object : Runnable {
         override fun run() {
-            PhoneLink.send(this@WearMainActivity, PhoneLink.PATH_SUB, "1")
+            // ";np" = no bike photo here yet: the phone (re)sends it.
+            val np = if (PhoneLink.bikePhotoFile(this@WearMainActivity).exists()) "" else ";np"
+            PhoneLink.send(this@WearMainActivity, PhoneLink.PATH_SUB, "1$np")
             render()   // also ages the "no data" state
             handler.postDelayed(this, SUBSCRIBE_EVERY_MS)
         }
@@ -271,7 +273,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             tvTotal?.text = if (s.session) formatDuration(s.elapsedMs) else "--"
             val alt = s.altitudeM
             tvAlt?.text = if (alt == null) "--"
-                else String.format(loc, "%.0f", alt) + if (s.altitudeRaw) "*" else ""
+                else String.format(loc, "%d", Math.round(alt).toInt()) + if (s.altitudeRaw) "*" else ""
             val brg = s.bearing
             tvHeading?.text = if (brg == null) "--" else compass(brg)
             tvGps?.text = if (s.fix && s.accuracyM > 0) s.accuracyM.toString() else "--"
