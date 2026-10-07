@@ -74,7 +74,7 @@ object LiveShare {
                 p.edit().putString("name", name).apply()
                 create(activity, name)
             }
-            .setNegativeButton(R.string.support_later, null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
