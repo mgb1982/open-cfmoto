@@ -26,10 +26,19 @@ object HeadUnitServer {
     /** null = can't tell right now (e.g. bound to the bike Wi-Fi, which hides loopback). */
     @Volatile var lastKnown: Boolean? = null
         private set
+    @Volatile var lastProbeAt = 0L
+        private set
+
+    /** The last result if it's recent enough to show on the watch. */
+    val freshKnown: Boolean? get() = lastKnown.takeIf { System.currentTimeMillis() - lastProbeAt < 60_000L }
 
     /** Blocking (≤ 0.4 s): is something listening on Android Auto's head unit server port? */
-    fun probe(): Boolean? {
-        if (ConnectionState.phase.busy || ConnectionState.phase == Phase.STREAMING) return lastKnown
+    fun probe(ctx: android.content.Context): Boolean? {
+        val phase = ConnectionState.phase
+        if (phase.busy || phase == Phase.STREAMING || phase == Phase.MIRRORING) return lastKnown
+        // Bound to the bike Wi-Fi: loopback isn't routable, a failed connect would be a false "no".
+        val cm = ctx.getSystemService(android.net.ConnectivityManager::class.java)
+        if (cm?.boundNetworkForProcess != null) return lastKnown
         val ok = try {
             Socket().use { it.connect(InetSocketAddress("127.0.0.1", PORT), 400) }
             true
@@ -37,6 +46,7 @@ object HeadUnitServer {
             false
         }
         lastKnown = ok
+        lastProbeAt = System.currentTimeMillis()
         return ok
     }
 

@@ -914,7 +914,7 @@ class MainActivity : AppCompatActivity() {
         val banner = findViewById<View?>(R.id.hus_banner) ?: return
         if (!HeadUnitServer.androidAutoInstalled(this)) return
         Thread({
-            val running = HeadUnitServer.probe()
+            val running = HeadUnitServer.probe(this)
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 // Only warn on a definite "no"; while connected we can't look (and it's clearly running).

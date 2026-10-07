@@ -137,13 +137,14 @@ object Maintenance {
 
     fun markDone(ctx: Context, taskId: String, atKm: Double? = null) {
         val b = load(ctx)
-        val km = atKm ?: b.odometer ?: 0.0
+        // Unknown km stays unknown (not 0): otherwise setting the odometer later makes it look overdue.
+        val km = atKm ?: b.odometer
         val now = System.currentTimeMillis()
         save(
             ctx,
             b.copy(
                 tasks = b.tasks.map { if (it.id == taskId) it.copy(lastKm = km, lastAt = now) else it },
-                log = b.log + Entry(now, km, "task", taskId, null, null),
+                log = b.log + Entry(now, km ?: 0.0, "task", taskId, null, null),
             ),
         )
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().remove("notified_${b.bikeKey}_$taskId").apply()

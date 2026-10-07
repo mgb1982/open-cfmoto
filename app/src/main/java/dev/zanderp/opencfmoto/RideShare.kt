@@ -91,8 +91,14 @@ object RideShare {
             R.string.share_all_title,
             SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date(since)),
         )
-        val grid = if (heat) HeatGrid.build(trips.filter { it.points.size >= 2 }) else null
-        build(activity, tracks, title, stats, if (heat) "heat" else "all-rides", grid)
+        if (!heat) {
+            build(activity, tracks, title, stats, "all-rides", null)
+            return
+        }
+        Thread({
+            val grid = HeatGrid.build(trips.filter { it.points.size >= 2 })
+            main.post { build(activity, tracks, title, stats, "heat", grid) }
+        }, "heat-grid").start()
     }
 
     // ---- composition ----

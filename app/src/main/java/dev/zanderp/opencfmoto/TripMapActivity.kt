@@ -48,6 +48,7 @@ class TripMapActivity : AppCompatActivity() {
     private var heatMode = false
     private var period = Period.ALL
     private var framed = false
+    private var renderGen = 0
 
     enum class Period { MONTH, YEAR, ALL }
 
@@ -185,10 +186,22 @@ class TripMapActivity : AppCompatActivity() {
         map.overlays.clear()
         val all = ArrayList<GeoPoint>()
         if (heatMode) {
-            val grid = HeatGrid.build(trips)
-            grid.cells.forEach { all.add(GeoPoint(it.lat, it.lon)) }
-            map.overlays.add(HeatOverlay(grid))
+            // Building the grid walks every GPS point: off the UI thread.
+            val gen = ++renderGen
+            Thread({
+                val grid = HeatGrid.build(trips)
+                runOnUiThread {
+                    if (isFinishing || isDestroyed || gen != renderGen) return@runOnUiThread
+                    map.overlays.add(HeatOverlay(grid))
+                    map.invalidate()
+                    val pts = grid.cells.map { GeoPoint(it.lat, it.lon) }
+                    if (pts.isEmpty()) Toast.makeText(this, R.string.all_rides_none, Toast.LENGTH_SHORT).show()
+                    else if (!framed) { framed = true; frame(pts, 1.2f) }
+                }
+            }, "heat-grid").start()
+            return
         } else {
+            renderGen++
             val gold = ContextCompat.getColor(this, R.color.brand_orange)
             val lines = trips.map { t ->
                 val step = maxOf(1, t.points.size / 500)

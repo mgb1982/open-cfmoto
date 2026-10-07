@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="all_rides_none">No rides with GPS in this period</string>
     <string name="map_speed_legend">Colour = speed: blue slow → red fast</string>
     <string name="map_mode_routes">Routes</string>

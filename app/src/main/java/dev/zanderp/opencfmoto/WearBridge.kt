@@ -46,6 +46,7 @@ object WearBridge {
     const val PATH_TILE = "/ocm/tile"
     private const val TILE_EVERY_MS = 60_000L
     @Volatile private var lastTileAt = 0L
+    @Volatile private var husAttemptAt = 0L
 
     private const val LEASE_MS = 12_000L
     private const val STREAM_EVERY_MS = 1_000L
@@ -144,7 +145,14 @@ object WearBridge {
         o.put("acc", s?.accuracyM ?: 0)
         o.put("clk", ClockLab.resyncInProgress())
         TurnHaptics.current()?.let { o.put("turn", it) }
-        if (HeadUnitServer.lastKnown == false && !sessionActive) o.put("hus", false)
+        if (!sessionActive) {
+            // Re-check now and then while the watch is looking (works with the phone app closed).
+            if (System.currentTimeMillis() - husAttemptAt > 15_000L) {
+                husAttemptAt = System.currentTimeMillis()
+                Thread({ try { HeadUnitServer.probe(ctx) } catch (_: Exception) {} }, "hus-probe").start()
+            }
+            if (HeadUnitServer.freshKnown == false) o.put("hus", false)
+        }
         putInfo(ctx, o)
         return o.toString()
     }

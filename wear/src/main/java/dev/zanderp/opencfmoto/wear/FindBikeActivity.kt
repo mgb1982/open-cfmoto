@@ -107,7 +107,10 @@ class FindBikeActivity : Activity(), SensorEventListener {
 
     @SuppressLint("MissingPermission")
     private fun startGps() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return
+        // Approximate-only is allowed too: rougher distance, but the arrow still works.
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) return
         val m = lm ?: return
         // Fused first (the phone's fix when it's near), the watch's own GPS as well.
         for (p in listOf("fused", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)) {

@@ -87,13 +87,22 @@ class YearInReviewActivity : AppCompatActivity() {
         btnYear.alpha = if (monthMode) 0.5f else 1f
         btnMonth.alpha = if (monthMode) 1f else 0.5f
         val now = Calendar.getInstance()
-        val s = YearInReview.compute(this, trips, now.get(Calendar.YEAR), if (monthMode) now.get(Calendar.MONTH) else null)
-        stats = s
-        cards = if (s.trips.isEmpty()) emptyList() else YearInReview.cards(this, s)
-        // Names for the longest-ride card, if not known yet.
-        s.longest?.let { TripNames.ensure(this, listOf(it)) }
-        index = 0
-        show()
+        val month = if (monthMode) now.get(Calendar.MONTH) else null
+        val all = trips
+        Thread({
+            // Includes the heat grid (every GPS point): off the UI thread.
+            val s = YearInReview.compute(this, all, now.get(Calendar.YEAR), month)
+            val c = if (s.trips.isEmpty()) emptyList() else YearInReview.cards(this, s)
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                stats = s
+                cards = c
+                // Names for the longest-ride card, if not known yet.
+                s.longest?.let { TripNames.ensure(this, listOf(it)) }
+                index = 0
+                show()
+            }
+        }, "yir-compute").start()
     }
 
     private fun next() { if (index < cards.size - 1) { index++; show() } }
