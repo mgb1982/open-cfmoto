@@ -40,4 +40,13 @@
     <string name="all_rides_title">Todo lo rodado</string>
     <string name="trips_loading_all">Cargando todos tus viajes…</string>
     <string name="all_rides_stats">%1$d viajes · %2$s km</string>
+    <string name="live_pill_start">📍 Compartir mi ruta en directo</string>
+    <string name="live_pill_active">📍 Compartiendo en directo · toca para parar</string>
+    <string name="live_title">Compartir ruta en directo</string>
+    <string name="live_explain">Crea un enlace privado que muestra en un mapa dónde estás mientras conduces. Se para solo unos minutos después de acabar el viaje (o a las 12 h), y las posiciones se borran al día siguiente. Tu nombre para quien reciba el enlace:</string>
+    <string name="live_name_hint">Tu nombre (opcional)</string>
+    <string name="live_start">Crear enlace</string>
+    <string name="live_failed">No se ha podido crear el enlace. ¿Hay conexión a internet?</string>
+    <string name="live_share_text">Sigue mi ruta en directo 🏍️ %1$s</string>
+    <string name="live_stopped">Has dejado de compartir tu ubicación</string>
 </resources>

@@ -36,6 +36,7 @@ object RideExtras {
     /** Called by WearBridge.sync when projection to the dash starts / ends. */
     fun onSession(ctx: Context, active: Boolean) {
         val app = ctx.applicationContext
+        LiveShare.onSession(active)
         if (active) {
             Parking.clear(app)
             if (rain(app)) RainCheck.runSoon(app)

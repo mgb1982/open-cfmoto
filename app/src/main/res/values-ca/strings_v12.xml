@@ -40,4 +40,13 @@
     <string name="all_rides_title">Tot el que he rodat</string>
     <string name="trips_loading_all">Carregant tots els teus viatges…</string>
     <string name="all_rides_stats">%1$d viatges · %2$s km</string>
+    <string name="live_pill_start">📍 Comparteix la meva ruta en directe</string>
+    <string name="live_pill_active">📍 Compartint en directe · toca per aturar</string>
+    <string name="live_title">Comparteix la ruta en directe</string>
+    <string name="live_explain">Crea un enllaç privat que mostra en un mapa on ets mentre condueixes. S\'atura sol uns minuts després d\'acabar el viatge (o a les 12 h), i les posicions s\'esborren l\'endemà. El teu nom per a qui rebi l\'enllaç:</string>
+    <string name="live_name_hint">El teu nom (opcional)</string>
+    <string name="live_start">Crea l\'enllaç</string>
+    <string name="live_failed">No s\'ha pogut crear l\'enllaç. Hi ha connexió a internet?</string>
+    <string name="live_share_text">Segueix la meva ruta en directe 🏍️ %1$s</string>
+    <string name="live_stopped">Has deixat de compartir la teva ubicació</string>
 </resources>

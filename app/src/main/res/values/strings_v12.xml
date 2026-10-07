@@ -40,4 +40,13 @@
     <string name="all_rides_title">Everything I\'ve ridden</string>
     <string name="trips_loading_all">Loading all your rides…</string>
     <string name="all_rides_stats">%1$d rides · %2$s km</string>
+    <string name="live_pill_start">📍 Share my ride live</string>
+    <string name="live_pill_active">📍 Sharing live · tap to stop</string>
+    <string name="live_title">Share my ride live</string>
+    <string name="live_explain">Creates a private link that shows where you are on a map while you ride. It stops by itself a few minutes after the ride ends (or after 12 h), and the positions are deleted a day later. Your name for the people you send it to:</string>
+    <string name="live_name_hint">Your name (optional)</string>
+    <string name="live_start">Create link</string>
+    <string name="live_failed">Couldn\'t create the link. Is there an internet connection?</string>
+    <string name="live_share_text">Follow my ride live 🏍️ %1$s</string>
+    <string name="live_stopped">Stopped sharing your location</string>
 </resources>

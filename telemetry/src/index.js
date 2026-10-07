@@ -10,12 +10,15 @@
 // Privacy: no IP, no country, no headers are stored — only what the app sends, which is a random
 // UUID, version info and an already-redacted crash/error text.
 
+import { handleLive, cleanupLive } from "./live.js";
+
 const TYPES = new Set(["ping", "crash", "error"]);
 const MAX_BODY = 64 * 1024;
 const MAX_PAYLOAD = 40_000;
 const MAX_EVENTS_PER_UUID_HOUR = 30;
 const MAX_ALERTS_PER_HOUR = 20;
 const RETENTION_DAYS = 180;
+const WEEKLY_CRON = "0 7 * * 1";
 // Re-alert on the Nth occurrence of the same fingerprint (1st = full alert).
 const REALERT_AT = new Set([5, 25, 100, 500]);
 
@@ -26,6 +29,10 @@ export default {
       if (request.method === "POST" && url.pathname === "/v1/ping") return await ingest(request, env, ctx);
       if (request.method === "POST" && url.pathname.startsWith("/tg/")) return await telegramWebhook(request, env, url);
       if (request.method === "GET" && url.pathname === "/") return text("RideScreen AA telemetry: ok");
+      if (url.pathname.startsWith("/v1/live") || url.pathname.startsWith("/l/")) {
+        const r = await handleLive(request, env, url);
+        if (r) return r;
+      }
       return text("not found", 404);
     } catch (e) {
       console.log("unhandled", e && e.stack);
@@ -34,6 +41,8 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
+    await cleanupLive(env);
+    if (event.cron !== WEEKLY_CRON) return; // the hourly trigger only cleans live-location links
     const now = Date.now();
     const cutoff = now - RETENTION_DAYS * 86_400_000;
     await env.DB.batch([

@@ -934,6 +934,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView?>(R.id.stat_clock)?.text =
             java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
         renderParked()
+        renderLive()
         findViewById<TextView?>(R.id.stat_clock_label)?.setText(
             when {
                 ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
@@ -941,6 +942,28 @@ class MainActivity : AppCompatActivity() {
                 else -> R.string.stat_clock
             }
         )
+    }
+
+    private fun renderLive() {
+        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_live) ?: return
+        if (!LiveShare.available) {
+            btn.visibility = View.GONE
+            return
+        }
+        btn.visibility = View.VISIBLE
+        if (LiveShare.active) {
+            btn.setText(R.string.live_pill_active)
+            btn.setOnClickListener {
+                LiveShare.stop()
+                Toast.makeText(this, R.string.live_stopped, Toast.LENGTH_SHORT).show()
+                renderLive()
+            }
+            btn.setOnLongClickListener { LiveShare.shareLink(this); true }
+        } else {
+            btn.setText(R.string.live_pill_start)
+            btn.setOnClickListener { LiveShare.begin(this) }
+            btn.setOnLongClickListener(null)
+        }
     }
 
     private fun renderParked() {

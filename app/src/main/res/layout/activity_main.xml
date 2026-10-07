@@ -292,6 +292,15 @@
                     android:layout_marginTop="10dp"
                     android:visibility="gone" />
 
+                <!-- Share my ride live (RideScreen AA v1.2). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_live"
+                    style="@style/Widget.OpenCfMoto.Button.Pill"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/live_pill_start"
+                    android:visibility="gone" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
