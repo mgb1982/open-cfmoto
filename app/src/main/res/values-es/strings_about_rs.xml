@@ -13,4 +13,6 @@
     <string name="rs_thanks_kofi">❤ Apoya a Alexandru (Ko-fi)</string>
     <string name="rs_thanks_github">OpenCfMoto en GitHub</string>
     <string name="rs_thanks_discord">Discord de OpenCfMoto</string>
+    <string name="rs_bikes_tested_title">Probadas con RideScreen AA</string>
+    <string name="rs_bikes_tested">Zontes 125X (ZT125T-X) · Zontes 125V: funciona todo, incluido el reloj del cuadro siempre en hora, la app de Wear OS y los extras de ruta. Mismo cuadro, distinto carenado.</string>
 </resources>

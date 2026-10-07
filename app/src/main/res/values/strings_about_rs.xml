@@ -13,4 +13,6 @@
     <string name="rs_thanks_kofi">❤ Support Alexandru (Ko-fi)</string>
     <string name="rs_thanks_github">OpenCfMoto on GitHub</string>
     <string name="rs_thanks_discord">OpenCfMoto Discord</string>
+    <string name="rs_bikes_tested_title">Tested with RideScreen AA</string>
+    <string name="rs_bikes_tested">Zontes 125X (ZT125T-X) · Zontes 125V: everything works, including the dash clock always on time, the Wear OS app and the ride extras. Same dash, different fairing.</string>
 </resources>

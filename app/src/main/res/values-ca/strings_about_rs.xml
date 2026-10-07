@@ -13,4 +13,6 @@
     <string name="rs_thanks_kofi">❤ Dona suport a Alexandru (Ko-fi)</string>
     <string name="rs_thanks_github">OpenCfMoto a GitHub</string>
     <string name="rs_thanks_discord">Discord d\'OpenCfMoto</string>
+    <string name="rs_bikes_tested_title">Provades amb RideScreen AA</string>
+    <string name="rs_bikes_tested">Zontes 125X (ZT125T-X) · Zontes 125V: funciona tot, inclòs el rellotge del quadre sempre en hora, l\'app de Wear OS i els extres de ruta. Mateix quadre, diferent carenat.</string>
 </resources>
