@@ -41,7 +41,11 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
-    await cleanupLive(env);
+    try {
+      await cleanupLive(env);
+    } catch (e) {
+      console.log("live cleanup", e && e.stack);
+    }
     if (event.cron !== WEEKLY_CRON) return; // the hourly trigger only cleans live-location links
     const now = Date.now();
     const cutoff = now - RETENTION_DAYS * 86_400_000;

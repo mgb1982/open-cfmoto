@@ -33,7 +33,7 @@
     <string name="tile_label">Viaje</string>
     <string name="tile_riding">EN RUTA</string>
     <string name="tile_parked">🅿️ APARCADA</string>
-    <string name="tile_tap_directions">Abre la app para llegar</string>
+    <string name="tile_tap_directions">Toca y luego 🅿️ para llegar</string>
     <string name="tile_last_ride">ÚLTIMO VIAJE</string>
     <string name="tile_no_data">Aún no hay viajes</string>
     <string name="complication_label">RideScreen · km</string>

@@ -107,6 +107,10 @@ object TurnHaptics {
         }
     }
 
+    /** AA session ended (or nav channel reopened): forget any manoeuvre left over from before. */
+    @Synchronized
+    fun clear() = reset()
+
     private fun reset() {
         kind = Kind.NONE
         exit = 0

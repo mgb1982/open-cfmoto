@@ -311,6 +311,7 @@ internal class AapControlGateway(
         if (channel == Channel.ID_SEN) {
             aapTransport.send(DrivingStatusEvent(Sensors.SensorBatch.DrivingStatusData.Status.UNRESTRICTED))
         }
+        if (channel == Channel.ID_NAV) dev.zanderp.opencfmoto.TurnHaptics.clear()
         return 0
     }
 }

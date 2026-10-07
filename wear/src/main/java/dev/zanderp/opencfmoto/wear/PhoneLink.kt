@@ -141,8 +141,18 @@ object PhoneLink {
         } else {
             android.os.VibrationEffect.createWaveform(arr, -1)
         }
+        // Riding = screen off / watch face showing: Android 12+ drops "unknown usage" vibrations from
+        // background apps, so tag it as an alarm (one of the usages allowed from the background).
         try {
-            vib.vibrate(effect)
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                vib.vibrate(effect, android.os.VibrationAttributes.createForUsage(android.os.VibrationAttributes.USAGE_ALARM))
+            } else {
+                @Suppress("DEPRECATION")
+                vib.vibrate(
+                    effect,
+                    android.media.AudioAttributes.Builder().setUsage(android.media.AudioAttributes.USAGE_ALARM).build(),
+                )
+            }
         } catch (_: Exception) {
         }
     }

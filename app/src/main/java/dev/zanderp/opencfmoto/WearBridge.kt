@@ -83,6 +83,7 @@ object WearBridge {
         }
         if (active == sessionActive) return
         sessionActive = active
+        if (!active) TurnHaptics.clear()
         if (active) sessionStartedAt = SystemClock.elapsedRealtime()
         LogBus.log("[WEAR] session ${if (active) "start" else "stop"} → watch")
         broadcast(ctx, PATH_SESSION, if (active) "start" else "stop")

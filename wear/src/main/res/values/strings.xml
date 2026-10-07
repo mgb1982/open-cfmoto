@@ -36,7 +36,7 @@
     <string name="tile_label">Ride</string>
     <string name="tile_riding">RIDING</string>
     <string name="tile_parked">🅿️ PARKED</string>
-    <string name="tile_tap_directions">Open the app for directions</string>
+    <string name="tile_tap_directions">Tap: open, then 🅿️ for directions</string>
     <string name="tile_last_ride">LAST RIDE</string>
     <string name="tile_no_data">No rides yet</string>
     <string name="complication_label">RideScreen · km</string>

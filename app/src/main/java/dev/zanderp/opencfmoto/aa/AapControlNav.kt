@@ -96,7 +96,7 @@ internal class AapControlNav : AapControl {
         return when {
             n.startsWith("ROUNDABOUT_ENTER") -> TurnHaptics.Kind.ROUNDABOUT
             n.startsWith("U_TURN") -> TurnHaptics.Kind.UTURN
-            n == "DESTINATION" -> TurnHaptics.Kind.DESTINATION
+            n.startsWith("DESTINATION") -> TurnHaptics.Kind.DESTINATION
             n.startsWith("TURN_SLIGHT") || n.startsWith("KEEP") || n.startsWith("ON_RAMP") ||
                 n.startsWith("OFF_RAMP") || n.startsWith("FORK") || n.startsWith("MERGE") ->
                 when {

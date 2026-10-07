@@ -114,6 +114,23 @@ not shared with anyone else and is used for maintenance only.
 Builds of RideScreen AA up to v1 sent these reports to the original OpenCfMoto
 project's service ([opencfmoto-telemetry](https://github.com/zanderp/opencfmoto-telemetry)).
 
+## Ride extras (v1.2)
+
+- **Where did I park?** The bike's last GPS position when you disconnect from the dash is stored
+  **on the phone** and sent to **your own watch** over Bluetooth. Nothing leaves your devices. Turn
+  it off in Setup → Ride extras; turning it off deletes the saved spot.
+- **Rain alert.** When a ride starts, the app asks [Open-Meteo](https://open-meteo.com) for the
+  forecast at your position **rounded to about 1 km** (two decimals). No ID, no history; Open-Meteo
+  receives the request like any website would (including your IP address). Off in Setup → Ride extras.
+- **Turn vibrations on the watch.** Uses the navigation instructions Android Auto sends to the dash
+  (next manoeuvre and distance). They only travel from your phone to your watch.
+- **Share my ride live** (off unless you start it each time). While active, your position and speed
+  are sent every ~10 s to the RideScreen AA server (the same Cloudflare Worker as the anonymous
+  reports, code in [`telemetry/src/live.js`](telemetry/src/live.js)) under a random link, and anyone
+  with the link can see them on a map. It stops when you tap stop, a few minutes after the ride ends,
+  or after 12 hours at most. The positions and the link are **deleted 24 hours after it ends**. The
+  name shown is the one you type (optional).
+
 ## Data that leaves the phone (other)
 
 - **OpenStreetMap tiles:** Opening a trip's map downloads map imagery from

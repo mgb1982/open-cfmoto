@@ -47,19 +47,22 @@ object RideExtras {
 
     internal fun lastLocation(ctx: Context, maxAgeMs: Long): Location? {
         val now = System.currentTimeMillis()
-        TripRecorder.lastSeen?.let { if (now - it.time <= maxAgeMs) return it }
-        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) !=
+        val candidates = ArrayList<Location>()
+        TripRecorder.lastSeen?.let { candidates += it }
+        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) ==
             PackageManager.PERMISSION_GRANTED
-        ) return null
-        val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
-        return try {
-            listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, "fused")
-                .mapNotNull { p -> runCatching { lm.getLastKnownLocation(p) }.getOrNull() }
-                .filter { now - it.time <= maxAgeMs }
-                .minByOrNull { if (it.hasAccuracy()) it.accuracy else 999f }
-        } catch (_: SecurityException) {
-            null
+        ) {
+            val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
+            if (lm != null) {
+                for (p in listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, "fused")) {
+                    try { lm.getLastKnownLocation(p)?.let { candidates += it } } catch (_: Exception) {}
+                }
+            }
         }
+        // Newest first (where the phone is *now*), then the most accurate among fixes ~equally recent.
+        return candidates.filter { now - it.time <= maxAgeMs }
+            .sortedWith(compareByDescending<Location> { it.time / 15_000 }.thenBy { if (it.hasAccuracy()) it.accuracy else 999f })
+            .firstOrNull()
     }
 }
 
@@ -175,21 +178,30 @@ object RainCheck {
         }
         val lat = String.format(Locale.ROOT, "%.2f", loc.latitude)
         val lon = String.format(Locale.ROOT, "%.2f", loc.longitude)
+        // minutely_15 precipitation (mm per 15 min) + hourly probability: both are documented
+        // Open-Meteo variables, so the request can't fail on an unknown one.
         val body = AppHttp.getText(
             "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon" +
-                "&minutely_15=precipitation,precipitation_probability&forecast_minutely_15=12&timezone=auto",
+                "&minutely_15=precipitation&forecast_minutely_15=12" +
+                "&hourly=precipitation_probability&forecast_hours=3&timezone=auto",
         )
-        val m = JSONObject(body).getJSONObject("minutely_15")
-        val times = m.getJSONArray("time")
-        val mm = m.optJSONArray("precipitation")
-        val prob = m.optJSONArray("precipitation_probability")
+        val root = JSONObject(body)
+        val mm = root.optJSONObject("minutely_15")?.optJSONArray("precipitation")
+        val prob = root.optJSONObject("hourly")?.optJSONArray("precipitation_probability")
         var firstSlot = -1
         var maxMm = 0.0
-        for (i in 0 until times.length()) {
-            val r = mm?.optDouble(i, 0.0) ?: 0.0
-            val p = prob?.optInt(i, 0) ?: 0
+        for (i in 0 until (mm?.length() ?: 0)) {
+            val r = mm!!.optDouble(i, 0.0)
             if (r > maxMm) maxMm = r
-            if (firstSlot < 0 && (r >= RAIN_MM || p >= RAIN_PROBABILITY)) firstSlot = i
+            if (firstSlot < 0 && r >= RAIN_MM) firstSlot = i
+        }
+        if (firstSlot < 0) {
+            for (h in 0 until (prob?.length() ?: 0)) {
+                if (prob!!.optInt(h, 0) >= RAIN_PROBABILITY) {
+                    firstSlot = h * 4
+                    break
+                }
+            }
         }
         LogBus.log("[RAIN] next 3 h: first rain slot=$firstSlot max=${maxMm} mm/15min")
         if (firstSlot < 0) return
