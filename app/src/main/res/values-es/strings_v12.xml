@@ -24,4 +24,20 @@
     <string name="widget_last_ride">Último viaje</string>
     <string name="widget_last_ride_sub">media %1$d · máx %2$d km/h</string>
     <string name="widget_no_rides">Aún no hay viajes</string>
+    <string name="share_button">Compartir</string>
+    <string name="share_preparing">Preparando la imagen…</string>
+    <string name="share_km">km</string>
+    <string name="share_time">tiempo</string>
+    <string name="share_avg">media km/h</string>
+    <string name="share_max">máx km/h</string>
+    <string name="share_rides">viajes</string>
+    <string name="share_hours">horas en moto</string>
+    <string name="share_all_title">Todo lo rodado desde %1$s</string>
+    <string name="share_footer">Android Auto en el cuadro · RideScreen AA</string>
+    <string name="share_text">Rodado con RideScreen AA 🏍️</string>
+    <string name="share_chooser">Compartir viaje</string>
+    <string name="all_rides_button">🗺 Todo</string>
+    <string name="all_rides_title">Todo lo rodado</string>
+    <string name="trips_loading_all">Cargando todos tus viajes…</string>
+    <string name="all_rides_stats">%1$d viajes · %2$s km</string>
 </resources>

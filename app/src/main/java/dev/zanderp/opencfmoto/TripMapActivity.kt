@@ -49,6 +49,10 @@ class TripMapActivity : AppCompatActivity() {
         map.setMultiTouchControls(true)
         map.setUseDataConnection(true)
 
+        if (intent.getBooleanExtra(EXTRA_ALL, false)) {
+            showAll()
+            return
+        }
         val id = intent.getStringExtra(EXTRA_ID)
         val trip = id?.let { TripStore.get(this, it) }
         if (trip == null) {
@@ -62,6 +66,46 @@ class TripMapActivity : AppCompatActivity() {
             "${trip.distanceText()} · ${trip.durationText()} · avg ${trip.avgKmh} · max ${trip.maxKmh} km/h"
 
         renderRoute(trip)
+        findViewById<android.view.View>(R.id.map_share).setOnClickListener { RideShare.shareTrip(this, trip) }
+    }
+
+    /** "Everything I've ridden": every saved trip on one map. */
+    private fun showAll() {
+        findViewById<TextView>(R.id.map_title).setText(R.string.all_rides_title)
+        findViewById<TextView>(R.id.map_stats).setText(R.string.trips_loading_all)
+        Thread({
+            val trips = try { TripStore.list(this) } catch (_: Exception) { emptyList() }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                val km = trips.sumOf { it.distanceKm }
+                findViewById<TextView>(R.id.map_stats).text =
+                    getString(R.string.all_rides_stats, trips.size, String.format(java.util.Locale.getDefault(), "%.0f", km))
+                val gold = ContextCompat.getColor(this, R.color.brand_orange)
+                val all = ArrayList<GeoPoint>()
+                for (t in trips) {
+                    if (t.points.size < 2) continue
+                    val step = maxOf(1, t.points.size / 500)
+                    val geo = t.points.filterIndexed { i, _ -> i % step == 0 }.map { GeoPoint(it.lat, it.lon) }
+                    all.addAll(geo)
+                    map.overlays.add(Polyline(map).apply {
+                        setPoints(geo)
+                        outlinePaint.color = gold
+                        outlinePaint.alpha = 170
+                        outlinePaint.strokeWidth = 7f
+                    })
+                }
+                map.invalidate()
+                if (all.isNotEmpty()) {
+                    val bbox = BoundingBox.fromGeoPoints(all)
+                    map.post {
+                        try { map.zoomToBoundingBox(bbox.increaseByScale(1.2f), false, 48) } catch (_: Exception) {}
+                    }
+                } else {
+                    map.controller.setZoom(4.0)
+                }
+                findViewById<android.view.View>(R.id.map_share).setOnClickListener { RideShare.shareAll(this, trips) }
+            }
+        }, "all-rides").start()
     }
 
     private fun renderRoute(trip: Trip) {
@@ -115,6 +159,11 @@ class TripMapActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_ID = "trip_id"
+        private const val EXTRA_ALL = "all_trips"
+
+        fun startAll(ctx: Context) {
+            ctx.startActivity(Intent(ctx, TripMapActivity::class.java).putExtra(EXTRA_ALL, true))
+        }
 
         fun start(ctx: Context, id: String) {
             ctx.startActivity(Intent(ctx, TripMapActivity::class.java).putExtra(EXTRA_ID, id))

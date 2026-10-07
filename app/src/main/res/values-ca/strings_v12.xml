@@ -24,4 +24,20 @@
     <string name="widget_last_ride">Últim viatge</string>
     <string name="widget_last_ride_sub">mitjana %1$d · màx %2$d km/h</string>
     <string name="widget_no_rides">Encara no hi ha viatges</string>
+    <string name="share_button">Comparteix</string>
+    <string name="share_preparing">Preparant la imatge…</string>
+    <string name="share_km">km</string>
+    <string name="share_time">temps</string>
+    <string name="share_avg">mitjana km/h</string>
+    <string name="share_max">màx km/h</string>
+    <string name="share_rides">viatges</string>
+    <string name="share_hours">hores en moto</string>
+    <string name="share_all_title">Tot el que he rodat des de %1$s</string>
+    <string name="share_footer">Android Auto al quadre · RideScreen AA</string>
+    <string name="share_text">Rodat amb RideScreen AA 🏍️</string>
+    <string name="share_chooser">Comparteix el viatge</string>
+    <string name="all_rides_button">🗺 Tot</string>
+    <string name="all_rides_title">Tot el que he rodat</string>
+    <string name="trips_loading_all">Carregant tots els teus viatges…</string>
+    <string name="all_rides_stats">%1$d viatges · %2$s km</string>
 </resources>

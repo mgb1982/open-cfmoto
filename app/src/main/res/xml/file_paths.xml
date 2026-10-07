@@ -4,6 +4,7 @@
     <cache-path name="settings" path="settings/" />
     <cache-path name="map-backup" path="map-backup/" />
     <cache-path name="trip-export" path="trip-export/" />
+    <cache-path name="share" path="share/" />
     <files-path name="crash" path="." />
     <external-files-path name="video" path="video/" />
 </paths>

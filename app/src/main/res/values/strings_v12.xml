@@ -24,4 +24,20 @@
     <string name="widget_last_ride">Last ride</string>
     <string name="widget_last_ride_sub">avg %1$d · max %2$d km/h</string>
     <string name="widget_no_rides">No rides yet</string>
+    <string name="share_button">Share</string>
+    <string name="share_preparing">Preparing the image…</string>
+    <string name="share_km">km</string>
+    <string name="share_time">time</string>
+    <string name="share_avg">avg km/h</string>
+    <string name="share_max">max km/h</string>
+    <string name="share_rides">rides</string>
+    <string name="share_hours">hours riding</string>
+    <string name="share_all_title">Everything I\'ve ridden since %1$s</string>
+    <string name="share_footer">Android Auto on the dash · RideScreen AA</string>
+    <string name="share_text">Ridden with RideScreen AA 🏍️</string>
+    <string name="share_chooser">Share ride</string>
+    <string name="all_rides_button">🗺 All</string>
+    <string name="all_rides_title">Everything I\'ve ridden</string>
+    <string name="trips_loading_all">Loading all your rides…</string>
+    <string name="all_rides_stats">%1$d rides · %2$s km</string>
 </resources>

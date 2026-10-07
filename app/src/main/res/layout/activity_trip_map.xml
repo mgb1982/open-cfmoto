@@ -9,10 +9,17 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
         android:paddingHorizontal="20dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/map_title"
@@ -31,6 +38,14 @@
             android:text=""
             android:textColor="@color/text_secondary"
             android:textSize="13sp" />
+    </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_share"
+            style="@style/Widget.OpenCfMoto.Button.Pill"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/share_button" />
     </LinearLayout>
 
     <org.osmdroid.views.MapView

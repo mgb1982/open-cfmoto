@@ -68,6 +68,7 @@ class TripsListActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.trips_day_next).setOnClickListener {
             shiftDay(1)
         }
+        findViewById<MaterialButton>(R.id.trips_all_map).setOnClickListener { TripMapActivity.startAll(this) }
         todayBtn.setOnClickListener {
             dayStartMs = startOfDay(System.currentTimeMillis())
             renderDay()
@@ -203,6 +204,16 @@ class TripsListActivity : AppCompatActivity() {
             ).apply { topMargin = dp(8) }
             gravity = Gravity.END
         }
+        actions.addView(
+            MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+                text = getString(R.string.share_button)
+                textSize = 13f
+                setOnClickListener { RideShare.shareTrip(this@TripsListActivity, trip) }
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ).apply { marginEnd = dp(8) }
+            },
+        )
         actions.addView(
             MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
                 text = getString(R.string.trips_export_gpx)
