@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:keepScreenOn="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <TextView
+            android:id="@+id/fb_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/find_title"
+            android:textColor="#D1A955"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/fb_arrow"
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:layout_marginTop="4dp"
+            android:contentDescription="@string/find_title"
+            android:src="@drawable/ic_compass_arrow" />
+
+        <TextView
+            android:id="@+id/fb_dist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif-condensed"
+            android:text="--"
+            android:textColor="#F1F4EC"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fb_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/find_waiting_gps"
+            android:textColor="#9E9E9E"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/fb_maps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_pill"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="6dp"
+            android:text="@string/find_maps"
+            android:textColor="#F1F4EC"
+            android:textSize="12sp" />
+    </LinearLayout>
+</FrameLayout>

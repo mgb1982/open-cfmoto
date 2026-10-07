@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pointer toward the parked bike (rotated in code). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <path
+        android:fillColor="#D1A955"
+        android:pathData="M48,6 L76,84 L48,68 L20,84 Z" />
+    <path
+        android:fillColor="#8A6E33"
+        android:pathData="M48,6 L48,68 L20,84 Z" />
+</vector>

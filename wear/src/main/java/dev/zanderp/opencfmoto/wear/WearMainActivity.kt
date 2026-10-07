@@ -176,20 +176,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         )
         tv.text = getString(R.string.parked_line, ago)
         tv.visibility = View.VISIBLE
-        tv.setOnClickListener {
-            // Google Maps on the watch: walking directions to the bike.
-            val uri = android.net.Uri.parse("google.navigation:q=${spot.first},${spot.second}&mode=w")
-            try {
-                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri))
-            } catch (_: Exception) {
-                try {
-                    startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse("geo:${spot.first},${spot.second}?q=${spot.first},${spot.second}")))
-                } catch (_: Exception) {
-                    android.widget.Toast.makeText(this, R.string.parked_no_maps, android.widget.Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        tv.setOnClickListener { startActivity(android.content.Intent(this, FindBikeActivity::class.java)) }
     }
 
     private fun render() {

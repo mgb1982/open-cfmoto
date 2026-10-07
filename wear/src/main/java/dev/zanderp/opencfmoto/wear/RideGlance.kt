@@ -131,7 +131,7 @@ class RideTileService : TileService() {
                 android.text.format.DateUtils.getRelativeTimeSpanString(
                     parked.third, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
                 ).toString(),
-                getString(R.string.tile_tap_directions),
+                getString(R.string.tile_tap_compass),
             )
             s != null -> Triple(
                 getString(R.string.tile_last_ride),
@@ -144,7 +144,11 @@ class RideTileService : TileService() {
             .setAndroidActivity(
                 ActionBuilders.AndroidActivity.Builder()
                     .setPackageName(packageName)
-                    .setClassName(WearMainActivity::class.java.name)
+                    // Parked and not riding: straight to the "where's my bike" compass.
+                    .setClassName(
+                        if ((s == null || !s.riding) && parked != null) FindBikeActivity::class.java.name
+                        else WearMainActivity::class.java.name
+                    )
                     .build()
             ).build()
         val column = LayoutElementBuilders.Column.Builder()
