@@ -643,13 +643,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_about_page).setOnClickListener { AboutActivity.start(this) }
         findViewById<View>(R.id.btn_check_update).setOnClickListener { checkUpdateManual() }
         findViewById<View>(R.id.btn_problem_report).setOnClickListener { reportProblem() }
-        findViewById<View>(R.id.btn_donate).setOnClickListener {
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AboutActivity.URL_KOFI)))
-            } catch (_: Exception) {
-                Toast.makeText(this, R.string.main_donate_failed, Toast.LENGTH_SHORT).show()
-            }
-        }
+        findViewById<View>(R.id.btn_donate).setOnClickListener { Support.open(this) }
+        // Play build: updates come from Google Play only (Play policy forbids self-updating).
+        if (!BuildConfig.SELF_UPDATE) findViewById<View>(R.id.btn_check_update).visibility = View.GONE
 
         findViewById<Button>(R.id.btn_clear).setOnClickListener {
             LogBus.clear()
@@ -691,6 +687,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        Support.onResume(this)
         // The active bike (and its name) may have changed in the Garage — reflect it on the label and
         // the Connect button.
         refreshBikeLabel()
@@ -1704,6 +1701,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun maybeCheckUpdate() {
+        if (!BuildConfig.SELF_UPDATE) return
         Thread {
             val release = try {
                 UpdateChecker.check(this, manual = false)

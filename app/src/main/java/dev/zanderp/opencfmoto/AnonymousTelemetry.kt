@@ -211,6 +211,7 @@ object AnonymousTelemetry {
             body.put("type", item.optString("type", "ping"))
             body.put("version", BuildConfig.VERSION_NAME)
             body.put("versionCode", BuildConfig.VERSION_CODE)
+            body.put("store", BuildConfig.STORE)
             body.put("androidSdk", Build.VERSION.SDK_INT)
             body.put("locale", Locale.getDefault().toLanguageTag())
             val payload = item.optString("payload", "")

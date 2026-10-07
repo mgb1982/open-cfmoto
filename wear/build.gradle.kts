@@ -21,6 +21,19 @@ android {
             ((project.findProperty("versionSuffix") as String?) ?: "-dev")
     }
 
+    // Same channels as :app — the watch app must carry the phone app's applicationId.
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") {
+            dimension = "store"
+            isDefault = true
+        }
+        create("play") {
+            dimension = "store"
+            applicationId = "io.github.mgb1982.ridescreen"
+        }
+    }
+
     signingConfigs {
         create("debugRelease") {
             storeFile = file("${System.getProperty("user.home")}/.android/debug.keystore")

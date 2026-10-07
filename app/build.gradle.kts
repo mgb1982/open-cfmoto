@@ -57,10 +57,33 @@ android {
         }.orElse("unknown")
         buildConfigField("String", "GIT_HASH", "\"${gitHash.get()}\"")
 
-        if (slimApk || abiFilter.isNotEmpty()) {
-            ndk {
-                abiFilters += listOf(abiFilter.ifEmpty { "arm64-v8a" })
+    }
+
+    // Two distribution channels (see docs/PLAY-STORE.md):
+    //  github — what the groups install from GitHub Releases: original applicationId, in-app
+    //           update check, Ko-fi link. One ABI (APK size).
+    //  play   — Google Play: own applicationId, no self-update (Play policy), donations through
+    //           Google Play Billing (Play forbids external payment links), all ABIs (the AAB is split by Play).
+    flavorDimensions += "store"
+    productFlavors {
+        create("github") {
+            dimension = "store"
+            isDefault = true
+            buildConfigField("String", "STORE", "\"github\"")
+            buildConfigField("boolean", "SELF_UPDATE", "true")
+            buildConfigField("boolean", "EXTERNAL_DONATIONS", "true")
+            if (slimApk || abiFilter.isNotEmpty()) {
+                ndk {
+                    abiFilters += listOf(abiFilter.ifEmpty { "arm64-v8a" })
+                }
             }
+        }
+        create("play") {
+            dimension = "store"
+            applicationId = "io.github.mgb1982.ridescreen"
+            buildConfigField("String", "STORE", "\"play\"")
+            buildConfigField("boolean", "SELF_UPDATE", "false")
+            buildConfigField("boolean", "EXTERNAL_DONATIONS", "false")
         }
     }
 
@@ -117,6 +140,8 @@ dependencies {
     implementation(libs.play.services.wearable)
     // Compile-time OkHttp for MapLibre cellular pin (MapLibre brings it as runtime only).
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Donations in the Play build (Google Play Billing; Play requires Billing Library 8+).
+    "playImplementation"("com.android.billingclient:billing:8.0.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
