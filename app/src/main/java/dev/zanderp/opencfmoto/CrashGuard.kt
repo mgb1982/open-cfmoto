@@ -63,6 +63,20 @@ object CrashGuard {
         }
     }
 
+    private val flushIo = java.util.concurrent.Executors.newSingleThreadExecutor { r ->
+        Thread(r, "log-flush").apply { isDaemon = true }
+    }
+    @Volatile private var flushedVersion = -1L
+
+    /** Periodic flush while riding: in the background, and only if something new was logged. */
+    fun persistSessionAsync(appContext: Context) {
+        val v = LogBus.version
+        if (v == flushedVersion) return
+        flushedVersion = v
+        val app = appContext.applicationContext
+        flushIo.execute { persistSession(app) }
+    }
+
     /** Flush the in-memory log so a later kill/crash still has a session file. */
     fun persistSession(appContext: Context) {
         try {

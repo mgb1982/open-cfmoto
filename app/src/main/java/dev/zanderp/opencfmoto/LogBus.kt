@@ -25,8 +25,13 @@ object LogBus {
      */
     @Volatile var includeSecrets: Boolean = false
 
+    /** Bumped on every line; lets the periodic disk flush skip when nothing new was logged. */
+    @Volatile var version = 0L
+        private set
+
     @Synchronized
     fun log(msg: String) {
+        version++
         val safe = if (includeSecrets) msg else LogRedactor.redact(msg)
         val line = "${ts.format(Date())}  $safe"
         sb.append(line).append('\n')

@@ -21,7 +21,7 @@ export async function handleLive(request, env, url) {
   const m = p.match(/^\/v1\/live\/([A-Za-z0-9]{12})(\/end|\/pos)?$/);
   if (!m) return null;
   const [, id, tail] = m;
-  if (request.method === "GET" && tail === "/pos") return pos(env, id);
+  if (request.method === "GET" && tail === "/pos") return pos(env, id, Number(url.searchParams.get("since")) || 0);
   if (request.method === "POST" && !tail) return update(request, env, id);
   if (request.method === "POST" && tail === "/end") return end(request, env, id);
   return null;
@@ -96,14 +96,15 @@ async function end(request, env, id) {
   return json({ ok: true });
 }
 
-async function pos(env, id) {
+async function pos(env, id, since = 0) {
   const row = await env.DB.prepare("SELECT * FROM live WHERE id = ?").bind(id).first();
   if (!row) return json({ gone: true }, 404);
   const now = Date.now();
   const ended = !!row.ended_at || now > row.expires_at;
+  // Only the points the page doesn't have yet (it sends the last ts it drew).
   const trail = await env.DB.prepare(
-    "SELECT lat, lon FROM live_points WHERE id = ? ORDER BY ts DESC LIMIT ?"
-  ).bind(id, TRAIL_POINTS).all();
+    "SELECT lat, lon, ts FROM live_points WHERE id = ? AND ts > ? ORDER BY ts DESC LIMIT ?"
+  ).bind(id, since, TRAIL_POINTS).all();
   return json(
     {
       name: row.name,
@@ -113,6 +114,7 @@ async function pos(env, id) {
       ts: row.last_ts,
       ended,
       trail: trail.results.reverse().map((r) => [r.lat, r.lon]),
+      last: trail.results.length ? trail.results[0].ts : since,
     },
     200,
     { "cache-control": "no-store", "access-control-allow-origin": "*" },
@@ -145,24 +147,28 @@ const id=${JSON.stringify(id)};
 const map=L.map('map',{zoomControl:false}).setView([41.39,2.16],13);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
 const icon=L.divIcon({className:'',html:'<div class="dot"></div>',iconSize:[18,18],iconAnchor:[9,9]});
-let marker=null,line=null,first=true,timer=null;
+let marker=null,line=null,first=true,timer=null,since=0,pts=[];
 function ago(ts){const s=Math.max(0,Math.round((Date.now()-ts)/1000));if(s<60)return 'hace '+s+' s';const m=Math.round(s/60);return m<60?'hace '+m+' min':'hace '+Math.round(m/60)+' h'}
 async function tick(){
   try{
-    const r=await fetch('/v1/live/'+id+'/pos',{cache:'no-store'});
-    if(r.status===404){who.textContent='Este enlace ya no existe';row.textContent='';clearInterval(timer);return}
+    const r=await fetch('/v1/live/'+id+'/pos?since='+since,{cache:'no-store'});
+    if(r.status===404){who.textContent='Este enlace ya no existe';row.textContent='';stopPolling();return}
     const d=await r.json();
     who.textContent=(d.name||'Motorista')+(d.ended?' ha terminado el viaje':' está en ruta');
     if(d.lat==null){row.textContent='Esperando la primera posición…';return}
     const ll=[d.lat,d.lon];
     if(!marker)marker=L.marker(ll,{icon}).addTo(map);else marker.setLatLng(ll);
-    if(d.trail&&d.trail.length>1){if(!line)line=L.polyline(d.trail,{color:'#D1A955',weight:5,opacity:.9}).addTo(map);else line.setLatLngs(d.trail)}
+    if(d.trail&&d.trail.length){pts=pts.concat(d.trail).slice(-600);since=d.last||since}
+    if(pts.length>1){if(!line)line=L.polyline(pts,{color:'#D1A955',weight:5,opacity:.9}).addTo(map);else line.setLatLngs(pts)}
     if(first){map.setView(ll,15);first=false}else if(!map.getBounds().pad(-0.2).contains(ll))map.panTo(ll);
     row.innerHTML=(d.ended?'':'<span class="spd">'+d.spd+' km/h</span> · ')+'actualizado '+ago(d.ts);
-    if(d.ended)clearInterval(timer);
+    if(d.ended)stopPolling();
   }catch(e){row.textContent='Sin conexión, reintentando…'}
 }
-tick();timer=setInterval(tick,10000);
+function startPolling(){if(!timer){tick();timer=setInterval(tick,10000)}}
+function stopPolling(){if(timer){clearInterval(timer);timer=null}}
+document.addEventListener('visibilitychange',()=>{document.hidden?stopPolling():startPolling()});
+startPolling();
 </script></body></html>`;
   return new Response(html, {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" },

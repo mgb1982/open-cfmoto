@@ -19,6 +19,67 @@ object TripStore {
     private fun dir(ctx: Context): File =
         File(ctx.applicationContext.filesDir, "trips").apply { if (!exists()) mkdirs() }
 
+    // RideScreen AA: a small index of trip summaries (no GPS points) so lists, records, the widget
+    // and the watch don't parse every track. Lives outside trips/ so list() never sees it.
+    private fun indexFile(ctx: Context) = File(ctx.applicationContext.filesDir, "trips-index.json")
+    @Volatile private var summaryCache: List<Trip>? = null
+
+    /** All trips without their points (cheap), most recent first. Use [get] for a full track. */
+    @Synchronized
+    fun summaries(ctx: Context): List<Trip> {
+        summaryCache?.let { return it }
+        val files = dir(ctx).listFiles { f -> f.name.endsWith(".json") } ?: emptyArray()
+        val ids = files.map { it.name.removeSuffix(".json") }.toSet()
+        val fromIndex = runCatching { readIndex(indexFile(ctx)) }.getOrNull()
+        val result = if (fromIndex != null && fromIndex.map { it.id }.toSet() == ids) {
+            fromIndex
+        } else {
+            // First run (or files changed behind our back): rebuild once from the full files.
+            files.mapNotNull { f -> parse(f)?.copy(points = emptyList()) }.also { writeIndex(ctx, it) }
+        }.sortedByDescending { it.start }
+        summaryCache = result
+        return result
+    }
+
+    @Synchronized
+    private fun updateIndex(ctx: Context, change: (MutableList<Trip>) -> Unit) {
+        val current = summaryCache ?: runCatching { readIndex(indexFile(ctx)) }.getOrNull()
+        if (current == null) {
+            summaryCache = null // rebuilt lazily by summaries()
+            return
+        }
+        val list = current.toMutableList()
+        change(list)
+        val sorted = list.sortedByDescending { it.start }
+        writeIndex(ctx, sorted)
+        summaryCache = sorted
+    }
+
+    private fun readIndex(f: File): List<Trip>? {
+        if (!f.exists()) return null
+        val a = JSONArray(f.readText())
+        return (0 until a.length()).map { i ->
+            val o = a.getJSONObject(i)
+            Trip(
+                id = o.getString("id"), start = o.optLong("start"), end = o.optLong("end"),
+                distanceMeters = o.optDouble("distanceMeters"), movingTimeMs = o.optLong("movingTimeMs"),
+                maxSpeedMs = o.optDouble("maxSpeedMs").toFloat(), points = emptyList(),
+            )
+        }
+    }
+
+    private fun writeIndex(ctx: Context, trips: List<Trip>) {
+        val a = JSONArray()
+        for (t in trips) {
+            a.put(
+                JSONObject().put("id", t.id).put("start", t.start).put("end", t.end)
+                    .put("distanceMeters", t.distanceMeters).put("movingTimeMs", t.movingTimeMs)
+                    .put("maxSpeedMs", t.maxSpeedMs.toDouble())
+            )
+        }
+        runCatching { indexFile(ctx).writeText(a.toString()) }
+    }
+
     fun save(ctx: Context, trip: Trip) {
         val obj = JSONObject()
             .put("id", trip.id)
@@ -33,6 +94,7 @@ object TripStore {
         }
         obj.put("points", pts)
         runCatching { File(dir(ctx), "${trip.id}.json").writeText(obj.toString()) }
+        updateIndex(ctx) { l -> l.removeAll { it.id == trip.id }; l.add(trip.copy(points = emptyList())) }
     }
 
     /** All saved trips, most recent first. */
@@ -48,6 +110,7 @@ object TripStore {
 
     fun delete(ctx: Context, id: String) {
         runCatching { File(dir(ctx), "$id.json").delete() }
+        updateIndex(ctx) { l -> l.removeAll { it.id == id } }
     }
 
     private fun parse(file: File): Trip? = runCatching {

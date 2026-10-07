@@ -80,7 +80,8 @@ class TripsListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        allTrips = TripStore.list(this)
+        // Summaries only (cheap index); full tracks are loaded just for the day on screen.
+        allTrips = TripStore.summaries(this)
         // First open: if today has no rides, land on the most recent ride day.
         if (!didInitialDayPick) {
             didInitialDayPick = true
@@ -104,6 +105,7 @@ class TripsListActivity : AppCompatActivity() {
         val dayEnd = dayStartMs + 24L * 60L * 60L * 1000L
         val dayTrips = allTrips.filter { it.start in dayStartMs until dayEnd }
             .sortedByDescending { it.start }
+            .map { TripStore.get(this, it.id) ?: it }
 
         dayLabel.text = DAY_FMT.format(Date(dayStartMs))
         val today = startOfDay(System.currentTimeMillis())
@@ -304,7 +306,7 @@ class TripsListActivity : AppCompatActivity() {
             .setMessage("${trip.dateText()} · ${trip.distanceText()}")
             .setPositiveButton(R.string.trips_delete) { _, _ ->
                 TripStore.delete(this, trip.id)
-                allTrips = TripStore.list(this)
+                allTrips = TripStore.summaries(this)
                 renderDay()
             }
             .setNegativeButton(R.string.dash_cancel, null)

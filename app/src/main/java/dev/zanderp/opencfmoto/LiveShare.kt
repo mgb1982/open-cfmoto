@@ -40,6 +40,7 @@ object LiveShare {
         private set
     private var listening = false
     @Volatile private var fix: Location? = null
+    @Volatile private var lastSentFix = 0L
 
     val available: Boolean get() = BuildConfig.TELEMETRY_URL.isNotBlank()
     val active: Boolean get() = id != null
@@ -143,6 +144,9 @@ object LiveShare {
         val t = token ?: return
         val loc = fix?.takeIf { System.currentTimeMillis() - it.time < 60_000 }
             ?: RideExtras.lastLocation(ctx, 60_000) ?: return
+        // Same fix as last time (stopped, or no new GPS): nothing new to send.
+        if (loc.time == lastSentFix) return
+        lastSentFix = loc.time
         val body = JSONObject()
             .put("lat", loc.latitude)
             .put("lon", loc.longitude)
@@ -200,12 +204,16 @@ object LiveShare {
         if (bearer != null) conn.setRequestProperty("Authorization", "Bearer $bearer")
         conn.outputStream.use { it.write(bytes) }
         val code = conn.responseCode
-        try {
-            if (code == 410 || code == 404) throw HttpGone()
-            if (code !in 200..299) throw java.io.IOException("HTTP $code")
-            return conn.inputStream.bufferedReader().use { it.readText() }
-        } finally {
-            conn.disconnect()
+        // No disconnect(): reading the body to the end and closing it lets the connection be
+        // reused for the next update instead of a new TLS handshake every 10 s.
+        if (code == 410 || code == 404) {
+            runCatching { conn.errorStream?.use { it.readBytes() } }
+            throw HttpGone()
         }
+        if (code !in 200..299) {
+            runCatching { conn.errorStream?.use { it.readBytes() } }
+            throw java.io.IOException("HTTP $code")
+        }
+        return conn.inputStream.bufferedReader().use { it.readText() }
     }
 }

@@ -41,7 +41,7 @@ class ParkingWidget : AppWidgetProvider() {
                 ctx, 1, Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 PendingIntent.FLAG_IMMUTABLE,
             )
-            val last = runCatching { TripStore.list(ctx).firstOrNull() }.getOrNull()
+            val last = runCatching { TripStore.summaries(ctx).firstOrNull() }.getOrNull()
             val lastLine = last?.let {
                 ctx.getString(R.string.widget_last_ride) + ": " +
                     String.format(Locale.getDefault(), "%.1f km", it.distanceKm) + " · " +

@@ -97,7 +97,8 @@ object WearBridge {
         appCtx = ctx.applicationContext
         val text = String(event.data, Charsets.UTF_8).trim()
         when (event.path) {
-            PATH_SUB -> main.post {
+            // Watch in ambient mode: one snapshot, no 1 Hz stream.
+            PATH_SUB -> if (text == "once") main.post { subscriber = event.sourceNodeId; sendStats(ctx.applicationContext) } else main.post {
                 val first = subscriber == null || SystemClock.elapsedRealtime() > leaseUntil
                 subscriber = event.sourceNodeId
                 leaseUntil = SystemClock.elapsedRealtime() + LEASE_MS
@@ -160,8 +161,10 @@ object WearBridge {
     /** Third watch page: altitude, heading, phone battery/temperature, media volume. */
     private fun putInfo(ctx: Context, o: JSONObject) {
         try {
-            val lm = ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager
-            val loc = lm?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            // The trip recorder's fix is already in memory; only ask the system when there isn't one.
+            val loc = TripRecorder.lastSeen?.takeIf { System.currentTimeMillis() - it.time < 15_000L }
+                ?: (ctx.getSystemService(Context.LOCATION_SERVICE) as? LocationManager)
+                    ?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             if (loc != null && System.currentTimeMillis() - loc.time < 15_000L) {
                 // Mean-sea-level altitude when the phone can compute it (Android 14+); raw GPS
                 // altitude is ellipsoidal (~50 m high around Barcelona).
@@ -172,6 +175,15 @@ object WearBridge {
         } catch (_: SecurityException) {
         } catch (_: Exception) {
         }
+        // Battery and volume change slowly: read them every 30 s, not on every 1 Hz snapshot.
+        val now = SystemClock.elapsedRealtime()
+        if (now - slowAt < 30_000L && slowCache != null) {
+            val c = slowCache!!
+            c.keys().forEach { k -> o.put(k, c.get(k)) }
+            o.put("boost", if (SpeedVolume.running) SpeedVolume.boostSteps else -1)
+            return
+        }
+        val before = o.keys().asSequence().toSet()
         try {
             val b = ctx.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             if (b != null) {
@@ -193,7 +205,14 @@ object WearBridge {
             o.put("boost", if (SpeedVolume.running) SpeedVolume.boostSteps else -1)
         } catch (_: Exception) {
         }
+        slowCache = JSONObject().also { c ->
+            o.keys().forEach { k -> if (k !in before && k != "boost") c.put(k, o.get(k)) }
+        }
+        slowAt = now
     }
+
+    private var slowCache: JSONObject? = null
+    private var slowAt = 0L
 
     private fun sendStats(ctx: Context) {
         val node = subscriber ?: return

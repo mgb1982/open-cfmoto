@@ -170,14 +170,19 @@ class TripRecorder(private val appContext: Context) : LocationListener {
             maxSpeedMs = maxSpeedMs,
             points = ArrayList(points),
         )
-        TripStore.save(appContext, trip)
-        LogBus.log("[trip] saved ride ${trip.distanceText()} in ${trip.durationText()}")
-        // RideScreen AA v2: name it ("Sants → Zona Franca"), check records, add the km to the bike.
-        try { TripNames.ensure(appContext, listOf(trip)) } catch (_: Exception) {}
-        try { Records.onTripSaved(appContext, trip) } catch (_: Exception) {}
-        try { Maintenance.onTripSaved(appContext, trip) } catch (_: Exception) {}
-        try { ParkingWidget.updateAll(appContext) } catch (_: Exception) {}
-        try { onTripSaved?.invoke(trip) } catch (_: Exception) {}
+        // Writing an hour of track is ~180 KB of JSON: do it off the main thread (points already copied).
+        val cb = onTripSaved
+        val main = android.os.Handler(android.os.Looper.getMainLooper())
+        Thread({
+            TripStore.save(appContext, trip)
+            LogBus.log("[trip] saved ride ${trip.distanceText()} in ${trip.durationText()}")
+            // RideScreen AA v2: name it ("Sants → Zona Franca"), check records, add the km to the bike.
+            try { TripNames.ensure(appContext, listOf(trip)) } catch (_: Exception) {}
+            try { Records.onTripSaved(appContext, trip) } catch (_: Exception) {}
+            try { Maintenance.onTripSaved(appContext, trip) } catch (_: Exception) {}
+            try { ParkingWidget.updateAll(appContext) } catch (_: Exception) {}
+            main.post { try { cb?.invoke(trip) } catch (_: Exception) {} }
+        }, "trip-save").start()
     }
 
     private fun emit() {

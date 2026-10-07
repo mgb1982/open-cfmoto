@@ -79,11 +79,12 @@ object WearTrips {
         val req = try { JSONObject(requestText) } catch (_: Exception) { null }
         val px = (req?.optInt("px", 0) ?: 0)
         val density = (req?.optDouble("density", 2.0) ?: 2.0).toFloat().coerceIn(1f, 4f)
+        val have = req?.optJSONArray("have")?.let { a -> (0 until a.length()).map { a.optString(it) }.toSet() } ?: emptySet()
         Thread({
             val arr = JSONArray()
             val ids = ArrayList<String>()
             try {
-                for (t in TripStore.list(ctx).take(MAX_TRIPS)) {
+                for (t in TripStore.summaries(ctx).take(MAX_TRIPS)) {
                     ids.add(t.id)
                     arr.put(
                         JSONObject()
@@ -105,7 +106,7 @@ object WearTrips {
             } catch (_: Exception) {
             }
             if (px in 200..1000) {
-                for (id in ids.take(PREFETCH)) enqueue(Job(ctx, id, OVERVIEW_KEY, 0.0, 0.5, 0.5, px, density, node), urgent = false)
+                for (id in ids.take(PREFETCH).filter { it !in have }) enqueue(Job(ctx, id, OVERVIEW_KEY, 0.0, 0.5, 0.5, px, density, node), urgent = false)
             }
         }, "wear-trips").start()
     }
@@ -165,6 +166,8 @@ object WearTrips {
                     plainTrack(px, pts, bounds, density)
                 }
                 publish(ctx, id, key, bmp, withMap, renderMs, node)
+                // Up to ~4 MB each: give them back now rather than waiting for GC.
+                bmp.recycle()
                 done()
             }, "wear-tripmap-draw").start()
         }

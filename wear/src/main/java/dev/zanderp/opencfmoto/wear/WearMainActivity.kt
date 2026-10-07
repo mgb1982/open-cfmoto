@@ -66,16 +66,24 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         object : AmbientLifecycleObserver.AmbientLifecycleCallback {
             override fun onEnterAmbient(ambientDetails: AmbientLifecycleObserver.AmbientDetails) {
                 ambient = true
+                // Ambient redraws about once a minute: stop the 1 Hz stream (watch + phone battery)
+                // and ask for a single snapshot on each ambient update instead.
+                handler.removeCallbacks(subscribeTick)
                 if (::pager.isInitialized) pager.setCurrentItem(0, false)
                 render()
             }
 
             override fun onExitAmbient() {
                 ambient = false
+                handler.removeCallbacks(subscribeTick)
+                handler.post(subscribeTick)
                 render()
             }
 
-            override fun onUpdateAmbient() = render()
+            override fun onUpdateAmbient() {
+                PhoneLink.send(this@WearMainActivity, PhoneLink.PATH_SUB, "once")
+                render()
+            }
         },
     )
 
@@ -115,7 +123,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         super.onResume()
         Wearable.getMessageClient(this).addListener(this)
         handler.removeCallbacks(subscribeTick)
-        handler.post(subscribeTick)
+        if (!ambient) handler.post(subscribeTick)
         root.requestFocus()
     }
 
@@ -181,7 +189,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
 
     private fun render() {
         val s = stats
-        val fresh = s != null && SystemClock.elapsedRealtime() - statsAt < STALE_MS
+        val fresh = s != null && SystemClock.elapsedRealtime() - statsAt < (if (ambient) AMBIENT_STALE_MS else STALE_MS)
         renderInfo(if (fresh) s else null)
         val status = tvStatus ?: return
 
@@ -341,6 +349,11 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             org.json.JSONObject()
                 .put("px", resources.displayMetrics.widthPixels)
                 .put("density", resources.displayMetrics.density.toDouble())
+                // Overviews already cached here: the phone won't render and send them again.
+                .put("have", org.json.JSONArray().apply {
+                    cacheDir.listFiles { f -> f.name.startsWith("tripmap3_") && f.name.endsWith("_overview.img") }
+                        ?.forEach { put(it.name.removePrefix("tripmap3_").removeSuffix("_overview.img")) }
+                })
                 .toString(),
         )
         handler.postDelayed({
@@ -401,6 +414,8 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         private const val SUBSCRIBE_EVERY_MS = 4_000L
         private const val STALE_MS = 6_000L
         private val COLOR_GREEN = Color.parseColor("#66BB6A")
+        /** In ambient we only get a snapshot per minute, so data stays "fresh" longer. */
+        private const val AMBIENT_STALE_MS = 90_000L
         private val COLOR_AMBER = Color.parseColor("#FFB300")
         private val COLOR_GREY = Color.parseColor("#9E9E9E")
         private val COLOR_ACCENT = Color.parseColor("#D1A955")

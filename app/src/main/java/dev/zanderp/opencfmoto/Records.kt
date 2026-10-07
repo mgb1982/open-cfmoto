@@ -68,7 +68,7 @@ object Records {
         val app = ctx.applicationContext
         Thread({
             try {
-                val all = TripStore.list(app)
+                val all = TripStore.summaries(app)
                 val before = compute(all.filter { it.id != trip.id })
                 val after = compute(all)
                 val broken = ArrayList<String>()

@@ -689,6 +689,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Support.onResume(this)
+        // Maintenance status only changes with rides / edits: once per resume, not every 5 s tick.
+        renderMaint()
         try { YearInReview.maybeNotify(this) } catch (_: Exception) {}
         // The active bike (and its name) may have changed in the Garage — reflect it on the label and
         // the Connect button.
@@ -937,7 +939,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadToday() {
         Thread({
             val since = TripsListActivity.startOfDay(System.currentTimeMillis())
-            val today = try { TripStore.list(this).filter { it.start >= since } } catch (_: Exception) { emptyList() }
+            val today = try { TripStore.summaries(this).filter { it.start >= since } } catch (_: Exception) { emptyList() }
             val km = today.sumOf { it.distanceKm }
             val max = today.maxOfOrNull { it.maxKmh } ?: 0
             runOnUiThread {
@@ -959,7 +961,6 @@ class MainActivity : AppCompatActivity() {
             java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
         renderParked()
         renderLive()
-        renderMaint()
         findViewById<TextView?>(R.id.stat_clock_label)?.setText(
             when {
                 ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
