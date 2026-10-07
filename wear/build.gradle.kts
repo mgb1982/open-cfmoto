@@ -50,4 +50,9 @@ dependencies {
     implementation(libs.androidx.wear)
     implementation(libs.androidx.wear.ongoing)
     implementation(libs.play.services.wearable)
+    // Tile + watch-face complication (RideScreen AA v1.2).
+    implementation(libs.androidx.wear.tiles)
+    implementation(libs.androidx.wear.protolayout)
+    implementation(libs.androidx.wear.complications)
+    implementation(libs.androidx.concurrent.futures)
 }

@@ -43,6 +43,9 @@ object WearBridge {
     const val PATH_SESSION = "/ocm/session"
     const val PATH_TURN = "/ocm/turn"
     const val PATH_PARKED = "/ocm/parked"
+    const val PATH_TILE = "/ocm/tile"
+    private const val TILE_EVERY_MS = 60_000L
+    @Volatile private var lastTileAt = 0L
 
     private const val LEASE_MS = 12_000L
     private const val STREAM_EVERY_MS = 1_000L
@@ -73,11 +76,18 @@ object WearBridge {
         appCtx = ctx
         val phase = ConnectionState.phase
         val active = phase == Phase.STREAMING || (sessionActive && phase.busy)
+        // Tile / complication on the watch: a summary about once a minute while riding.
+        if (active && sessionActive && SystemClock.elapsedRealtime() - lastTileAt >= TILE_EVERY_MS) {
+            lastTileAt = SystemClock.elapsedRealtime()
+            broadcast(ctx, PATH_TILE, snapshotJson(ctx))
+        }
         if (active == sessionActive) return
         sessionActive = active
         if (active) sessionStartedAt = SystemClock.elapsedRealtime()
         LogBus.log("[WEAR] session ${if (active) "start" else "stop"} → watch")
         broadcast(ctx, PATH_SESSION, if (active) "start" else "stop")
+        lastTileAt = SystemClock.elapsedRealtime()
+        broadcast(ctx, PATH_TILE, snapshotJson(ctx))
         RideExtras.onSession(ctx, active)
     }
 

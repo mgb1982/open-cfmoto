@@ -27,6 +27,7 @@ object PhoneLink {
     const val PATH_TRIPIMG = "/ocm/tripimg"
     const val PATH_TURN = "/ocm/turn"
     const val PATH_PARKED = "/ocm/parked"
+    const val PATH_TILE = "/ocm/tile"
 
     // Same values as AaInput.KEY_* in the phone app (Android keycodes).
     const val KEY_UP = 19
@@ -169,7 +170,7 @@ object PhoneLink {
             "sleft" -> "↖"
             "sright" -> "↗"
             "uturn" -> "↶"
-            "round" -> "⟳ ${t.optInt("n", 0).takeIf { it > 0 }?.let { "$itª" } ?: ""}"
+            "round" -> "⟳ ${t.optInt("n", 0).takeIf { it > 0 }?.let { "${it}ª" } ?: ""}"
             "dest" -> "🏁"
             else -> return null
         }
@@ -288,6 +289,11 @@ class SessionListenerService : WearableListenerService() {
             }
             PhoneLink.PATH_PARKED -> {
                 PhoneLink.saveParked(this, String(messageEvent.data, Charsets.UTF_8))
+                RideGlance.refresh(this)
+                return
+            }
+            PhoneLink.PATH_TILE -> {
+                RideGlance.save(this, String(messageEvent.data, Charsets.UTF_8))
                 return
             }
         }

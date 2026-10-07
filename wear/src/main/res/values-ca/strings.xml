@@ -30,4 +30,12 @@
     <string name="pill_avg">mitj. %d</string>
     <string name="parked_line">🅿️ Moto aparcada %1$s · com arribar-hi</string>
     <string name="parked_no_maps">No hi ha app de mapes al rellotge</string>
+    <string name="tile_label">Viatge</string>
+    <string name="tile_riding">EN RUTA</string>
+    <string name="tile_parked">🅿️ APARCADA</string>
+    <string name="tile_tap_directions">Obre l\'app per arribar-hi</string>
+    <string name="tile_last_ride">ÚLTIM VIATGE</string>
+    <string name="tile_no_data">Encara no hi ha viatges</string>
+    <string name="complication_label">RideScreen · km</string>
+    <string name="complication_desc">km del viatge</string>
 </resources>
