@@ -32,7 +32,14 @@ class AboutActivity : AppCompatActivity() {
             "Version ${BuildConfig.VERSION_NAME}  ·  build ${BuildConfig.VERSION_CODE}"
 
         findViewById<MaterialButton>(R.id.btn_about_website).setOnClickListener {
-            openUrl(URL_UPSTREAM)
+            openUrl(URL_WEBSITE)
+        }
+        findViewById<MaterialButton>(R.id.btn_thanks_github).setOnClickListener { openUrl(URL_UPSTREAM) }
+        findViewById<MaterialButton>(R.id.btn_thanks_discord).setOnClickListener { openUrl(URL_DISCORD) }
+        findViewById<MaterialButton>(R.id.btn_thanks_kofi).apply {
+            // Payment links to other people aren't allowed in the Play build; the thanks stay.
+            if (BuildConfig.EXTERNAL_DONATIONS) setOnClickListener { openUrl(URL_KOFI) }
+            else visibility = android.view.View.GONE
         }
         findViewById<MaterialButton>(R.id.btn_about_github).setOnClickListener {
             openUrl(URL_GITHUB)
