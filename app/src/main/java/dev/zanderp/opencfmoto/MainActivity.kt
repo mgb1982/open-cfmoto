@@ -1714,6 +1714,11 @@ class MainActivity : AppCompatActivity() {
                 log("attaching crash report: ${crash.name} (${crash.length()} bytes)")
             }
 
+            // Previous sessions (rides whose process was killed afterwards), newest first.
+            CrashGuard.historyDir(this).listFiles()?.sortedByDescending { it.name }?.take(3)?.forEach { h ->
+                uris.add(FileProvider.getUriForFile(this, "$packageName.fileprovider", h))
+            }
+
             // Attach any diagnostic H.264 dumps (VideoPipeline writes these to <externalFiles>/video).
             val videoDir = File(getExternalFilesDir(null), "video")
             val dumps = videoDir.listFiles { f -> f.name.endsWith(".h264") }?.sortedBy { it.name } ?: emptyList()

@@ -176,6 +176,7 @@ class TripRecorder(private val appContext: Context) : LocationListener {
         try { TripNames.ensure(appContext, listOf(trip)) } catch (_: Exception) {}
         try { Records.onTripSaved(appContext, trip) } catch (_: Exception) {}
         try { Maintenance.onTripSaved(appContext, trip) } catch (_: Exception) {}
+        try { ParkingWidget.updateAll(appContext) } catch (_: Exception) {}
         try { onTripSaved?.invoke(trip) } catch (_: Exception) {}
     }
 

@@ -15,7 +15,11 @@ import dev.zanderp.opencfmoto.aa.proto.NavigationStatus
  */
 internal class AapControlNav : AapControl {
 
+    private val seenTypes = HashSet<Int>()
+
     override fun execute(message: AapMessage): Int {
+        // First message of each kind goes to the log: tells which protocol generation AA uses.
+        if (seenTypes.add(message.type)) dev.zanderp.opencfmoto.LogBus.log("[NAV] first message type ${message.type}")
         try {
             when (message.type) {
                 NavigationStatus.MsgType.INSTRUMENT_CLUSTER_START_VALUE -> TurnHaptics.onNavActive(true)

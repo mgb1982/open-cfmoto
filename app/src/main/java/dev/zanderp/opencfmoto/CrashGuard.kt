@@ -87,6 +87,7 @@ object CrashGuard {
             val session = File(app.filesDir, SESSION_FILE)
             if (session.exists() && session.length() > 0L) {
                 val body = session.readText().trimEnd()
+                archive(app, body, session.lastModified())
                 // Consume so the next persist cannot nest another restore banner around this blob.
                 try { session.delete() } catch (_: Exception) {}
                 if (body.isNotBlank()) {
@@ -115,6 +116,25 @@ object CrashGuard {
             }
         }
         return hadCrash
+    }
+
+    /**
+     * Keep the previous sessions (a ride in the background whose process Android later killed would
+     * otherwise vanish from the on-screen log): last [HISTORY_KEEP] files, attached by Share Logs.
+     */
+    private const val HISTORY_KEEP = 5
+
+    fun historyDir(appContext: Context): File = File(appContext.applicationContext.filesDir, "log-history")
+
+    private fun archive(app: Context, body: String, at: Long) {
+        try {
+            if (body.isBlank()) return
+            val dir = historyDir(app).apply { mkdirs() }
+            val stamp = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", java.util.Locale.US).format(java.util.Date(at))
+            File(dir, "session-$stamp.log").writeText(body)
+            dir.listFiles()?.sortedByDescending { it.name }?.drop(HISTORY_KEEP)?.forEach { it.delete() }
+        } catch (_: Exception) {
+        }
     }
 
     fun pendingCrashText(appContext: Context): String? {

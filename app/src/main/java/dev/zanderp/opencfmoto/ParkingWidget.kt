@@ -41,18 +41,24 @@ class ParkingWidget : AppWidgetProvider() {
                 ctx, 1, Intent(ctx, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
                 PendingIntent.FLAG_IMMUTABLE,
             )
+            val last = runCatching { TripStore.list(ctx).firstOrNull() }.getOrNull()
+            val lastLine = last?.let {
+                ctx.getString(R.string.widget_last_ride) + ": " +
+                    String.format(Locale.getDefault(), "%.1f km", it.distanceKm) + " · " +
+                    ctx.getString(R.string.widget_last_ride_sub, it.avgKmh, it.maxKmh)
+            }
             if (spot != null) {
+                // Parked: where (distance if the phone knows where it is) + when, then the last ride.
                 val dist = Parking.distanceFromHere(ctx, spot)
+                val ago = DateUtils.getRelativeTimeSpanString(spot.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
                 v.setTextViewText(R.id.w_title, ctx.getString(R.string.widget_parked))
-                v.setTextViewText(R.id.w_main, dist?.let { Parking.distanceText(it) } ?: "🅿️")
-                v.setTextViewText(
-                    R.id.w_sub,
-                    DateUtils.getRelativeTimeSpanString(spot.time, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS),
-                )
+                v.setTextViewText(R.id.w_main, dist?.let { Parking.distanceText(it) } ?: ago)
+                v.setTextViewText(R.id.w_sub, if (dist != null) ago else ctx.getString(R.string.widget_tap_directions))
+                v.setTextViewText(R.id.w_ride, lastLine ?: "")
+                v.setViewVisibility(R.id.w_ride, if (lastLine != null) android.view.View.VISIBLE else android.view.View.GONE)
                 val walk = PendingIntent.getActivity(ctx, 2, Parking.walkIntent(spot), PendingIntent.FLAG_IMMUTABLE)
                 v.setOnClickPendingIntent(R.id.w_root, walk)
             } else {
-                val last = runCatching { TripStore.list(ctx).firstOrNull() }.getOrNull()
                 v.setTextViewText(R.id.w_title, ctx.getString(R.string.widget_last_ride))
                 v.setTextViewText(
                     R.id.w_main,
@@ -60,9 +66,10 @@ class ParkingWidget : AppWidgetProvider() {
                 )
                 v.setTextViewText(
                     R.id.w_sub,
-                    last?.let { ctx.getString(R.string.widget_last_ride_sub, it.avgKmh, it.maxKmh) }
+                    last?.let { TripNames.cached(ctx, it) ?: ctx.getString(R.string.widget_last_ride_sub, it.avgKmh, it.maxKmh) }
                         ?: ctx.getString(R.string.widget_no_rides),
                 )
+                v.setViewVisibility(R.id.w_ride, android.view.View.GONE)
                 v.setOnClickPendingIntent(R.id.w_root, openApp)
             }
             for (id in ids) mgr.updateAppWidget(id, v)

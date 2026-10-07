@@ -131,7 +131,11 @@ class AndroidAutoService : Service() {
         TripAutoLog.sync(this)
         SpeedVolume.sync(this)
         WearBridge.sync(this)
+        // Save the log to disk every ~30 s while riding: if Android kills the process after the
+        // ride (app in the background), the ride's log survives for Share Logs.
+        if (++persistTicks % 6 == 0) try { CrashGuard.persistSession(this) } catch (_: Exception) {}
     }
+    private var persistTicks = 0
 
     private fun tickWatchdog() {
         if (!AppSettings.autoRecovery(this)) return
@@ -209,6 +213,7 @@ class AndroidAutoService : Service() {
         try { TripAutoLog.sync(this) } catch (_: Exception) {}
         try { SpeedVolume.sync(this) } catch (_: Exception) {}
         try { WearBridge.sync(this) } catch (_: Exception) {}
+        try { CrashGuard.persistSession(this) } catch (_: Exception) {}
         try { BikeLink.prober?.stop() } catch (_: Exception) {}
         try { mediaButtons?.stop() } catch (_: Exception) {}
         mediaButtons = null

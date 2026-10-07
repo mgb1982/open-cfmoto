@@ -311,7 +311,10 @@ internal class AapControlGateway(
         if (channel == Channel.ID_SEN) {
             aapTransport.send(DrivingStatusEvent(Sensors.SensorBatch.DrivingStatusData.Status.UNRESTRICTED))
         }
-        if (channel == Channel.ID_NAV) dev.zanderp.opencfmoto.TurnHaptics.clear()
+        if (channel == Channel.ID_NAV) {
+            dev.zanderp.opencfmoto.TurnHaptics.clear()
+            dev.zanderp.opencfmoto.LogBus.log("[NAV] Android Auto opened the navigation-status channel")
+        }
         return 0
     }
 }

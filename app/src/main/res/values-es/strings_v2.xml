@@ -101,4 +101,5 @@
     <string name="yir_zone">tu zona</string>
     <string name="yir_zone_sub">rojo = donde más ruedas</string>
     <string name="yir_tap_share">Toca Compartir para publicarlo 📸</string>
+    <string name="widget_tap_directions">Toca para ir andando</string>
 </resources>

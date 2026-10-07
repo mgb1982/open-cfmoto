@@ -101,4 +101,5 @@
     <string name="yir_zone">your zone</string>
     <string name="yir_zone_sub">red = where you ride most</string>
     <string name="yir_tap_share">Tap Share to post it 📸</string>
+    <string name="widget_tap_directions">Tap for walking directions</string>
 </resources>

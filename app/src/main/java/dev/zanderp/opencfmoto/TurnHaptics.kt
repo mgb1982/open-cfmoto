@@ -46,6 +46,7 @@ object TurnHaptics {
     fun load(ctx: Context) {
         appCtx = ctx.applicationContext
         enabled = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, false)
+        if (enabled) LogBus.log("[NAV] watch turn vibrations ON: advertising the navigation-status service")
     }
 
     fun setEnabled(ctx: Context, on: Boolean) {

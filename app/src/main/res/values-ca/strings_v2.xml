@@ -101,4 +101,5 @@
     <string name="yir_zone">la teva zona</string>
     <string name="yir_zone_sub">vermell = on més rodes</string>
     <string name="yir_tap_share">Toca Comparteix per publicar-ho 📸</string>
+    <string name="widget_tap_directions">Toca per anar-hi a peu</string>
 </resources>
