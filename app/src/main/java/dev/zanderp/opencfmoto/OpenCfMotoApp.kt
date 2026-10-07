@@ -19,6 +19,8 @@ class OpenCfMotoApp : Application() {
         try {
             AppSettings.applyToHolder(this)
             TurnHaptics.load(this)
+            // Watch: make sure it has the current bike photo (no-op if already sent).
+            WearBikePhoto.push(this)
         } catch (_: Exception) {
         }
         // After hydrate so Share Logs still show prior crash, then stamp this process build.

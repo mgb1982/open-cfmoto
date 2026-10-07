@@ -54,6 +54,8 @@ class FindBikeActivity : Activity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_bike)
+        // Your bike, dimmed, behind the arrow.
+        PhoneLink.bikePhoto(this, 0.68f)?.let { findViewById<View>(R.id.fb_root).background = it }
         arrow = findViewById(R.id.fb_arrow)
         dist = findViewById(R.id.fb_dist)
         sub = findViewById(R.id.fb_sub)

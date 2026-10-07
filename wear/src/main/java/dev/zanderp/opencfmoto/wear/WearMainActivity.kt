@@ -59,6 +59,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var stats: RideStats? = null
     private var statsAt = 0L
     private var ambient = false
+    private var photoShown: Boolean? = null
     private var rotaryAcc = 0f
 
     private val ambientObserver = AmbientLifecycleObserver(
@@ -121,6 +122,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
 
     override fun onResume() {
         super.onResume()
+        photoShown = null // the photo may have arrived while we were away
         Wearable.getMessageClient(this).addListener(this)
         handler.removeCallbacks(subscribeTick)
         if (!ambient) handler.post(subscribeTick)
@@ -193,7 +195,13 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         renderInfo(if (fresh) s else null)
         val status = tvStatus ?: return
 
-        root.setBackgroundColor(Color.BLACK)
+        // Not riding (and not ambient): the Garage bike photo behind, dimmed. Riding: plain black.
+        val idlePhoto = !ambient && !(fresh && s != null && s.session)
+        if (idlePhoto != photoShown) {
+            photoShown = idlePhoto
+            val d = if (idlePhoto) PhoneLink.bikePhoto(this, 0.62f) else null
+            if (d != null) root.background = d else root.setBackgroundColor(Color.BLACK)
+        }
         dots.visibility = if (ambient) View.INVISIBLE else View.VISIBLE
 
         when {

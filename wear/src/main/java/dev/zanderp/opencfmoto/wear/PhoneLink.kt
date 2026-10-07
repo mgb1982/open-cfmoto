@@ -28,6 +28,22 @@ object PhoneLink {
     const val PATH_TURN = "/ocm/turn"
     const val PATH_PARKED = "/ocm/parked"
     const val PATH_TILE = "/ocm/tile"
+    const val PATH_BIKEPHOTO = "/ocm/bikephoto"
+
+    fun bikePhotoFile(ctx: Context) = java.io.File(ctx.filesDir, "bike_photo.jpg")
+
+    /** The Garage photo, darkened for text on top; null if none. */
+    fun bikePhoto(ctx: Context, dim: Float): android.graphics.drawable.Drawable? {
+        val f = bikePhotoFile(ctx)
+        if (!f.exists()) return null
+        val bmp = android.graphics.BitmapFactory.decodeFile(f.absolutePath) ?: return null
+        return android.graphics.drawable.LayerDrawable(
+            arrayOf(
+                android.graphics.drawable.BitmapDrawable(ctx.resources, bmp),
+                android.graphics.drawable.ColorDrawable(android.graphics.Color.argb((dim * 255).toInt(), 0, 0, 0)),
+            )
+        )
+    }
 
     // Same values as AaInput.KEY_* in the phone app (Android keycodes).
     const val KEY_UP = 19
@@ -277,6 +293,10 @@ class SessionListenerService : WearableListenerService() {
         for (ev in events) {
             if (ev.type != com.google.android.gms.wearable.DataEvent.TYPE_CHANGED) continue
             val path = ev.dataItem.uri.path ?: continue
+            if (path == PhoneLink.PATH_BIKEPHOTO) {
+                saveBikePhoto(com.google.android.gms.wearable.DataMapItem.fromDataItem(ev.dataItem.freeze()).dataMap)
+                continue
+            }
             if (!path.startsWith(PhoneLink.PATH_TRIPMAP + "/")) continue
             val dm = com.google.android.gms.wearable.DataMapItem.fromDataItem(ev.dataItem.freeze()).dataMap
             if (dm.getString("key") != WearKeys.OVERVIEW || !dm.getBoolean("withMap")) continue
@@ -290,6 +310,22 @@ class SessionListenerService : WearableListenerService() {
                 WearKeys.overviewFile(this, tripId).writeBytes(bytes)
             } catch (_: Exception) {
             }
+        }
+    }
+
+    private fun saveBikePhoto(dm: com.google.android.gms.wearable.DataMap) {
+        val f = PhoneLink.bikePhotoFile(this)
+        if (dm.getBoolean("none")) {
+            f.delete()
+            return
+        }
+        val asset = dm.getAsset("photo") ?: return
+        try {
+            val fd = com.google.android.gms.tasks.Tasks.await(
+                com.google.android.gms.wearable.Wearable.getDataClient(this).getFdForAsset(asset)
+            )
+            f.writeBytes(fd.inputStream.use { it.readBytes() })
+        } catch (_: Exception) {
         }
     }
 
