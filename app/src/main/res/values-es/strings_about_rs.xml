@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rs_about_tagline">Android Auto inalámbrico en el cuadro de tu moto (cuadros Carbit/EasyConnect), con arreglos y extras para las Zontes 125X / ZT125T-X. Basada en OpenCfMoto.</string>
+    <string name="rs_about_community">¿Dudas, registros o una moto nueva? Abre un aviso en GitHub o pregunta en el grupo. Las donaciones ayudan a cubrir los gastos.</string>
+    <string name="rs_about_issues">GitHub</string>
+    <string name="rs_about_copyright">© 2026 Manel (mgb1982)</string>
+    <string name="rs_about_copyright_body">RideScreen AA la mantiene Manel (mgb1982). Es una versión derivada de OpenCfMoto, © 2026 Alexandru (zanderp), y como ella es software libre bajo GNU AGPL v3 o posterior: consulta LICENSE y NOTICE en el repositorio.</string>
+    <string name="rs_about_original">Proyecto original: OpenCfMoto (zanderp)</string>
+    <string name="rs_about_source">Código fuente de RideScreen AA</string>
+    <string name="rs_about_credits">• Manel (mgb1982) — RideScreen AA: arreglo del reloj del cuadro, app de Wear OS, nuevo diseño, extras de ruta\n• Alexandru (zanderp) — OpenCfMoto, la app sobre la que está construida\n\nOpenCfMoto a su vez se basa en la comunidad open-cfmoto:\n• dcoletto / coletz: trabajo original de QR y EasyConn\n• BojanJ: integración del receptor Android Auto\n• richardbizik: compatibilidad con 1000 MT‑X\n• ionutradu252 / open-cflink — controles del manillar, márgenes, reconexión y pulido\n• eugen0309 — vía Wi‑Fi Direct/CL‑C450\n• unidad central revivida: pila de proyección de Android Auto (AGPL)\n\nY todos los que probaron motos, compartieron registros y abrieron incidencias.</string>
+</resources>

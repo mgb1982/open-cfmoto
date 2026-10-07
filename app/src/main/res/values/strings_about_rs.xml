@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rs_about_tagline">Wireless Android Auto on your bike\'s dash (Carbit/EasyConnect dashes), with fixes and extras for the Zontes 125X / ZT125T-X. Based on OpenCfMoto.</string>
+    <string name="rs_about_community">Questions, logs or a new bike? Open an issue on GitHub or ask in the group. Donations help cover the costs.</string>
+    <string name="rs_about_issues">GitHub</string>
+    <string name="rs_about_copyright">© 2026 Manel (mgb1982)</string>
+    <string name="rs_about_copyright_body">RideScreen AA is maintained by Manel (mgb1982). It is a derivative of OpenCfMoto, © 2026 Alexandru (zanderp), and like it, free software under the GNU AGPL v3 or later: see LICENSE and NOTICE in the repository.</string>
+    <string name="rs_about_original">Original project: OpenCfMoto (zanderp)</string>
+    <string name="rs_about_source">RideScreen AA source code</string>
+    <string name="rs_about_credits">• Manel (mgb1982) — RideScreen AA: dash clock fix, Wear OS app, new design, ride extras\n• Alexandru (zanderp) — OpenCfMoto, the app this is built on\n\nOpenCfMoto itself builds on the open-cfmoto community:\n• dcoletto / coletz — original QR &amp; EasyConn work\n• BojanJ — Android Auto receiver integration\n• richardbizik — 1000 MT‑X support\n• ionutradu252 / open-cflink — handlebar controls, margins, reconnect &amp; polish\n• eugen0309 — Wi‑Fi Direct / CL‑C450 path\n• Martin Escudero (martinescudero) — Android Auto 17.4+ head unit server path\n• Glifaus — Wi‑Fi Direct keep-alive\n• sashop2001 — AA DPI, Bluetooth trigger, Bulgarian\n• Authoritt — vehicle telemetry field notes\n• headunit-revived — Android Auto projection stack (AGPL)\n\nAnd everyone who tested bikes, shared logs, and filed issues.</string>
+</resources>

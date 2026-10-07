@@ -32,19 +32,16 @@ class AboutActivity : AppCompatActivity() {
             "Version ${BuildConfig.VERSION_NAME}  ·  build ${BuildConfig.VERSION_CODE}"
 
         findViewById<MaterialButton>(R.id.btn_about_website).setOnClickListener {
-            openUrl(URL_WEBSITE)
+            openUrl(URL_UPSTREAM)
         }
         findViewById<MaterialButton>(R.id.btn_about_github).setOnClickListener {
             openUrl(URL_GITHUB)
         }
         findViewById<MaterialButton>(R.id.btn_about_discord).setOnClickListener {
-            openUrl(URL_DISCORD)
+            openUrl(URL_ISSUES)
         }
-        findViewById<MaterialButton>(R.id.btn_about_kofi).apply {
-            // External payment links aren't allowed in the Play build.
-            if (BuildConfig.EXTERNAL_DONATIONS) setOnClickListener { openUrl(URL_KOFI) }
-            else visibility = android.view.View.GONE
-        }
+        // RideScreen AA donations (Ko-fi on GitHub builds, Google Play Billing on the Play build).
+        findViewById<MaterialButton>(R.id.btn_about_kofi).setOnClickListener { Support.open(this) }
         findViewById<MaterialButton>(R.id.btn_about_license).setOnClickListener {
             openUrl(URL_NOTICE)
         }
@@ -61,11 +58,14 @@ class AboutActivity : AppCompatActivity() {
 
     companion object {
         private const val URL_WEBSITE = "https://alexandru.rocks"
-        private const val URL_GITHUB = "https://github.com/zanderp/open-cfmoto"
+        // RideScreen AA (this fork) and the original OpenCfMoto it's based on.
+        private const val URL_GITHUB = "https://github.com/mgb1982/open-cfmoto"
+        private const val URL_ISSUES = "https://github.com/mgb1982/open-cfmoto/issues"
+        private const val URL_UPSTREAM = "https://github.com/zanderp/open-cfmoto"
         private const val URL_DISCORD = "https://discord.gg/KNTjJhmFZ6"
         const val URL_KOFI = "https://ko-fi.com/alexandrupopa"
         private const val URL_NOTICE =
-            "https://github.com/zanderp/open-cfmoto/blob/main/NOTICE"
+            "https://github.com/mgb1982/open-cfmoto/blob/main/NOTICE"
 
         fun start(ctx: Context) {
             ctx.startActivity(Intent(ctx, AboutActivity::class.java))
