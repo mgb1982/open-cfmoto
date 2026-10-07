@@ -22,3 +22,7 @@ Automatic from `.github/workflows/telemetry.yml` on every push touching `telemet
 Then set the printed `https://ridescreen-telemetry.<subdomain>.workers.dev` as the
 `TELEMETRY_URL` **repo variable** (Settings → Secrets and variables → Actions → Variables) so
 app builds report there. Without it, builds send nothing.
+
+Live-location links (`src/live.js`): `POST /v1/live` → temporary link, positions every ~10 s,
+viewer page at `/l/<id>` polls `/v1/live/<id>/pos?since=<ts>` (only new points; paused while the
+tab is hidden). Ended links are deleted 24 h later by the hourly cron.
