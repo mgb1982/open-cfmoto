@@ -48,6 +48,62 @@
             android:text="@string/share_button" />
     </LinearLayout>
 
+    <!-- "Everything I've ridden": routes / heat, and the period. Hidden for a single trip. -->
+    <LinearLayout
+        android:id="@+id/map_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="8dp"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_mode_routes"
+            style="@style/Widget.OpenCfMoto.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/map_mode_routes" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_mode_heat"
+            style="@style/Widget.OpenCfMoto.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"
+            android:text="@string/map_mode_heat" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="6dp"
+            android:background="@color/text_secondary"
+            android:alpha="0.3" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_period_month"
+            style="@style/Widget.OpenCfMoto.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/map_period_month" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_period_year"
+            style="@style/Widget.OpenCfMoto.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/map_period_year" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/map_period_all"
+            style="@style/Widget.OpenCfMoto.Segment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/map_period_all" />
+    </LinearLayout>
+
     <org.osmdroid.views.MapView
         android:id="@+id/map"
         android:layout_width="match_parent"

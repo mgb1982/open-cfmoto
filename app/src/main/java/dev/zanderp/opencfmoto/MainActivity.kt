@@ -670,6 +670,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         statsHandler.removeCallbacks(todayTicker)
+        statsHandler.removeCallbacks(husTicker)
         CrashGuard.persistSession(this)
         super.onPause()
     }
@@ -695,6 +696,8 @@ class MainActivity : AppCompatActivity() {
         loadToday()
         statsHandler.removeCallbacks(todayTicker)
         statsHandler.post(todayTicker)
+        statsHandler.removeCallbacks(husTicker)
+        statsHandler.post(husTicker)
         renderStatus(ConnectionState.phase, ConnectionState.detail)
         if (WifiGate.isWifiEnabled(this)) WifiGate.cancelNotification(this)
         // Retry auto-connect on resume: after finishing first-run setup, or once the bike's Wi-Fi
@@ -898,6 +901,29 @@ class MainActivity : AppCompatActivity() {
 
     private var savedTodayKm = 0.0
     private var savedTodayMax = 0
+    /** Android Auto head unit server check: on resume (e.g. back from AA settings), then every 15 s. */
+    private val husTicker = object : Runnable {
+        override fun run() {
+            checkHeadUnitServer()
+            statsHandler.postDelayed(this, 15_000L)
+        }
+    }
+
+    private fun checkHeadUnitServer() {
+        val banner = findViewById<View?>(R.id.hus_banner) ?: return
+        if (!HeadUnitServer.androidAutoInstalled(this)) return
+        Thread({
+            val running = HeadUnitServer.probe()
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                // Only warn on a definite "no"; while connected we can't look (and it's clearly running).
+                banner.visibility = if (running == false) View.VISIBLE else View.GONE
+            }
+        }, "hus-probe").start()
+        findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
+        findViewById<View>(R.id.hus_how).setOnClickListener { HeadUnitServer.showHowTo(this) }
+    }
+
     private val todayTicker = object : Runnable {
         override fun run() {
             renderToday()

@@ -69,7 +69,7 @@ object RideShare {
         build(activity, listOf(trip.points.map { LatLng(it.lat, it.lon) }), title, stats, "ride-${trip.id}")
     }
 
-    fun shareAll(activity: Activity, trips: List<Trip>) {
+    fun shareAll(activity: Activity, trips: List<Trip>, heat: Boolean = false) {
         val tracks = trips.filter { it.points.size >= 2 }.map { t -> t.points.map { LatLng(it.lat, it.lon) } }
         if (tracks.isEmpty()) {
             Toast.makeText(activity, R.string.trips_no_gps_points, Toast.LENGTH_SHORT).show()
@@ -88,7 +88,8 @@ object RideShare {
             R.string.share_all_title,
             SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(Date(since)),
         )
-        build(activity, tracks, title, stats, "all-rides")
+        val grid = if (heat) HeatGrid.build(trips.filter { it.points.size >= 2 }) else null
+        build(activity, tracks, title, stats, if (heat) "heat" else "all-rides", grid)
     }
 
     // ---- composition ----
@@ -99,6 +100,7 @@ object RideShare {
         title: String,
         stats: List<Pair<String, String>>,
         fileStem: String,
+        heat: HeatGrid? = null,
     ) {
         Toast.makeText(activity, R.string.share_preparing, Toast.LENGTH_SHORT).show()
         val tracks = tracksIn.map { downsample(it, MAX_POINTS_PER_TRACK) }
@@ -112,7 +114,7 @@ object RideShare {
             done = true
             Thread({
                 try {
-                    val card = compose(activity, map, tracks, project, bounds, title, stats)
+                    val card = compose(activity, map, tracks, project, bounds, title, stats, heat)
                     val dir = File(app.cacheDir, "share").apply { mkdirs() }
                     val file = File(dir, "RideScreen-$fileStem.jpg")
                     file.outputStream().use { card.compress(Bitmap.CompressFormat.JPEG, 92, it) }
@@ -148,9 +150,20 @@ object RideShare {
                 snap.start(
                     object : MapSnapshotter.SnapshotReadyCallback {
                         override fun onSnapshotReady(snapshot: MapSnapshot) {
-                            val index = HashMap<LatLng, PointF>()
-                            tracks.forEach { t -> t.forEach { p -> index[p] = snapshot.pixelForLatLng(p) } }
-                            finish(snapshot.bitmap.copy(Bitmap.Config.ARGB_8888, false)) { p -> index[p] ?: PointF() }
+                            // Two corners pin a Web-Mercator projection valid for any point (tracks or
+                            // heat cells), usable off the main thread once the snapshot is gone.
+                            val nw = snapshot.pixelForLatLng(LatLng(bounds.latitudeNorth, bounds.longitudeWest))
+                            val se = snapshot.pixelForLatLng(LatLng(bounds.latitudeSouth, bounds.longitudeEast))
+                            val mN = merc(bounds.latitudeNorth)
+                            val mS = merc(bounds.latitudeSouth)
+                            val w = bounds.longitudeWest
+                            val e = bounds.longitudeEast
+                            finish(snapshot.bitmap.copy(Bitmap.Config.ARGB_8888, false)) { p ->
+                                PointF(
+                                    (nw.x + (p.longitude - w) / (e - w) * (se.x - nw.x)).toFloat(),
+                                    (nw.y + (mN - merc(p.latitude)) / (mN - mS) * (se.y - nw.y)).toFloat(),
+                                )
+                            }
                         }
                     },
                     object : MapSnapshotter.ErrorHandler {
@@ -171,6 +184,7 @@ object RideShare {
         b: LatLngBounds,
         title: String,
         stats: List<Pair<String, String>>,
+        heat: HeatGrid? = null,
     ): Bitmap {
         val out = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
@@ -209,7 +223,7 @@ object RideShare {
         }
         c.save()
         c.clipRect(mapRect)
-        drawTracks(c, tracks, project)
+        if (heat != null) drawHeat(c, heat, project) else drawTracks(c, tracks, project)
         c.restore()
         // Fade the map into the background at the bottom.
         p.style = Paint.Style.FILL
@@ -268,6 +282,24 @@ object RideShare {
         val foot = activity.getString(R.string.share_footer)
         c.drawText(foot, (W - p.measureText(foot)) / 2, H - 36f, p)
         return out
+    }
+
+    private fun merc(lat: Double): Double =
+        kotlin.math.ln(kotlin.math.tan(Math.PI / 4 + Math.toRadians(lat) / 2))
+
+    private fun drawHeat(c: Canvas, grid: HeatGrid, project: (LatLng) -> PointF) {
+        if (grid.cells.isEmpty()) return
+        val dLat = grid.sizeDeg.first
+        val f = grid.cells.first()
+        val a = project(LatLng(f.lat, f.lon))
+        val b = project(LatLng(f.lat + dLat, f.lon))
+        val r = maxOf(kotlin.math.abs(a.y - b.y) * 0.75f, 7f)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        for (cell in grid.cells) {
+            val q = project(LatLng(cell.lat, cell.lon))
+            p.color = HeatGrid.color(cell.heat, 70); c.drawCircle(q.x, q.y, r * 1.9f, p)
+            p.color = HeatGrid.color(cell.heat, 220); c.drawCircle(q.x, q.y, r, p)
+        }
     }
 
     private fun drawTracks(c: Canvas, tracks: List<List<LatLng>>, project: (LatLng) -> PointF) {

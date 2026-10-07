@@ -144,6 +144,7 @@ object WearBridge {
         o.put("acc", s?.accuracyM ?: 0)
         o.put("clk", ClockLab.resyncInProgress())
         TurnHaptics.current()?.let { o.put("turn", it) }
+        if (HeadUnitServer.lastKnown == false && !sessionActive) o.put("hus", false)
         putInfo(ctx, o)
         return o.toString()
     }

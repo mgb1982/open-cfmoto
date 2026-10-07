@@ -218,6 +218,10 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
                 status.setText(R.string.status_reconnecting)
                 status.setTextColor(if (ambient) Color.WHITE else COLOR_AMBER)
             }
+            s.husOff -> {
+                status.setText(R.string.status_hus_off)
+                status.setTextColor(if (ambient) Color.WHITE else COLOR_AMBER)
+            }
             else -> {
                 status.setText(R.string.status_idle)
                 status.setTextColor(if (ambient) Color.WHITE else COLOR_GREY)

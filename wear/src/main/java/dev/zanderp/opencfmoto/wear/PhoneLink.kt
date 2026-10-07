@@ -232,6 +232,7 @@ data class RideStats(
     val boost: Int,
     val clockResync: Boolean,
     val turn: JSONObject?,
+    val husOff: Boolean,
 ) {
     companion object {
         fun parse(json: String): RideStats? = try {
@@ -259,6 +260,7 @@ data class RideStats(
                 boost = o.optInt("boost", -1),
                 clockResync = o.optBoolean("clk"),
                 turn = o.optJSONObject("turn"),
+                husOff = o.has("hus") && !o.optBoolean("hus", true),
             )
         } catch (_: Exception) {
             null
