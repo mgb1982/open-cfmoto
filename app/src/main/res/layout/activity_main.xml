@@ -350,6 +350,14 @@
                     android:layout_marginTop="10dp"
                     android:visibility="gone" />
 
+                <!-- Maintenance: the most urgent item (RideScreen AA v2). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_maint"
+                    style="@style/Widget.OpenCfMoto.Button.Pill"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/maint_pill_default" />
+
                 <!-- Share my ride live (RideScreen AA v1.2). -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_live"

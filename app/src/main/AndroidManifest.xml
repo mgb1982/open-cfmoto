@@ -97,6 +97,12 @@
             android:name=".TripsListActivity"
             android:exported="false" />
         <activity
+            android:name=".MaintenanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".YearInReviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".TripMapActivity"
             android:exported="false" />
         <activity

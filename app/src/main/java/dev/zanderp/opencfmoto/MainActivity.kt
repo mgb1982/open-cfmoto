@@ -958,6 +958,7 @@ class MainActivity : AppCompatActivity() {
             java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
         renderParked()
         renderLive()
+        renderMaint()
         findViewById<TextView?>(R.id.stat_clock_label)?.setText(
             when {
                 ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
@@ -965,6 +966,14 @@ class MainActivity : AppCompatActivity() {
                 else -> R.string.stat_clock
             }
         )
+    }
+
+    private fun renderMaint() {
+        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_maint) ?: return
+        btn.setOnClickListener { MaintenanceActivity.start(this) }
+        val s = try { Maintenance.mostUrgent(this) } catch (_: Exception) { null }
+        btn.text = if (s == null) getString(R.string.maint_pill_default)
+            else "🔧 ${s.task.name} · ${Maintenance.statusText(this, s)}"
     }
 
     private fun renderLive() {

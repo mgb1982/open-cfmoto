@@ -38,6 +38,7 @@ object RideExtras {
         val app = ctx.applicationContext
         LiveShare.onSession(active)
         if (active) {
+            try { Maintenance.checkDue(app) } catch (_: Exception) {}
             Parking.clear(app)
             if (rain(app)) RainCheck.runSoon(app)
         } else if (parking(app)) {
