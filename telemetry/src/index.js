@@ -66,6 +66,8 @@ async function ingest(request, env, ctx) {
   const versionCode = toInt(b.versionCode);
   const sdk = toInt(b.androidSdk);
   const locale = clip(b.locale, 20);
+  // null when an older build doesn't send it: keep what we already know about this install.
+  const store = ["github", "play"].includes(b.store) ? b.store : null;
   const payload = type === "ping" ? "" : clip(b.payload, MAX_PAYLOAD);
   const now = Date.now();
 
@@ -79,10 +81,11 @@ async function ingest(request, env, ctx) {
   const isNew = !(await env.DB.prepare("SELECT 1 FROM installs WHERE uuid = ?").bind(uuid).first());
   const stmts = [
     env.DB.prepare(
-      `INSERT INTO installs (uuid, first_seen, last_seen, version, version_code, sdk, locale)
-       VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6)
-       ON CONFLICT(uuid) DO UPDATE SET last_seen = ?2, version = ?3, version_code = ?4, sdk = ?5, locale = ?6`
-    ).bind(uuid, now, version, versionCode, sdk, locale),
+      `INSERT INTO installs (uuid, first_seen, last_seen, version, version_code, sdk, locale, store)
+       VALUES (?1, ?2, ?2, ?3, ?4, ?5, ?6, COALESCE(?7, 'github'))
+       ON CONFLICT(uuid) DO UPDATE SET last_seen = ?2, version = ?3, version_code = ?4, sdk = ?5, locale = ?6,
+         store = COALESCE(?7, store)`
+    ).bind(uuid, now, version, versionCode, sdk, locale, store),
   ];
 
   let fp = null;
@@ -228,6 +231,12 @@ async function summary(env, days) {
     for (const r of top.results) s += `\n${r.type === "crash" ? "💥" : "⚠️"} ${r.n}× ${esc(r.title.slice(0, 70))} /ver_${r.fp}`;
   }
   s += "\n\n" + (await versions(env, 4));
+  const stores = await env.DB.prepare(
+    "SELECT store, COUNT(*) n FROM installs WHERE last_seen >= ? GROUP BY store ORDER BY n DESC"
+  ).bind(now - 30 * 86_400_000).all();
+  if (stores.results.some((r) => r.store === "play")) {
+    s += "\nOrigen (30 d): " + stores.results.map((r) => `${r.store === "play" ? "Play Store" : "GitHub"} ${r.n}`).join(" · ");
+  }
   return s;
 }
 

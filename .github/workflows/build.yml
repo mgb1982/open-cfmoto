@@ -62,7 +62,7 @@ jobs:
           TELEMETRY_URL: ${{ vars.TELEMETRY_URL }}
         run: |
           set +e
-          ./gradlew assembleDebug -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
+          ./gradlew assembleGithubDebug -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > debug-build.log 2>&1
           rc=$?
           if [ $rc -ne 0 ]; then
             grep -E "What went wrong|rror:|^e: " debug-build.log | grep -v "^\s*at " | head -8 \
@@ -75,7 +75,7 @@ jobs:
           TELEMETRY_URL: ${{ vars.TELEMETRY_URL }}
         run: |
           set +e
-          ./gradlew assembleRelease -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1
+          ./gradlew assembleGithubRelease bundlePlayRelease -PappVersion="$APP_VERSION" -PversionSuffix="$VERSION_SUFFIX" > release-build.log 2>&1
           rc=$?
           if [ $rc -ne 0 ]; then
             # Annotations are readable through the API even when raw logs are not.
@@ -86,11 +86,11 @@ jobs:
           fi
           exit $rc
       - name: Unit tests (fork features)
-        run: ./gradlew testDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest'
+        run: ./gradlew testGithubDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest'
       - name: Show signing certificate
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
-          for APK in $(find app/build/outputs/apk/release wear/build/outputs/apk/release -name '*.apk'); do
+          for APK in $(find app/build/outputs/apk/github/release wear/build/outputs/apk/github/release -name '*.apk'); do
             CERT=$("$BT/apksigner" verify --print-certs "$APK" | grep -i 'SHA-256' | head -1 | awk '{print $NF}')
             PKG=$("$BT/aapt2" dump badging "$APK" | head -1 | cut -c1-160)
             echo "::notice::$(basename "$APK") cert=${CERT:0:23}… $PKG"
@@ -104,9 +104,9 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           mkdir -p dist
           # Phone APK first; the in-app updater also skips any asset with "wear" in its name.
-          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -1)" "dist/RideScreen-AA-$TAG.apk"
+          cp "$(find app/build/outputs/apk/github/release -name '*.apk' | head -1)" "dist/RideScreen-AA-$TAG.apk"
           # Optional Wear OS companion (install on the watch, not the phone).
-          W="$(find wear/build/outputs/apk/release -name '*.apk' | head -1)"
+          W="$(find wear/build/outputs/apk/github/release -name '*.apk' | head -1)"
           [ -n "$W" ] && cp "$W" "dist/RideScreen-AA-$TAG-WearOS-reloj.apk"
       - name: Create release
         if: steps.rel.outputs.tag != ''
@@ -122,8 +122,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: OpenCfMoto-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
-          path: app/build/outputs/apk/release/*.apk
+          path: app/build/outputs/apk/github/release/*.apk
       - uses: actions/upload-artifact@v4
         with:
           name: OpenCfMoto-WearOS-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
-          path: wear/build/outputs/apk/release/*.apk
+          path: wear/build/outputs/apk/github/release/*.apk
+      # Google Play bundles (applicationId io.github.mgb1982.ridescreen). Not uploadable yet: Play
+      # rejects debug-signed bundles — a real upload key comes with the Play Console setup.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RideScreen-Play-AAB-${{ github.run_number }}
+          path: |
+            app/build/outputs/bundle/playRelease/*.aab
+            wear/build/outputs/bundle/playRelease/*.aab

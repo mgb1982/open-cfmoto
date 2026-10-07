@@ -40,8 +40,10 @@ class AboutActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.btn_about_discord).setOnClickListener {
             openUrl(URL_DISCORD)
         }
-        findViewById<MaterialButton>(R.id.btn_about_kofi).setOnClickListener {
-            openUrl(URL_KOFI)
+        findViewById<MaterialButton>(R.id.btn_about_kofi).apply {
+            // External payment links aren't allowed in the Play build.
+            if (BuildConfig.EXTERNAL_DONATIONS) setOnClickListener { openUrl(URL_KOFI) }
+            else visibility = android.view.View.GONE
         }
         findViewById<MaterialButton>(R.id.btn_about_license).setOnClickListener {
             openUrl(URL_NOTICE)
