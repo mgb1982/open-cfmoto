@@ -179,6 +179,15 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.clocklab_sync_phone).setOnClickListener {
             setClockLabTimeSync(ClockTimeSyncMode.PHONE)
         }
+        findViewById<MaterialButton>(R.id.extras_park_on).setOnClickListener { RideExtras.setParking(this, true); refreshOptions() }
+        findViewById<MaterialButton>(R.id.extras_park_off).setOnClickListener { RideExtras.setParking(this, false); refreshOptions() }
+        findViewById<MaterialButton>(R.id.extras_rain_on).setOnClickListener { RideExtras.setRain(this, true); refreshOptions() }
+        findViewById<MaterialButton>(R.id.extras_rain_off).setOnClickListener { RideExtras.setRain(this, false); refreshOptions() }
+        findViewById<MaterialButton>(R.id.extras_turn_on).setOnClickListener {
+            TurnHaptics.setEnabled(this, true); refreshOptions()
+            Toast.makeText(this, R.string.extras_turns_toast, Toast.LENGTH_LONG).show()
+        }
+        findViewById<MaterialButton>(R.id.extras_turn_off).setOnClickListener { TurnHaptics.setEnabled(this, false); refreshOptions() }
         findViewById<MaterialButton>(R.id.keepwifi_on).setOnClickListener { setKeepWifi(true) }
         findViewById<MaterialButton>(R.id.keepwifi_off).setOnClickListener { setKeepWifi(false) }
         findViewById<MaterialButton>(R.id.clockresync_smart).setOnClickListener { setClockResync(ClockResyncMode.SMART) }
@@ -589,6 +598,9 @@ class SetupActivity : AppCompatActivity() {
             R.id.clocklab_preset_zontes to ClockLabPreset.ZONTES,
             R.id.clocklab_preset_phone to ClockLabPreset.PHONE_SYNC,
             R.id.clocklab_preset_bt to ClockLabPreset.BT_LISTEN)
+        highlight(RideExtras.parking(this), R.id.extras_park_on to true, R.id.extras_park_off to false)
+        highlight(RideExtras.rain(this), R.id.extras_rain_on to true, R.id.extras_rain_off to false)
+        highlight(TurnHaptics.enabled, R.id.extras_turn_on to true, R.id.extras_turn_off to false)
         highlight(AppSettings.keepWifiAfterDisconnect(this),
             R.id.keepwifi_on to true,
             R.id.keepwifi_off to false)

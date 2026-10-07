@@ -31,4 +31,6 @@
     <string name="map_desc">Trip map</string>
     <string name="pill_max">max %d</string>
     <string name="pill_avg">avg %d</string>
+    <string name="parked_line">🅿️ Bike parked %1$s · directions</string>
+    <string name="parked_no_maps">No maps app on the watch</string>
 </resources>

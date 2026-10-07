@@ -4,6 +4,7 @@
     <uses-feature android:name="android.hardware.type.watch" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
 
@@ -42,6 +43,8 @@
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/session" />
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/tripimg" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/turn" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/parked" />
             </intent-filter>
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />

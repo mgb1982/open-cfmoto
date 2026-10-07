@@ -283,6 +283,8 @@ internal class AapControlGateway(
         AapControlSensor(aapTransport)
     )
 
+    private val navControl = AapControlNav()
+
     override fun execute(message: AapMessage): Int {
         if (message.type == 7) {
             val request = message.parse(Control.ChannelOpenRequest.newBuilder()).build()
@@ -293,6 +295,7 @@ internal class AapControlGateway(
             Channel.ID_INP -> return touchControl.execute(message)
             Channel.ID_SEN -> return sensorControl.execute(message)
             Channel.ID_VID, Channel.ID_AUD, Channel.ID_AU1, Channel.ID_AU2, Channel.ID_MIC -> return mediaControl.execute(message)
+            Channel.ID_NAV -> return navControl.execute(message)
         }
         return 0
     }

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="extras_section">Ride extras</string>
+    <string name="extras_parking">Where did I park?</string>
+    <string name="extras_parking_desc">Remembers where you left the bike when you disconnect from the dash. Shown on the main screen, the home-screen widget and the watch, with walking directions.</string>
+    <string name="extras_rain">Rain alert</string>
+    <string name="extras_rain_desc">When you connect, checks the forecast for the next 3 hours around you (Open-Meteo, approximate location only) and warns you on the phone and the watch if rain is likely.</string>
+    <string name="extras_turns">Turn vibrations on the watch</string>
+    <string name="extras_turns_desc">Android Auto navigation buzzes your watch before each manoeuvre: 2 pulses left, 3 right, long + N short for roundabout exit N, two long for a U-turn. Experimental.</string>
+    <string name="extras_turns_toast">Applies from the next connection to the dash.</string>
+    <string name="rain_channel">Ride alerts</string>
+    <string name="rain_title">🌧️ Rain likely</string>
+    <string name="rain_title_heavy">🌧️ Heavy rain likely</string>
+    <string name="rain_now">It\'s raining or about to rain where you are.</string>
+    <string name="rain_in_minutes">Rain likely in about %1$d min where you are.</string>
+    <string name="rain_source">Weather: Open-Meteo.com</string>
+    <string name="parked_pill">🅿️ Your bike · %1$s</string>
+    <string name="parked_pill_dist">🅿️ Your bike · %1$s · %2$s</string>
+    <string name="parked_cleared">Parking spot cleared</string>
+    <string name="open_failed">Couldn\'t open it</string>
+    <string name="widget_label">RideScreen · Parking</string>
+    <string name="widget_description">Where your bike is parked, and your last ride</string>
+    <string name="widget_parked">🅿️ Your bike</string>
+    <string name="widget_last_ride">Last ride</string>
+    <string name="widget_last_ride_sub">avg %1$d · max %2$d km/h</string>
+    <string name="widget_no_rides">No rides yet</string>
+</resources>

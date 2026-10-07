@@ -54,6 +54,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var tvGps: TextView? = null
     private var tvBattery: TextView? = null
     private var tvVolume: TextView? = null
+    private var tvParked: TextView? = null
 
     private var stats: RideStats? = null
     private var statsAt = 0L
@@ -163,6 +164,34 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
 
     // ---- Rendering ----
 
+    private fun renderParked(riding: Boolean) {
+        val tv = tvParked ?: return
+        val spot = PhoneLink.parked(this)
+        if (spot == null || riding) {
+            tv.visibility = View.GONE
+            return
+        }
+        val ago = android.text.format.DateUtils.getRelativeTimeSpanString(
+            spot.third, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
+        )
+        tv.text = getString(R.string.parked_line, ago)
+        tv.visibility = View.VISIBLE
+        tv.setOnClickListener {
+            // Google Maps on the watch: walking directions to the bike.
+            val uri = android.net.Uri.parse("google.navigation:q=${spot.first},${spot.second}&mode=w")
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri))
+            } catch (_: Exception) {
+                try {
+                    startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW,
+                        android.net.Uri.parse("geo:${spot.first},${spot.second}?q=${spot.first},${spot.second}")))
+                } catch (_: Exception) {
+                    android.widget.Toast.makeText(this, R.string.parked_no_maps, android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private fun render() {
         val s = stats
         val fresh = s != null && SystemClock.elapsedRealtime() - statsAt < STALE_MS
@@ -195,6 +224,14 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
             }
         }
 
+        // Android Auto guiding: the status line becomes the next manoeuvre ("↱ 120 m").
+        if (fresh && s != null && s.session) {
+            PhoneLink.turnText(s.turn)?.let {
+                status.text = it
+                status.setTextColor(if (ambient) Color.WHITE else COLOR_ACCENT)
+            }
+        }
+
         val accent = if (ambient) Color.WHITE else COLOR_ACCENT
         tvSpeed?.setTextColor(Color.WHITE)
         tvSpeedUnit?.setTextColor(if (ambient) Color.WHITE else COLOR_GREY)
@@ -220,6 +257,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
 
     private fun renderInfo(s: RideStats?) {
         val loc = Locale.getDefault()
+        renderParked(s?.session == true)
         if (s == null) {
             listOf(tvTotal, tvAlt, tvHeading, tvGps, tvBattery, tvVolume).forEach { it?.text = "--" }
         } else {
@@ -284,6 +322,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         tvGps = v.findViewById(R.id.tv_gps)
         tvBattery = v.findViewById(R.id.tv_battery)
         tvVolume = v.findViewById(R.id.tv_volume)
+        tvParked = v.findViewById(R.id.tv_parked)
         render()
     }
 

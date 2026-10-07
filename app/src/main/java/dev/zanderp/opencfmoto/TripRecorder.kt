@@ -108,6 +108,7 @@ class TripRecorder(private val appContext: Context) : LocationListener {
     )
 
     override fun onLocationChanged(location: Location) {
+        lastSeen = location
         if (!recording) return
         val now = SystemClock.elapsedRealtime()
         val prev = lastFix
@@ -179,6 +180,9 @@ class TripRecorder(private val appContext: Context) : LocationListener {
     }
 
     companion object {
+        /** Latest GPS fix seen, kept across legs/stops (where the bike was parked: [Parking]). */
+        @Volatile var lastSeen: Location? = null
+
         private const val MIN_MOVING_MS = 0.8f          // ~2.9 km/h below which we treat as stopped
         private const val IDLE_SPLIT_MS = 3 * 60_000L    // parked > 3 min → split into a new leg
         private const val MIN_SAVE_DISTANCE_M = 100.0    // don't save trivial legs

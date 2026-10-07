@@ -284,6 +284,14 @@
                         android:text="@string/main_trips_pill" />
                 </LinearLayout>
 
+                <!-- Where the bike was parked (RideScreen AA v1.2); hidden while riding / unknown. -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_parked"
+                    style="@style/Widget.OpenCfMoto.Button.Pill"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone" />
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

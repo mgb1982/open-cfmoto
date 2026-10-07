@@ -18,6 +18,7 @@ class OpenCfMotoApp : Application() {
         CrashGuard.hydrateLogBus(this)
         try {
             AppSettings.applyToHolder(this)
+            TurnHaptics.load(this)
         } catch (_: Exception) {
         }
         // After hydrate so Share Logs still show prior crash, then stamp this process build.

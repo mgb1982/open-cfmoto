@@ -28,4 +28,6 @@
     <string name="map_desc">Mapa del viatge</string>
     <string name="pill_max">màx %d</string>
     <string name="pill_avg">mitj. %d</string>
+    <string name="parked_line">🅿️ Moto aparcada %1$s · com arribar-hi</string>
+    <string name="parked_no_maps">No hi ha app de mapes al rellotge</string>
 </resources>

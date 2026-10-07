@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="extras_section">Extres de ruta</string>
+    <string name="extras_parking">On he aparcat?</string>
+    <string name="extras_parking_desc">Recorda on has deixat la moto quan et desconnectes del quadre. Surt a la pantalla principal, al widget i al rellotge, amb indicacions per arribar-hi a peu.</string>
+    <string name="extras_rain">Avís de pluja</string>
+    <string name="extras_rain_desc">En connectar, consulta la previsió de les pròximes 3 hores a la teva zona (Open-Meteo, només ubicació aproximada) i t\'avisa al mòbil i al rellotge si és probable que plogui.</string>
+    <string name="extras_turns">Vibracions de gir al rellotge</string>
+    <string name="extras_turns_desc">Amb la navegació d\'Android Auto, el rellotge vibra abans de cada maniobra: 2 tocs esquerra, 3 dreta, un de llarg + N de curts per a la sortida N d\'una rotonda, dos de llargs per a canvi de sentit. Experimental.</string>
+    <string name="extras_turns_toast">S\'aplica a partir de la propera connexió amb el quadre.</string>
+    <string name="rain_channel">Avisos de ruta</string>
+    <string name="rain_title">🌧️ Probable pluja</string>
+    <string name="rain_title_heavy">🌧️ Probable pluja forta</string>
+    <string name="rain_now">Està plovent o a punt de ploure a la teva zona.</string>
+    <string name="rain_in_minutes">Pluja probable d\'aquí a uns %1$d min a la teva zona.</string>
+    <string name="rain_source">Temps: Open-Meteo.com</string>
+    <string name="parked_pill">🅿️ La teva moto · %1$s</string>
+    <string name="parked_pill_dist">🅿️ La teva moto · %1$s · %2$s</string>
+    <string name="parked_cleared">Aparcament esborrat</string>
+    <string name="open_failed">No s\'ha pogut obrir</string>
+    <string name="widget_label">RideScreen · Aparcament</string>
+    <string name="widget_description">On és aparcada la teva moto i el teu últim viatge</string>
+    <string name="widget_parked">🅿️ La teva moto</string>
+    <string name="widget_last_ride">Últim viatge</string>
+    <string name="widget_last_ride_sub">mitjana %1$d · màx %2$d km/h</string>
+    <string name="widget_no_rides">Encara no hi ha viatges</string>
+</resources>

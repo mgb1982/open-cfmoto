@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="extras_section">Extras de ruta</string>
+    <string name="extras_parking">¿Dónde he aparcado?</string>
+    <string name="extras_parking_desc">Recuerda dónde dejaste la moto al desconectarte del cuadro. Aparece en la pantalla principal, en el widget y en el reloj, con indicaciones para llegar andando.</string>
+    <string name="extras_rain">Aviso de lluvia</string>
+    <string name="extras_rain_desc">Al conectar, consulta la previsión de las próximas 3 horas en tu zona (Open-Meteo, solo ubicación aproximada) y te avisa en el móvil y en el reloj si es probable que llueva.</string>
+    <string name="extras_turns">Vibraciones de giro en el reloj</string>
+    <string name="extras_turns_desc">Con la navegación de Android Auto, el reloj vibra antes de cada maniobra: 2 toques izquierda, 3 derecha, uno largo + N cortos para la salida N de una rotonda, dos largos para cambio de sentido. Experimental.</string>
+    <string name="extras_turns_toast">Se aplica a partir de la próxima conexión con el cuadro.</string>
+    <string name="rain_channel">Avisos de ruta</string>
+    <string name="rain_title">🌧️ Probable lluvia</string>
+    <string name="rain_title_heavy">🌧️ Probable lluvia fuerte</string>
+    <string name="rain_now">Está lloviendo o a punto de llover en tu zona.</string>
+    <string name="rain_in_minutes">Lluvia probable en unos %1$d min en tu zona.</string>
+    <string name="rain_source">Tiempo: Open-Meteo.com</string>
+    <string name="parked_pill">🅿️ Tu moto · %1$s</string>
+    <string name="parked_pill_dist">🅿️ Tu moto · %1$s · %2$s</string>
+    <string name="parked_cleared">Aparcamiento borrado</string>
+    <string name="open_failed">No se ha podido abrir</string>
+    <string name="widget_label">RideScreen · Aparcamiento</string>
+    <string name="widget_description">Dónde está aparcada tu moto y tu último viaje</string>
+    <string name="widget_parked">🅿️ Tu moto</string>
+    <string name="widget_last_ride">Último viaje</string>
+    <string name="widget_last_ride_sub">media %1$d · máx %2$d km/h</string>
+    <string name="widget_no_rides">Aún no hay viajes</string>
+</resources>

@@ -25,6 +25,8 @@ object PhoneLink {
     const val PATH_TRIPS = "/ocm/trips"
     const val PATH_TRIPMAP = "/ocm/tripmap"
     const val PATH_TRIPIMG = "/ocm/tripimg"
+    const val PATH_TURN = "/ocm/turn"
+    const val PATH_PARKED = "/ocm/parked"
 
     // Same values as AaInput.KEY_* in the phone app (Android keycodes).
     const val KEY_UP = 19
@@ -100,6 +102,99 @@ object PhoneLink {
     fun clearRide(ctx: Context) {
         ctx.getSystemService(NotificationManager::class.java)?.cancel(NOTIF_ID)
     }
+
+    // ---- Turn vibrations (phone: TurnHaptics) ----
+
+    /**
+     * Direction is in the pattern so it can be felt without looking: 2 pulses = left, 3 = right
+     * (shorter pulses for "keep/slight"), long + N short = roundabout exit N, two long = U-turn,
+     * one very long = destination. "pre" (well before) is softer than "now".
+     */
+    fun vibrateTurn(ctx: Context, json: String) {
+        val o = try { JSONObject(json) } catch (_: Exception) { return }
+        val kind = o.optString("k")
+        val now = o.optString("p") == "now"
+        val timings = ArrayList<Long>()
+        fun pulses(count: Int, on: Long, gap: Long) {
+            repeat(count) { timings += if (timings.isEmpty()) 0L else gap; timings += on }
+        }
+        when (kind) {
+            "left" -> pulses(2, 170, 150)
+            "right" -> pulses(3, 170, 150)
+            "sleft" -> pulses(2, 90, 130)
+            "sright" -> pulses(3, 90, 130)
+            "uturn" -> pulses(2, 450, 220)
+            "round" -> {
+                pulses(1, 450, 0)
+                timings += 260L; timings += 140L
+                repeat((o.optInt("n", 1).coerceIn(1, 6)) - 1) { timings += 170L; timings += 140L }
+            }
+            "dest" -> pulses(1, 900, 0)
+            else -> return
+        }
+        val vib = vibrator(ctx) ?: return
+        val arr = timings.toLongArray()
+        val effect = if (vib.hasAmplitudeControl()) {
+            val amp = if (now) 255 else 110
+            android.os.VibrationEffect.createWaveform(arr, IntArray(arr.size) { i -> if (i % 2 == 1) amp else 0 }, -1)
+        } else {
+            android.os.VibrationEffect.createWaveform(arr, -1)
+        }
+        try {
+            vib.vibrate(effect)
+        } catch (_: Exception) {
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun vibrator(ctx: Context): android.os.Vibrator? =
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            ctx.getSystemService(android.os.VibratorManager::class.java)?.defaultVibrator
+        } else {
+            ctx.getSystemService(Context.VIBRATOR_SERVICE) as? android.os.Vibrator
+        }
+
+    /** Short arrow + distance for the trip page while Android Auto is guiding. */
+    fun turnText(t: JSONObject?): String? {
+        t ?: return null
+        val d = t.optInt("d", -1)
+        val dist = when {
+            d < 0 -> ""
+            d < 1000 -> " ${(d / 10) * 10} m"
+            else -> String.format(java.util.Locale.getDefault(), " %.1f km", d / 1000.0)
+        }
+        val arrow = when (t.optString("k")) {
+            "left" -> "↰"
+            "right" -> "↱"
+            "sleft" -> "↖"
+            "sright" -> "↗"
+            "uturn" -> "↶"
+            "round" -> "⟳ ${t.optInt("n", 0).takeIf { it > 0 }?.let { "$itª" } ?: ""}"
+            "dest" -> "🏁"
+            else -> return null
+        }
+        return arrow + dist
+    }
+
+    // ---- Parked bike (phone: Parking) ----
+
+    private const val PARK_PREFS = "parked"
+
+    fun saveParked(ctx: Context, json: String) {
+        ctx.getSharedPreferences(PARK_PREFS, Context.MODE_PRIVATE).edit().putString("spot", json).apply()
+    }
+
+    /** (lat, lon, savedAtMillis) or null. */
+    fun parked(ctx: Context): Triple<Double, Double, Long>? {
+        val raw = ctx.getSharedPreferences(PARK_PREFS, Context.MODE_PRIVATE).getString("spot", "") ?: ""
+        if (raw.isBlank()) return null
+        return try {
+            val o = JSONObject(raw)
+            Triple(o.getDouble("lat"), o.getDouble("lon"), o.optLong("t"))
+        } catch (_: Exception) {
+            null
+        }
+    }
 }
 
 /** Snapshot sent by the phone ~1 Hz (see WearBridge.snapshotJson). */
@@ -125,6 +220,7 @@ data class RideStats(
     val volumeMax: Int?,
     val boost: Int,
     val clockResync: Boolean,
+    val turn: JSONObject?,
 ) {
     companion object {
         fun parse(json: String): RideStats? = try {
@@ -151,6 +247,7 @@ data class RideStats(
                 volumeMax = if (o.has("volMax")) o.optInt("volMax") else null,
                 boost = o.optInt("boost", -1),
                 clockResync = o.optBoolean("clk"),
+                turn = o.optJSONObject("turn"),
             )
         } catch (_: Exception) {
             null
@@ -184,6 +281,16 @@ class SessionListenerService : WearableListenerService() {
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        when (messageEvent.path) {
+            PhoneLink.PATH_TURN -> {
+                PhoneLink.vibrateTurn(this, String(messageEvent.data, Charsets.UTF_8))
+                return
+            }
+            PhoneLink.PATH_PARKED -> {
+                PhoneLink.saveParked(this, String(messageEvent.data, Charsets.UTF_8))
+                return
+            }
+        }
         if (messageEvent.path == PhoneLink.PATH_TRIPIMG) {
             // Pre-rendered overview arriving while no map screen is open: keep it for the first tap.
             val img = WearKeys.parseImageMessage(messageEvent.data) ?: return

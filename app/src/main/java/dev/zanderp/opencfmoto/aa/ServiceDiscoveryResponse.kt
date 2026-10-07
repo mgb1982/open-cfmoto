@@ -124,6 +124,19 @@ class ServiceDiscoveryResponse
                 }.build()
             }.build())
 
+            // --- Navigation status (RideScreen AA): only when watch turn vibrations are on, so the
+            //     default head-unit profile stays exactly what's been field-tested. Image codes only:
+            //     AA then sends manoeuvre enums + distances (AapControlNav), no bitmaps. ---
+            if (dev.zanderp.opencfmoto.TurnHaptics.enabled) {
+                services.add(Control.Service.newBuilder().also { service ->
+                    service.id = Channel.ID_NAV
+                    service.navigationStatusService = Control.Service.NavigationStatusService.newBuilder().apply {
+                        minimumIntervalMs = 500
+                        type = Control.Service.NavigationStatusService.ClusterType.ImageCodesOnly
+                    }.build()
+                }.build())
+            }
+
             return Control.ServiceDiscoveryResponse.newBuilder().apply {
                 make = "OpenCfMoto"
                 model = "MotoPlay"

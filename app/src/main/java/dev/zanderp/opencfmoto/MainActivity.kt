@@ -933,6 +933,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView?>(R.id.stat_max)?.text = if (max > 0) max.toString() else "--"
         findViewById<TextView?>(R.id.stat_clock)?.text =
             java.text.SimpleDateFormat("HH:mm", loc).format(java.util.Date())
+        renderParked()
         findViewById<TextView?>(R.id.stat_clock_label)?.setText(
             when {
                 ClockLab.resyncInProgress() -> R.string.stat_clock_adjusting
@@ -940,6 +941,33 @@ class MainActivity : AppCompatActivity() {
                 else -> R.string.stat_clock
             }
         )
+    }
+
+    private fun renderParked() {
+        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_parked) ?: return
+        val spot = Parking.get(this)
+        if (spot == null || ConnectionState.phase == Phase.STREAMING) {
+            btn.visibility = View.GONE
+            return
+        }
+        val ago = android.text.format.DateUtils.getRelativeTimeSpanString(
+            spot.time, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
+        )
+        val dist = Parking.distanceFromHere(this, spot)
+        btn.text = if (dist != null) getString(R.string.parked_pill_dist, Parking.distanceText(dist), ago)
+            else getString(R.string.parked_pill, ago)
+        btn.visibility = View.VISIBLE
+        btn.setOnClickListener {
+            try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
+                Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+        btn.setOnLongClickListener {
+            Parking.clear(this)
+            Toast.makeText(this, R.string.parked_cleared, Toast.LENGTH_SHORT).show()
+            renderParked()
+            true
+        }
     }
 
     /** Update the big status header + Connect button label from a [ConnectionState] transition. */

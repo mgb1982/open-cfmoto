@@ -29,6 +29,8 @@ import org.json.JSONObject
  *                 /ocm/scroll     payload = signed knob steps as text ("1", "-2")
  *  phone → watch  /ocm/stats      JSON trip + link snapshot, ~1 Hz while a lease is live
  *                 /ocm/session    "start" when projection to the dash begins, "stop" when it ends
+ *                 /ocm/turn       next-manoeuvre buzz {k,n,d,p} (TurnHaptics), sent to every watch
+ *                 /ocm/parked     where the bike was left {lat,lon,t} (Parking), "" when cleared
  *
  * Trip numbers come from the shared [TripRecorder] (the same one that saves rides), so the watch
  * shows exactly what will be stored.
@@ -39,6 +41,8 @@ object WearBridge {
     const val PATH_SCROLL = "/ocm/scroll"
     const val PATH_STATS = "/ocm/stats"
     const val PATH_SESSION = "/ocm/session"
+    const val PATH_TURN = "/ocm/turn"
+    const val PATH_PARKED = "/ocm/parked"
 
     private const val LEASE_MS = 12_000L
     private const val STREAM_EVERY_MS = 1_000L
@@ -74,6 +78,7 @@ object WearBridge {
         if (active) sessionStartedAt = SystemClock.elapsedRealtime()
         LogBus.log("[WEAR] session ${if (active) "start" else "stop"} → watch")
         broadcast(ctx, PATH_SESSION, if (active) "start" else "stop")
+        RideExtras.onSession(ctx, active)
     }
 
     internal fun onMessage(ctx: Context, event: MessageEvent) {
@@ -127,6 +132,7 @@ object WearBridge {
         o.put("el", if (sessionActive) SystemClock.elapsedRealtime() - sessionStartedAt else 0L)
         o.put("acc", s?.accuracyM ?: 0)
         o.put("clk", ClockLab.resyncInProgress())
+        TurnHaptics.current()?.let { o.put("turn", it) }
         putInfo(ctx, o)
         return o.toString()
     }
@@ -178,6 +184,9 @@ object WearBridge {
             // No Play services / Wear OS app on this phone: nothing to talk to.
         }
     }
+
+    /** One-off message to every connected watch (no lease needed: the watch's listener wakes up). */
+    fun sendToWatches(ctx: Context, path: String, text: String) = broadcast(ctx.applicationContext, path, text)
 
     private fun broadcast(ctx: Context, path: String, text: String) {
         try {
