@@ -101,6 +101,21 @@
             android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Not riding + a parking spot from the phone: tap = compass to the bike. -->
+    <TextView
+        android:id="@+id/tv_parked_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_pill"
+        android:gravity="center"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:textColor="#D1A955"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/tv_hint"
         android:layout_width="wrap_content"

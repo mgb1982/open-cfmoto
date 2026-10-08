@@ -177,6 +177,9 @@ object WearBridge {
                 Thread({ try { HeadUnitServer.probe(ctx) } catch (_: Exception) {} }, "hus-probe").start()
             }
             if (HeadUnitServer.freshKnown == false) o.put("hus", false)
+            // Parking spot in every idle snapshot ("" = none): the watch stays in sync even if the
+            // one-off /ocm/parked message got lost.
+            o.put("park", Parking.json(Parking.get(ctx)))
         }
         putInfo(ctx, o)
         return o.toString()

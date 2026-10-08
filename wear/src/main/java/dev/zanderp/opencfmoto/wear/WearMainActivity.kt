@@ -55,6 +55,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var tvBattery: TextView? = null
     private var tvVolume: TextView? = null
     private var tvParked: TextView? = null
+    private var tvParkedMain: TextView? = null
 
     private var stats: RideStats? = null
     private var statsAt = 0L
@@ -145,7 +146,20 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         }
         if (event.path != PhoneLink.PATH_STATS) return
         PhoneLink.rememberPhone(event.sourceNodeId)
-        val s = RideStats.parse(String(event.data, Charsets.UTF_8)) ?: return
+        val raw = String(event.data, Charsets.UTF_8)
+        // The phone puts the parking spot in every idle snapshot: always in sync, even if the
+        // one-off /ocm/parked message was missed.
+        try {
+            val o = org.json.JSONObject(raw)
+            if (o.has("park")) {
+                val park = o.optString("park")
+                if (park != (PhoneLink.parkedRaw(this))) {
+                    PhoneLink.saveParked(this, park)
+                    RideGlance.refresh(this)
+                }
+            }
+        } catch (_: Exception) {}
+        val s = RideStats.parse(raw) ?: return
         runOnUiThread {
             stats = s
             statsAt = SystemClock.elapsedRealtime()
@@ -177,18 +191,21 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     // ---- Rendering ----
 
     private fun renderParked(riding: Boolean) {
-        val tv = tvParked ?: return
+        // Shown on the main page (where you look) and on the info page; the info one alone sat
+        // below the grid, in the round screen's clipped bottom edge, and was never seen.
         val spot = PhoneLink.parked(this)
-        if (spot == null || riding) {
-            tv.visibility = View.GONE
-            return
+        for (tv in listOfNotNull(tvParked, tvParkedMain)) {
+            if (spot == null || riding || ambient) {
+                tv.visibility = View.GONE
+                continue
+            }
+            val ago = android.text.format.DateUtils.getRelativeTimeSpanString(
+                spot.third, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
+            )
+            tv.text = getString(R.string.parked_line, ago)
+            tv.visibility = View.VISIBLE
+            tv.setOnClickListener { startActivity(android.content.Intent(this, FindBikeActivity::class.java)) }
         }
-        val ago = android.text.format.DateUtils.getRelativeTimeSpanString(
-            spot.third, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
-        )
-        tv.text = getString(R.string.parked_line, ago)
-        tv.visibility = View.VISIBLE
-        tv.setOnClickListener { startActivity(android.content.Intent(this, FindBikeActivity::class.java)) }
     }
 
     private fun render() {
@@ -321,6 +338,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         tvMax = v.findViewById(R.id.tv_max)
         tvAvg = v.findViewById(R.id.tv_avg)
         tvHint = v.findViewById(R.id.tv_hint)
+        tvParkedMain = v.findViewById(R.id.tv_parked_main)
         render()
     }
 

@@ -207,6 +207,9 @@ object PhoneLink {
 
     private const val PARK_PREFS = "parked"
 
+    fun parkedRaw(ctx: Context): String =
+        ctx.getSharedPreferences(PARK_PREFS, Context.MODE_PRIVATE).getString("spot", "") ?: ""
+
     fun saveParked(ctx: Context, json: String) {
         ctx.getSharedPreferences(PARK_PREFS, Context.MODE_PRIVATE).edit().putString("spot", json).apply()
     }
