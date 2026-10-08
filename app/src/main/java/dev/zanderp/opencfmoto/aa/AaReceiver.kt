@@ -255,6 +255,14 @@ class AaReceiver(
         log("[AA] starting AAP handshake (version + SSL)…")
         if (!t.startHandshake(conn)) {
             log("[AA] handshake FAILED")
+            if (client.port == HEADUNIT_SERVER_PORT) {
+                // TCP accepted but no VERSION_RESPONSE: Android Auto's head unit server is wedged.
+                log(
+                    "[AA] → Android Auto's head unit server accepted the connection but didn't answer. " +
+                        "Restart it: Android Auto settings → ⋮ → Stop head unit server, then Start head unit server " +
+                        "(or force-stop Android Auto), then Connect again",
+                )
+            }
             transport = null
             releaseSession()
             try { conn.disconnect() } catch (_: Exception) {}
@@ -303,6 +311,7 @@ class AaReceiver(
                     try { sock.close() } catch (_: Exception) {}
                     return
                 }
+                dev.zanderp.opencfmoto.HeadUnitServer.report(true)
                 log("[AA] >>> dialled OUT to Android Auto head unit server :$HEADUNIT_SERVER_PORT (AA 17.4 path)")
                 thread(name = "aa-session", isDaemon = true) { handleConnection(sock) }
                 return
@@ -310,6 +319,7 @@ class AaReceiver(
             Thread.sleep(DIAL_INTERVAL_MS)
         }
         if (running && transport == null) {
+            dev.zanderp.opencfmoto.HeadUnitServer.report(false)
             log(
                 "[AA] head unit server never answered on :$HEADUNIT_SERVER_PORT — in Android Auto " +
                     "tap Version 10x, then overflow menu → Start head unit server",

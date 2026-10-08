@@ -10,8 +10,6 @@ import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.net.InetSocketAddress
-import java.net.Socket
 
 /**
  * Android Auto 17.4+ only projects when its "head unit server" is running (Android Auto settings →
@@ -32,22 +30,48 @@ object HeadUnitServer {
     /** The last result if it's recent enough to show on the watch. */
     val freshKnown: Boolean? get() = lastKnown.takeIf { System.currentTimeMillis() - lastProbeAt < 60_000L }
 
-    /** Blocking (≤ 0.4 s): is something listening on Android Auto's head unit server port? */
-    fun probe(ctx: android.content.Context): Boolean? {
-        val phase = ConnectionState.phase
-        if (phase.busy || phase == Phase.STREAMING || phase == Phase.MIRRORING) return lastKnown
-        // Bound to the bike Wi-Fi: loopback isn't routable, a failed connect would be a false "no".
-        val cm = ctx.getSystemService(android.net.ConnectivityManager::class.java)
-        if (cm?.boundNetworkForProcess != null) return lastKnown
-        val ok = try {
-            Socket().use { it.connect(InetSocketAddress("127.0.0.1", PORT), 400) }
-            true
-        } catch (_: Exception) {
-            false
+    /**
+     * Is Android Auto's head unit server running? NEVER by connecting to it: the server treats every
+     * TCP connection as a car, and opening/closing sockets on it every few seconds wedged it — the
+     * next real connection got no VERSION_RESPONSE until the server was restarted (v2 test builds).
+     *
+     * Passive only: the listening-socket table when the system lets us read it, otherwise the result
+     * of the last real connection attempt ([report], from AaReceiver).
+     */
+    fun probe(@Suppress("UNUSED_PARAMETER") ctx: android.content.Context): Boolean? {
+        val listening = listeningFromProc()
+        if (listening != null) {
+            lastKnown = listening
+            lastProbeAt = System.currentTimeMillis()
         }
+        return lastKnown
+    }
+
+    /** Called by AaReceiver after each real dial to :5277 (true = it answered). */
+    fun report(ok: Boolean) {
         lastKnown = ok
         lastProbeAt = System.currentTimeMillis()
-        return ok
+    }
+
+    /**
+     * true when a LISTEN socket on :5277 shows in /proc/net/tcp{,6}. Never a "no": Android 10+ hides
+     * the table or only lists our own sockets, so absence proves nothing.
+     */
+    private fun listeningFromProc(): Boolean? {
+        val portHex = ":%04X".format(PORT)
+        for (f in listOf("/proc/net/tcp6", "/proc/net/tcp")) {
+            try {
+                val lines = java.io.File(f).readLines()
+                // Columns: sl local_address rem_address st … ; st 0A = LISTEN.
+                if (lines.drop(1).any { l ->
+                        val c = l.trim().split(Regex("\\s+"))
+                        c.size > 3 && c[1].endsWith(portHex) && c[3] == "0A"
+                    }
+                ) return true
+            } catch (_: Exception) {
+            }
+        }
+        return null
     }
 
     fun androidAutoInstalled(activity: Activity): Boolean = try {
