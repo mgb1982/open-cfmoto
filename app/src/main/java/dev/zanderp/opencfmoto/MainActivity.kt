@@ -1706,20 +1706,27 @@ class MainActivity : AppCompatActivity() {
             val dir = File(cacheDir, "logs").apply { mkdirs() }
             val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
             val file = File(dir, "opencfmoto-$stamp.log")
-            file.writeText(LogBus.snapshot())
+            // ONE text file: this session first (what we almost always need), then the crash report
+            // and earlier sessions below clear separators. Separate attachments confused which one
+            // was "the" log (field feedback, 8 Oct 2026).
+            file.bufferedWriter().use { w ->
+                w.write(LogBus.snapshot())
+                val crash = CrashGuard.crashFile(this)
+                if (crash.exists() && crash.length() > 0L) {
+                    w.write("\n\n===== CRASH REPORT (${crash.name}) =====\n")
+                    w.write(crash.readText())
+                    log("including crash report: ${crash.name} (${crash.length()} bytes)")
+                }
+                // Previous sessions (rides whose process was killed afterwards), newest first,
+                // only their tail: the end of a session is where it went wrong.
+                CrashGuard.historyDir(this).listFiles()?.sortedByDescending { it.name }?.take(2)?.forEach { h ->
+                    val text = h.readText()
+                    w.write("\n\n===== EARLIER SESSION (${h.name}) =====\n")
+                    w.write(if (text.length > 80_000) "…\n" + text.takeLast(80_000) else text)
+                }
+            }
             val uris = ArrayList<Uri>()
             uris.add(FileProvider.getUriForFile(this, "$packageName.fileprovider", file))
-
-            val crash = CrashGuard.crashFile(this)
-            if (crash.exists() && crash.length() > 0L) {
-                uris.add(FileProvider.getUriForFile(this, "$packageName.fileprovider", crash))
-                log("attaching crash report: ${crash.name} (${crash.length()} bytes)")
-            }
-
-            // Previous sessions (rides whose process was killed afterwards), newest first.
-            CrashGuard.historyDir(this).listFiles()?.sortedByDescending { it.name }?.take(3)?.forEach { h ->
-                uris.add(FileProvider.getUriForFile(this, "$packageName.fileprovider", h))
-            }
 
             // Attach any diagnostic H.264 dumps (VideoPipeline writes these to <externalFiles>/video).
             val videoDir = File(getExternalFilesDir(null), "video")
