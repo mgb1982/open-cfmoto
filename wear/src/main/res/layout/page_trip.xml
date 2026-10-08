@@ -72,6 +72,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/row_max_avg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -104,6 +105,7 @@
     <!-- Not riding + a parking spot from the phone: tap = compass to the bike. -->
     <TextView
         android:id="@+id/tv_parked_main"
+        android:maxLines="2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"

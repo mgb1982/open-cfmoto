@@ -56,6 +56,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var tvVolume: TextView? = null
     private var tvParked: TextView? = null
     private var tvParkedMain: TextView? = null
+    private var rowMaxAvg: View? = null
 
     private var stats: RideStats? = null
     private var statsAt = 0L
@@ -194,8 +195,12 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         // Shown on the main page (where you look) and on the info page; the info one alone sat
         // below the grid, in the round screen's clipped bottom edge, and was never seen.
         val spot = PhoneLink.parked(this)
+        val show = spot != null && !riding && !ambient
+        // The main page has no room for one more line on a round screen (it was centred and
+        // clipped off the bottom): when idle, the parking pill takes the max/avg row's place.
+        rowMaxAvg?.visibility = if (show) View.GONE else View.VISIBLE
         for (tv in listOfNotNull(tvParked, tvParkedMain)) {
-            if (spot == null || riding || ambient) {
+            if (!show || spot == null) {
                 tv.visibility = View.GONE
                 continue
             }
@@ -339,6 +344,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         tvAvg = v.findViewById(R.id.tv_avg)
         tvHint = v.findViewById(R.id.tv_hint)
         tvParkedMain = v.findViewById(R.id.tv_parked_main)
+        rowMaxAvg = v.findViewById(R.id.row_max_avg)
         render()
     }
 
