@@ -58,6 +58,8 @@ object WearBridge {
     @Volatile private var sessionActive = false
     @Volatile private var sessionStartedAt = 0L
     private var streaming = false
+    private var reconnectingSince = 0L
+    private const val RIDE_END_AFTER_DROP_MS = 45_000L
 
     private val streamTick = object : Runnable {
         override fun run() {
@@ -76,7 +78,18 @@ object WearBridge {
         val ctx = context.applicationContext
         appCtx = ctx
         val phase = ConnectionState.phase
-        val active = phase == Phase.STREAMING || (sessionActive && phase.busy)
+        // A short drop mid-ride (clock resync, Wi-Fi hiccup) keeps the session; switching the bike off
+        // does not: the app then waits for the bike indefinitely, and the ride must still end here
+        // (parking spot, watch back to idle). Before, only the Stop button ended it.
+        val now = SystemClock.elapsedRealtime()
+        if (phase == Phase.RECONNECTING) {
+            if (reconnectingSince == 0L) reconnectingSince = now
+        } else {
+            reconnectingSince = 0L
+        }
+        val dropTooLong = phase == Phase.WAITING_FOR_BIKE ||
+            (reconnectingSince > 0L && now - reconnectingSince > RIDE_END_AFTER_DROP_MS)
+        val active = phase == Phase.STREAMING || (sessionActive && phase.busy && !dropTooLong)
         // Tile / complication on the watch: a summary about once a minute while riding.
         if (active && sessionActive && SystemClock.elapsedRealtime() - lastTileAt >= TILE_EVERY_MS) {
             lastTileAt = SystemClock.elapsedRealtime()
