@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bike_gone_channel">Moto no encontrada</string>
+    <string name="bike_gone_title">He dejado de esperar a la moto</string>
+    <string name="bike_gone_text">La moto llevaba 20 minutos apagada y la app ha dejado de buscarla para ahorrar batería. Pulsa Conectar cuando vuelvas a la moto.</string>
+
+    <string name="tr_channel">Trofeos</string>
+    <string name="tr_unlocked_title">🏆 ¡Trofeo desbloqueado!</string>
+    <string name="tr_screen_title">Trofeos</string>
+    <string name="tr_header">%1$d de %2$d desbloqueados</string>
+    <string name="tr_next">Próximos</string>
+    <string name="tr_earned_on">Conseguido el %1$s</string>
+    <string name="tr_card_line">🏆 Trofeos: %1$d de %2$d · ver todos ›</string>
+    <string name="tr_distance">Kilómetros</string>
+    <string name="tr_distance_d">Recorre %1$s km en total</string>
+    <string name="tr_longest">Gran ruta</string>
+    <string name="tr_longest_d">Un viaje de %1$s km o más</string>
+    <string name="tr_speed">Velocidad punta</string>
+    <string name="tr_speed_d">Alcanza %1$s km/h (GPS)</string>
+    <string name="tr_streak">Racha</string>
+    <string name="tr_streak_d">Sal en moto %1$s días seguidos</string>
+    <string name="tr_rides">Habitual</string>
+    <string name="tr_rides_d">Guarda %1$s viajes</string>
+    <string name="tr_hours">Horas de moto</string>
+    <string name="tr_hours_d">%1$s horas en marcha</string>
+    <string name="tr_months">Todo el año</string>
+    <string name="tr_months_d">Sal en %1$s meses distintos</string>
+    <string name="tr_early">Madrugador</string>
+    <string name="tr_early_d">Empieza un viaje antes de las 7:00</string>
+    <string name="tr_night">Nocturno</string>
+    <string name="tr_night_d">Termina un viaje después de las 23:00</string>
+    <string name="tr_weekend">Finde motero</string>
+    <string name="tr_weekend_d">Sal el sábado y el domingo del mismo fin de semana</string>
+</resources>

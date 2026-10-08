@@ -45,6 +45,16 @@ object BikeWifi {
     @Volatile private var active = false
     @Volatile private var firstDelivered = false
     private var rejoinAttempts = 0
+    /** When the bike's Wi-Fi was last lost (or the join started); 0 while we're on it. */
+    @Volatile private var downSince = 0L
+
+    /**
+     * Called (main thread) when the bike hasn't been seen for [GIVE_UP_AFTER_MS]: the rider switched
+     * it off and walked away. Set by the app to stop everything; without it we just stop rejoining.
+     * Before (≤ v2 test builds) we retried forever: 494 joins in one night with the bike off.
+     */
+    @Volatile var onGiveUp: ((Context) -> Unit)? = null
+    const val GIVE_UP_AFTER_MS = 20 * 60_000L
     private var ssid: String = ""
     private var onAvailableCb: ((Network) -> Unit)? = null
     private var onLostCb: (() -> Unit)? = null
@@ -98,6 +108,7 @@ object BikeWifi {
         this.active = true
         this.firstDelivered = false
         this.rejoinAttempts = 0
+        this.downSince = android.os.SystemClock.elapsedRealtime()
 
         val specifier = WifiNetworkSpecifier.Builder()
             .setSsid(ssid)
@@ -152,6 +163,7 @@ object BikeWifi {
                 // [BikeLink] / [EasyConnProber] call [rebindProcessToBike] when PXC actually starts.
                 AppHttp.ensureCellularUplink()
                 rejoinAttempts = 0
+                downSince = 0L
                 logLinkOnce(network)
                 if (!firstDelivered) {
                     firstDelivered = true
@@ -169,6 +181,7 @@ object BikeWifi {
 
             override fun onLost(network: Network) {
                 logCb?.invoke("Wi-Fi lost: $network")
+                if (downSince == 0L) downSince = android.os.SystemClock.elapsedRealtime()
                 currentNetwork = null
                 linkLogged = false
                 // Drop the process bind immediately. Leaving it pinned to a dead Network causes
@@ -236,6 +249,11 @@ object BikeWifi {
 
     private fun scheduleRejoin() {
         if (!active) return
+        val down = downSince
+        if (down > 0L && android.os.SystemClock.elapsedRealtime() - down > GIVE_UP_AFTER_MS) {
+            giveUp()
+            return
+        }
         rejoinAttempts++
         // Before the first successful join, never use the near-instant retry — that cancels the
         // system device picker mid-tap ("app canceled the request to choose a device").
@@ -254,6 +272,21 @@ object BikeWifi {
             }
             registerCallback()
         }, delay)
+    }
+
+    private fun giveUp() {
+        val ctx = appContext ?: return
+        logCb?.invoke(
+            "[WIFI] bike not seen for ${GIVE_UP_AFTER_MS / 60_000} min ($rejoinAttempts tries) — " +
+                "stopping to save battery; tap Connect when you're back on the bike",
+        )
+        val hook = onGiveUp
+        if (hook != null) {
+            handler.post { try { hook(ctx) } catch (_: Exception) {} }
+        } else {
+            leave(ctx) { logCb?.invoke(it) }
+            ConnectionState.set(Phase.STOPPED, "")
+        }
     }
 
     /**

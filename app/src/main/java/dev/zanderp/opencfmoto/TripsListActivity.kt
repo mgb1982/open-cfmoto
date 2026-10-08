@@ -138,15 +138,20 @@ class TripsListActivity : AppCompatActivity() {
     /** 🏆 card at the top: longest ride, top speed, best day, longest streak. */
     private fun renderRecords() {
         val tv = findViewById<TextView?>(R.id.trips_records) ?: return
-        if (allTrips.size < 2) {
+        if (allTrips.isEmpty()) {
             tv.visibility = View.GONE
             return
         }
-        val r = Records.compute(allTrips)
-        tv.text = getString(
-            R.string.records_line,
-            Records.km(r.longestKm), r.topKmh, Records.km(r.bestDayKm), r.bestStreak,
-        )
+        val (got, total) = Trophies.unlockedCount(allTrips)
+        val trophies = getString(R.string.tr_card_line, got, total)
+        tv.text = if (allTrips.size < 2) trophies else {
+            val r = Records.compute(allTrips)
+            getString(
+                R.string.records_line,
+                Records.km(r.longestKm), r.topKmh, Records.km(r.bestDayKm), r.bestStreak,
+            ) + "\n" + trophies
+        }
+        tv.setOnClickListener { TrophiesActivity.start(this) }
         tv.visibility = View.VISIBLE
     }
 

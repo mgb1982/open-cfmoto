@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <!-- Bike switched off for a long time: stop waiting (battery). -->
+    <string name="bike_gone_channel">Bike not found</string>
+    <string name="bike_gone_title">Stopped waiting for the bike</string>
+    <string name="bike_gone_text">The bike was off for 20 minutes, so the app stopped looking for it to save battery. Tap Connect when you\'re back on the bike.</string>
+
+    <!-- Trophies -->
+    <string name="tr_channel">Trophies</string>
+    <string name="tr_unlocked_title">🏆 Trophy unlocked!</string>
+    <string name="tr_screen_title">Trophies</string>
+    <string name="tr_header">%1$d of %2$d unlocked</string>
+    <string name="tr_next">Up next</string>
+    <string name="tr_earned_on">Earned on %1$s</string>
+    <string name="tr_card_line">🏆 Trophies: %1$d of %2$d · see all ›</string>
+    <string name="tr_distance">Kilometres</string>
+    <string name="tr_distance_d">Ride %1$s km in total</string>
+    <string name="tr_longest">Long ride</string>
+    <string name="tr_longest_d">One ride of %1$s km or more</string>
+    <string name="tr_speed">Top speed</string>
+    <string name="tr_speed_d">Reach %1$s km/h (GPS)</string>
+    <string name="tr_streak">On a roll</string>
+    <string name="tr_streak_d">Ride %1$s days in a row</string>
+    <string name="tr_rides">Regular</string>
+    <string name="tr_rides_d">Save %1$s rides</string>
+    <string name="tr_hours">Saddle time</string>
+    <string name="tr_hours_d">%1$s hours of riding</string>
+    <string name="tr_months">All year round</string>
+    <string name="tr_months_d">Ride in %1$s different months</string>
+    <string name="tr_early">Early bird</string>
+    <string name="tr_early_d">Start a ride before 7:00</string>
+    <string name="tr_night">Night rider</string>
+    <string name="tr_night_d">Finish a ride after 23:00</string>
+    <string name="tr_weekend">Weekend rider</string>
+    <string name="tr_weekend_d">Ride on Saturday and Sunday of the same weekend</string>
+</resources>

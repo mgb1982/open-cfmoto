@@ -103,6 +103,9 @@
             android:name=".YearInReviewActivity"
             android:exported="false" />
         <activity
+            android:name=".TrophiesActivity"
+            android:exported="false" />
+        <activity
             android:name=".TripMapActivity"
             android:exported="false" />
         <activity

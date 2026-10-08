@@ -179,6 +179,7 @@ class TripRecorder(private val appContext: Context) : LocationListener {
             // RideScreen AA v2: name it ("Sants → Zona Franca"), check records, add the km to the bike.
             try { TripNames.ensure(appContext, listOf(trip)) } catch (_: Exception) {}
             try { Records.onTripSaved(appContext, trip) } catch (_: Exception) {}
+            try { Trophies.onTripSaved(appContext) } catch (_: Exception) {}
             try { Maintenance.onTripSaved(appContext, trip) } catch (_: Exception) {}
             try { ParkingWidget.updateAll(appContext) } catch (_: Exception) {}
             main.post { try { cb?.invoke(trip) } catch (_: Exception) {} }

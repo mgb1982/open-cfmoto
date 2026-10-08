@@ -86,7 +86,7 @@ jobs:
           fi
           exit $rc
       - name: Unit tests (fork features)
-        run: ./gradlew testGithubDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest'
+        run: ./gradlew testGithubDebugUnitTest --tests 'dev.zanderp.opencfmoto.SpeedVolumeCurveTest' --tests 'dev.zanderp.opencfmoto.ClockLabTest' --tests 'dev.zanderp.opencfmoto.UpdateCheckerForkTest' --tests 'dev.zanderp.opencfmoto.TrophiesTest'
       - name: Show signing certificate
         run: |
           BT=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)

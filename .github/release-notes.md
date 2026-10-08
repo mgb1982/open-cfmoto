@@ -9,10 +9,13 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 - **Cada viaje coloreado por velocidad** (azul lento → rojo rápido).
 - **Nombres automáticos**: "Sants → Zona Franca" en vez de solo la fecha (también en el reloj).
 - **🏆 Récords**: viaje más largo, velocidad máxima, más km en un día y racha de días seguidos, con aviso cuando bates uno.
+- **🎖️ Trofeos desbloqueables**: kilómetros totales, gran ruta, velocidad punta, días seguidos, número de viajes, horas de moto, madrugador, nocturno, finde motero… Con fecha de cuando lo conseguiste, barra de progreso hacia el siguiente y aviso al desbloquear (también en el reloj). Toca la tarjeta de récords en *Viajes*.
 - **📅 Tu año en moto**: tus números del año o del mes en tarjetas tipo historias, listas para compartir.
 
 **Tu moto**
 - **🔧 Libreta de mantenimiento**: cuentakilómetros estimado, aceite, correa, frenos, ITV, seguro… con avisos al conectar con la moto. Y **⛽ repostajes** con tu consumo real.
+- **🅿️ El aparcamiento se guarda al apagar la moto**, sin tener que pulsar Aturar.
+- **🔋 Menos batería con la moto apagada**: si la moto no aparece en 20 minutos, la app deja de buscarla y te avisa.
 - **⚠️ Aviso del servidor de unidad principal de Android Auto**: si no está iniciado, la app te lo dice antes de conectar y te lleva directo a sus ajustes.
 
 **Reloj**

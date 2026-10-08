@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="bike_gone_channel">Moto no trobada</string>
+    <string name="bike_gone_title">He deixat d\'esperar la moto</string>
+    <string name="bike_gone_text">La moto feia 20 minuts que estava apagada i l\'app ha deixat de buscar-la per estalviar bateria. Prem Connecta quan tornis a la moto.</string>
+
+    <string name="tr_channel">Trofeus</string>
+    <string name="tr_unlocked_title">🏆 Trofeu desbloquejat!</string>
+    <string name="tr_screen_title">Trofeus</string>
+    <string name="tr_header">%1$d de %2$d desbloquejats</string>
+    <string name="tr_next">Propers</string>
+    <string name="tr_earned_on">Aconseguit el %1$s</string>
+    <string name="tr_card_line">🏆 Trofeus: %1$d de %2$d · veure\'ls tots ›</string>
+    <string name="tr_distance">Quilòmetres</string>
+    <string name="tr_distance_d">Recorre %1$s km en total</string>
+    <string name="tr_longest">Gran ruta</string>
+    <string name="tr_longest_d">Un viatge de %1$s km o més</string>
+    <string name="tr_speed">Velocitat punta</string>
+    <string name="tr_speed_d">Arriba a %1$s km/h (GPS)</string>
+    <string name="tr_streak">Ratxa</string>
+    <string name="tr_streak_d">Surt amb moto %1$s dies seguits</string>
+    <string name="tr_rides">Habitual</string>
+    <string name="tr_rides_d">Desa %1$s viatges</string>
+    <string name="tr_hours">Hores de moto</string>
+    <string name="tr_hours_d">%1$s hores en marxa</string>
+    <string name="tr_months">Tot l\'any</string>
+    <string name="tr_months_d">Surt en %1$s mesos diferents</string>
+    <string name="tr_early">Matiner</string>
+    <string name="tr_early_d">Comença un viatge abans de les 7:00</string>
+    <string name="tr_night">Nocturn</string>
+    <string name="tr_night_d">Acaba un viatge després de les 23:00</string>
+    <string name="tr_weekend">Cap de setmana moter</string>
+    <string name="tr_weekend_d">Surt el dissabte i el diumenge del mateix cap de setmana</string>
+</resources>
