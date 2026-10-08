@@ -537,6 +537,7 @@ class MainActivity : AppCompatActivity() {
             val saved = BikeMemory.lastQr(this)
             if (saved != null) {
                 log("→ Connect: reusing saved bike '${BikeMemory.lastBikeName(this)}' (no scan needed)")
+                PxcHandshake.resetResyncBudget()
                 ProjectionHolder.projection = null
                 GpxSession.clear()
                 ensureLocationPermission()

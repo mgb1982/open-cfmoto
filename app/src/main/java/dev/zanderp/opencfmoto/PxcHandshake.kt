@@ -44,8 +44,6 @@ class PxcHandshake(
     @Volatile private var checkSnThisSession = false
     /** When the bike picked CAR_CTRL in this session — the reference for how late QUERY_TIME comes. */
     @Volatile private var ctrlSelectedAt = 0L
-    /** Resyncs done in the current dash boot (reset by the CHECK_SN of a new boot). */
-    @Volatile private var resyncsThisBoot = 0
 
     /** Asks the prober to drop every bike socket so its reconnect path re-probes (clock resync). */
     @Volatile var onResyncRequested: ((String) -> Unit)? = null
@@ -359,6 +357,18 @@ class PxcHandshake(
         /** SMART resync: a QUERY_TIME this long after CAR_CTRL marks a session likely to have failed. */
         const val SLOW_QUERY_TIME_MS = 1_950L
         const val MAX_RESYNCS_PER_BOOT = 3
+
+        /**
+         * Resyncs done in the current dash boot (reset by the CHECK_SN of a new boot, and by a
+         * manual Connect: once the automatic budget was spent, a rider's Stop + Connect used to get
+         * no resync at all and could stay at 00:00 — field log 8 Oct 2026).
+         */
+        @Volatile private var resyncsThisBoot = 0
+
+        /** The rider pressed Connect: give the clock fix its full budget again. */
+        fun resetResyncBudget() {
+            resyncsThisBoot = 0
+        }
     }
 
     private fun sockId(s: Socket?): String =
