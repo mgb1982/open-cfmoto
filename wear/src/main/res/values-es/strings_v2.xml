@@ -8,4 +8,5 @@
     <string name="find_here">¡Estás al lado! 🏍️</string>
     <string name="status_hus_off">⚠️ Inicia el servidor de AA</string>
     <string name="tile_tap_compass">Toca para encontrarla</string>
+    <string name="park_page_find">🧭 Buscarla</string>
 </resources>

@@ -8,4 +8,5 @@
     <string name="find_here">You\'re right there! 🏍️</string>
     <string name="status_hus_off">⚠️ Start AA head unit server</string>
     <string name="tile_tap_compass">Tap to find it</string>
+    <string name="park_page_find">🧭 Find it</string>
 </resources>

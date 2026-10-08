@@ -57,6 +57,10 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     private var tvParked: TextView? = null
     private var tvParkedMain: TextView? = null
     private var rowMaxAvg: View? = null
+    private var padBox: View? = null
+    private var parkPage: View? = null
+    private var parkAgo: TextView? = null
+    private var parkFind: View? = null
 
     private var stats: RideStats? = null
     private var statsAt = 0L
@@ -196,6 +200,17 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         // below the grid, in the round screen's clipped bottom edge, and was never seen.
         val spot = PhoneLink.parked(this)
         val show = spot != null && !riding && !ambient
+        // D-pad page: useless without the bike, so it turns into "find my bike" until a ride starts.
+        val connected = riding
+        padBox?.visibility = if (connected) View.VISIBLE else View.GONE
+        parkPage?.visibility = if (connected) View.GONE else View.VISIBLE
+        parkAgo?.text = if (spot == null) getString(R.string.find_none) else getString(
+            R.string.find_parked_ago,
+            android.text.format.DateUtils.getRelativeTimeSpanString(
+                spot.third, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
+            ),
+        )
+        parkFind?.visibility = if (spot == null) View.GONE else View.VISIBLE
         // The main page has no room for one more line on a round screen (it was centred and
         // clipped off the bottom): when idle, the parking pill takes the max/avg row's place.
         rowMaxAvg?.visibility = if (show) View.GONE else View.VISIBLE
@@ -402,6 +417,13 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
     }
 
     private fun bindPad(v: View) {
+        padBox = v.findViewById(R.id.pad_box)
+        parkPage = v.findViewById(R.id.park_page)
+        parkAgo = v.findViewById(R.id.park_ago)
+        parkFind = v.findViewById(R.id.park_find)
+        val openCompass = View.OnClickListener { startActivity(android.content.Intent(this, FindBikeActivity::class.java)) }
+        parkPage?.setOnClickListener(openCompass)
+        parkFind?.setOnClickListener(openCompass)
         val keys = mapOf(
             R.id.btn_up to PhoneLink.KEY_UP,
             R.id.btn_down to PhoneLink.KEY_DOWN,
@@ -422,6 +444,7 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
                 PhoneLink.send(this, PhoneLink.PATH_KEY, code.toString())
             }
         }
+        render()
     }
 
     private inner class PagesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {

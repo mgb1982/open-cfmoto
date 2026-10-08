@@ -7,6 +7,7 @@
     android:layout_height="match_parent">
 
   <FrameLayout
+    android:id="@+id/pad_box"
     android:layout_width="200dp"
     android:layout_height="200dp"
     android:layout_gravity="center">
@@ -159,4 +160,56 @@
         android:textSize="15sp" />
 
   </FrameLayout>
+
+  <!-- Not connected to the bike: the D-pad does nothing, so this page becomes "find my bike". -->
+  <LinearLayout
+    android:id="@+id/park_page"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/selectableItemBackground"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="30dp"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/park_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/find_title"
+        android:textColor="#D1A955"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/park_icon"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="6dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_compass_arrow" />
+
+    <TextView
+        android:id="@+id/park_ago"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textColor="#F1F4EC"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/park_find"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_pill"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="7dp"
+        android:text="@string/park_page_find"
+        android:textColor="#D1A955"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+  </LinearLayout>
 </FrameLayout>
