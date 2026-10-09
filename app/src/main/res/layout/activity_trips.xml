@@ -47,6 +47,35 @@
             android:text="@string/all_rides_button" />
     </LinearLayout>
 
+    <!-- Trip logging is off: say so where people look for their rides, with a one-tap fix. -->
+    <LinearLayout
+        android:id="@+id/trips_logging_off"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_stat_tile"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/trips_logging_off"
+            android:textColor="@color/text_primary"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/trips_logging_enable"
+            style="@style/Widget.OpenCfMoto.Button.Pill"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/trips_logging_enable" />
+    </LinearLayout>
+
     <!-- Personal records (RideScreen AA v2). -->
     <TextView
         android:id="@+id/trips_records"

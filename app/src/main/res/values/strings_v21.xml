@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="trips_logging_off">Trip logging is off: new rides aren\'t saved (nor counted for records, trophies or maintenance).</string>
+    <string name="trips_logging_enable">Turn on</string>
+    <string name="trips_logging_enabled">Trip logging on — your next ride will be saved</string>
+</resources>

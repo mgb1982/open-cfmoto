@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trips_logging_off">El registro de viajes está desactivado: los nuevos viajes no se guardan (ni cuentan para récords, trofeos o mantenimiento).</string>
+    <string name="trips_logging_enable">Activar</string>
+    <string name="trips_logging_enabled">Registro de viajes activado: tu próximo viaje se guardará</string>
+</resources>

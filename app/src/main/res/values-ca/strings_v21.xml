@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="trips_logging_off">El registre de viatges està desactivat: els viatges nous no es desen (ni compten per a rècords, trofeus o manteniment).</string>
+    <string name="trips_logging_enable">Activa</string>
+    <string name="trips_logging_enabled">Registre de viatges activat: el teu proper viatge es desarà</string>
+</resources>

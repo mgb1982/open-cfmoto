@@ -70,6 +70,12 @@ class TripsListActivity : AppCompatActivity() {
         }
         findViewById<MaterialButton>(R.id.trips_all_map).setOnClickListener { TripMapActivity.startAll(this) }
         findViewById<MaterialButton>(R.id.trips_year).setOnClickListener { YearInReviewActivity.start(this) }
+        findViewById<MaterialButton>(R.id.trips_logging_enable).setOnClickListener {
+            AppSettings.setLogTrips(this, true)
+            LogBus.log("[trip] logging turned on from the Trips screen")
+            renderLoggingBanner()
+            android.widget.Toast.makeText(this, R.string.trips_logging_enabled, android.widget.Toast.LENGTH_SHORT).show()
+        }
         todayBtn.setOnClickListener {
             dayStartMs = startOfDay(System.currentTimeMillis())
             renderDay()
@@ -80,6 +86,7 @@ class TripsListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        renderLoggingBanner()
         // Summaries only (cheap index); full tracks are loaded just for the day on screen.
         allTrips = TripStore.summaries(this)
         // First open: if today has no rides, land on the most recent ride day.
@@ -133,6 +140,11 @@ class TripsListActivity : AppCompatActivity() {
             TripNames.ensure(this, dayTrips) { runOnUiThread { if (!isFinishing) renderDay() } }
         }
         renderRecords()
+    }
+
+    private fun renderLoggingBanner() {
+        findViewById<View?>(R.id.trips_logging_off)?.visibility =
+            if (AppSettings.logTrips(this)) View.GONE else View.VISIBLE
     }
 
     /** 🏆 card at the top: longest ride, top speed, best day, longest streak. */
