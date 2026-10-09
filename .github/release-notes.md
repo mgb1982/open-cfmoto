@@ -16,10 +16,12 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 - **🔧 Libreta de mantenimiento**: cuentakilómetros estimado, aceite, correa, frenos, ITV, seguro… con avisos al conectar con la moto. Y **⛽ repostajes** con tu consumo real.
 - **🅿️ El aparcamiento se guarda al apagar la moto**, sin tener que pulsar Aturar.
 - **🔋 Menos batería con la moto apagada**: si la moto no aparece en 20 minutos, la app deja de buscarla y te avisa.
-- **⚠️ Aviso del servidor de unidad principal de Android Auto**: si no está iniciado, la app te lo dice antes de conectar y te lleva directo a sus ajustes.
+- **⚠️ Aviso del servidor de unidad principal de Android Auto**: si Android Auto no responde porque su servidor no está iniciado (pasa tras reiniciar el móvil), la app te lo dice y te lleva directo a sus ajustes.
+- **🔵 Conexión automática al encender la moto**: en *Configuración → Conectar cuando se conecte un dispositivo Bluetooth*, elige el Bluetooth del cuadro (en Zontes empieza por "ZT"). Al arrancar la moto, la app conecta sola. Necesita el permiso "Mostrar sobre otras apps".
 
 **Reloj**
 - **🧭 Brújula hacia tu moto**: una flecha que apunta a donde aparcaste, con la distancia, usando el GPS del propio reloj.
+- **🅿️ Tu moto, a mano**: cuando no estás conectado, la página de la cruceta se convierte en "Tu moto" (hace cuánto aparcaste y botón para buscarla), con la foto de tu moto del Garaje de fondo.
 - Más todo lo de la v1.2: aparcamiento, tile y complicación, vibraciones de giro (experimental) y próxima maniobra.
 
 **Y todo lo de la v1.2**: compartir ruta en directo, aviso de lluvia, tarjetas para compartir, widget, botón de donar y agradecimientos a Alexandru (zanderp), sin quien nada de esto existiría.
