@@ -34,6 +34,7 @@ jobs:
           case "$GITHUB_REF" in
             refs/heads/release/v*) V="${GITHUB_REF_NAME#release/v}"; S="" ;;
             refs/tags/v*)          V="${GITHUB_REF_NAME#v}";         S="" ;;
+            refs/heads/test/mapping-v2) V="2"; S="" ;;
             *)                     V="1";                            S="-dev" ;;
           esac
           echo "APP_VERSION=$V" >> "$GITHUB_ENV"
@@ -127,6 +128,13 @@ jobs:
         with:
           name: OpenCfMoto-WearOS-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
           path: wear/build/outputs/apk/github/release/*.apk
+      # R8 mapping: needed to read crash reports from release builds (obfuscated stack traces).
+      - uses: actions/upload-artifact@v4
+        with:
+          name: R8-mapping-${{ github.run_number }}
+          path: |
+            app/build/outputs/mapping/githubRelease/mapping.txt
+            app/build/outputs/mapping/playRelease/mapping.txt
       # Google Play bundles (applicationId io.github.mgb1982.ridescreen). Not uploadable yet: Play
       # rejects debug-signed bundles — a real upload key comes with the Play Console setup.
       - uses: actions/upload-artifact@v4
