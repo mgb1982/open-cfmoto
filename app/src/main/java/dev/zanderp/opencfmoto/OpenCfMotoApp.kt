@@ -15,6 +15,7 @@ class OpenCfMotoApp : Application() {
         } catch (_: Exception) {
         }
         CrashGuard.install(this)
+        SearchKeyGuard.install(this)
         CrashGuard.hydrateLogBus(this)
         try {
             AppSettings.applyToHolder(this)
