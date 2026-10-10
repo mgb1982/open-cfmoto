@@ -128,6 +128,15 @@ jobs:
         with:
           name: OpenCfMoto-WearOS-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
           path: wear/build/outputs/apk/github/release/*.apk
+      # Publish the mapping to a branch so it can be fetched with git (artifact downloads need another host).
+      - name: Push mapping to branch
+        if: github.ref == 'refs/heads/test/mapping-v2'
+        shell: bash
+        run: |
+          mkdir -p /tmp/map && cp app/build/outputs/mapping/githubRelease/mapping.txt /tmp/map/mapping-github-v2.txt
+          cd /tmp/map && git init -q -b mapping/v2 && git add . \
+            && git -c user.name=ci -c user.email=ci@localhost commit -qm "R8 mapping for v2 (githubRelease)" \
+            && git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" mapping/v2
       # R8 mapping: needed to read crash reports from release builds (obfuscated stack traces).
       - uses: actions/upload-artifact@v4
         with:
