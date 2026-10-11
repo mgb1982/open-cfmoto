@@ -99,7 +99,7 @@ class FuelActivity : AppCompatActivity() {
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val provider = if (fine && lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) LocationManager.GPS_PROVIDER else LocationManager.NETWORK_PROVIDER
         try {
-            LocationManagerCompat.getCurrentLocation(lm, provider, null, ContextCompat.getMainExecutor(this)) { loc ->
+            LocationManagerCompat.getCurrentLocation(lm, provider, android.os.CancellationSignal(), ContextCompat.getMainExecutor(this)) { loc: Location? ->
                 val l = loc ?: RideExtras.lastLocation(this, 60 * 60_000L)
                 if (l == null) fail(getString(R.string.fuel_no_location)) else fetch(l)
             }
