@@ -77,4 +77,9 @@
     <string name="bt_trigger_channel">Moto detectada</string>
     <string name="bt_trigger_title">%1$s engegada</string>
     <string name="bt_trigger_text">Toca per connectar amb el quadre</string>
+    <string name="mic_perm_title">Micròfon per a les ordres de veu</string>
+    <string name="mic_perm_message">Per fer servir «Ok Google», el botó de veu de l\'intercomunicador o el del rellotge mentre estàs connectat, RideScreen AA necessita el micròfon.\n\nTria «Mentre s\'utilitza l\'aplicació». Amb «Només aquesta vegada» o «Pregunta sempre», la veu pot deixar de funcionar a mig viatge.</string>
+    <string name="mic_perm_allow">Permet</string>
+    <string name="mic_perm_settings">Obre la configuració</string>
+    <string name="mic_perm_not_now">Ara no</string>
 </resources>

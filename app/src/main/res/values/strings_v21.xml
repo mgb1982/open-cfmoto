@@ -77,4 +77,9 @@
     <string name="bt_trigger_channel">Bike detected</string>
     <string name="bt_trigger_title">%1$s is on</string>
     <string name="bt_trigger_text">Tap to connect to the dash</string>
+    <string name="mic_perm_title">Microphone for voice commands</string>
+    <string name="mic_perm_message">To use \"Ok Google\", the intercom voice button or the watch while connected, RideScreen AA needs the microphone.\n\nPick \"While using the app\". With \"Only this time\" or \"Ask every time\" voice can stop working mid-ride.</string>
+    <string name="mic_perm_allow">Allow</string>
+    <string name="mic_perm_settings">Open settings</string>
+    <string name="mic_perm_not_now">Not now</string>
 </resources>

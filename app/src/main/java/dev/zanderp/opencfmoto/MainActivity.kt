@@ -193,6 +193,10 @@ class MainActivity : AppCompatActivity() {
                 pendingAaQr = qr
                 return
             }
+            if (!ensureMicForAaConnect()) {
+                pendingAaQr = qr
+                return
+            }
             pendingAaQr = null
             // Map / Mirror / stale PXC must die first — half-switches leave framesSent=0.
             tearDownForModeSwitch(clearMap = true, clearMirror = true)
@@ -423,8 +427,60 @@ class MainActivity : AppCompatActivity() {
         startAaFlow(qr)
     }
 
+    /** Asked at most once per app run, so Connect never loops on the microphone question. */
+    private var micPromptDone = false
+
+    /**
+     * Voice (Ok Google, the intercom / watch voice button) goes through our "head unit microphone".
+     * Without RECORD_AUDIO Android Auto opens the Assistant, we answer the mic request with an error
+     * and it closes after a blip — the v2 bug. "Ask every time" leaves it ungranted, so ask here,
+     * explaining which option to pick. Never blocks Connect: any answer carries on.
+     * @return true to continue now; false when a dialog is up (Connect resumes after it).
+     */
+    private fun ensureMicForAaConnect(): Boolean {
+        if (micPromptDone) return true
+        val mic = Manifest.permission.RECORD_AUDIO
+        if (ContextCompat.checkSelfPermission(this, mic) == PackageManager.PERMISSION_GRANTED) return true
+        val prefs = getSharedPreferences(PREFS_PERMS, MODE_PRIVATE)
+        val declinedAt = prefs.getLong(KEY_MIC_DECLINED, 0L)
+        if (System.currentTimeMillis() - declinedAt < 14L * 24 * 3600_000L) return true
+        micPromptDone = true
+        if (isFinishing || isDestroyed) return true
+        val asked = prefs.getBoolean(KEY_MIC_ASKED, false)
+        val blocked = asked && !ActivityCompat.shouldShowRequestPermissionRationale(this, mic)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.mic_perm_title)
+            .setMessage(R.string.mic_perm_message)
+            .setPositiveButton(if (blocked) R.string.mic_perm_settings else R.string.mic_perm_allow) { _, _ ->
+                prefs.edit().putBoolean(KEY_MIC_ASKED, true).apply()
+                if (blocked) {
+                    try {
+                        startActivity(Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.fromParts("package", packageName, null)))
+                    } catch (_: Exception) {}
+                    // Connect carries on from onResume (pendingAaQr) when they come back.
+                } else {
+                    ActivityCompat.requestPermissions(this, arrayOf(mic), REQ_MIC_FOR_AA)
+                }
+            }
+            .setNegativeButton(R.string.mic_perm_not_now) { _, _ ->
+                prefs.edit().putLong(KEY_MIC_DECLINED, System.currentTimeMillis()).apply()
+                log("→ microphone not allowed — voice commands won't work while connected")
+                resumePendingAaConnect("mic skipped")
+            }
+            .setCancelable(false)
+            .show()
+        return false
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_MIC_FOR_AA) {
+            val ok = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            log(if (ok) "→ microphone allowed — voice commands will work" else "→ microphone denied — voice commands won't work")
+            resumePendingAaConnect("mic answered")
+            return
+        }
         if (requestCode != REQ_BT_FOR_AA) return
         if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
             resumePendingAaConnect("Nearby devices granted")
@@ -2108,6 +2164,9 @@ class MainActivity : AppCompatActivity() {
         private const val REQ_BT_FOR_AA = 4
         private const val PREFS_PERMS = "perm_flow"
         private const val KEY_BT_ASKED = "bt_asked"
+        private const val KEY_MIC_ASKED = "mic_asked"
+        private const val KEY_MIC_DECLINED = "mic_declined_at"
+        private const val REQ_MIC_FOR_AA = 7342
         /** Latched once an auto-connect attempt actually starts, so it fires only once per process. */
         @Volatile private var autoConnectStarted = false
         /** So the "idle/not-in-range" reason is logged once, not on every onResume retry. */
