@@ -553,7 +553,7 @@
     <string name="notif_media_channel">Control de Android Auto</string>
     <string name="notif_media_title">Control por botones de la moto</string>
     <string name="notif_media_text">Los botones de la moto controlan Android Auto</string>
-    <string name="pref_vq_smooth">Más fluido: menos datos/latencia</string>
+    <string name="pref_vq_smooth">Ahorro de datos (menos nitidez)</string>
     <string name="pref_vq_balanced">Equilibrado (recomendado)</string>
     <string name="pref_vq_sharp">Más nítido: más datos</string>
     <string name="pref_fit_fill">Rellenar: borde a borde (recorta un poco)</string>

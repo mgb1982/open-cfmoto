@@ -350,6 +350,14 @@
                     android:layout_marginTop="10dp"
                     android:visibility="gone" />
 
+                <!-- Petrol prices nearby (RideScreen AA v2.1). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_fuel"
+                    style="@style/Widget.OpenCfMoto.Button.Pill"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/fuel_pill" />
+
                 <!-- Maintenance: the most urgent item (RideScreen AA v2). -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_maint"
@@ -366,6 +374,14 @@
                     android:layout_marginTop="10dp"
                     android:text="@string/live_pill_start"
                     android:visibility="gone" />
+
+                <!-- Help: install guide, share logs, what's new (RideScreen AA v2.1). -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_help"
+                    style="@style/Widget.OpenCfMoto.Button.Pill"
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/help_pill" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -703,6 +719,16 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Optional: photo of where you parked, then disconnect (only while connected). -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_park_photo"
+        style="@style/Widget.OpenCfMoto.Button.Pill"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/park_photo_button"
+        android:visibility="gone" />
 
     <!-- Connect becomes Disconnect while linking or projecting. Pinned like a thumb button. -->
     <com.google.android.material.button.MaterialButton

@@ -2,33 +2,21 @@
 
 Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zanderp). No es una app oficial de Zontes ni de CFMoto. Código fuente en este repositorio, licencia AGPL-3.0.
 
-### Novedades de la v2
-**Mapas y viajes**
-- **🔥 Mapa de calor**: en *Viajes → 🗺 Todo*, elige **Rutas** o **Calor** y el periodo (**mes, año o siempre**). En rojo, por donde más ruedas. Y se puede compartir.
-- **Rutas mucho más visibles**, con contorno y el mapa de fondo apagado.
-- **Cada viaje coloreado por velocidad** (azul lento → rojo rápido).
-- **Nombres automáticos**: "Sants → Zona Franca" en vez de solo la fecha (también en el reloj).
-- **🏆 Récords**: viaje más largo, velocidad máxima, más km en un día y racha de días seguidos, con aviso cuando bates uno.
-- **🎖️ Trofeos desbloqueables**: kilómetros totales, gran ruta, velocidad punta, días seguidos, número de viajes, horas de moto, madrugador, nocturno, finde motero… Con fecha de cuando lo conseguiste, barra de progreso hacia el siguiente y aviso al desbloquear (también en el reloj). Toca la tarjeta de récords en *Viajes*.
-- **📅 Tu año en moto**: tus números del año o del mes en tarjetas tipo historias, listas para compartir.
+### Novedades de la v2.1
+- **⛽ Gasolineras cerca con precio de la Gasolina 95**: botón nuevo en la pantalla principal. Ordénalas por **más baratas** o **más cercanas**; toca una y Maps te lleva hasta ella en el cuadro. Precios oficiales del Ministerio, actualizados cada hora (solo España).
+- **📸 Aparcar con foto** (opcional): mientras estás conectado aparece un botón que hace una foto de dónde dejas la moto y luego desconecta y guarda el sitio. **Aturar** sigue funcionando igual, sin foto. Desde el botón 🅿️ puedes ver la foto, repetirla o añadirla más tarde.
+- **❓ Botón Ayuda**: guía de instalación con capturas, compartir registros, novedades e informar de un problema.
+- **✨ Pantalla de novedades** al actualizar.
+- **🔌 Primera conexión más fácil**: el permiso de "Dispositivos cercanos", el Bluetooth y la Wi-Fi apagados, y la pregunta de Android para conectar a la Wi-Fi de la moto se explican paso a paso, y la conexión sigue sola al volver.
+- **🧭 Registro de viajes**: si lo tienes desactivado, la pantalla de viajes te avisa y te deja reactivarlo con un toque.
+- **🎞️ "Más fluido" ahora se llama "Ahorro de datos (menos nitidez)"**: es lo que hace de verdad. Si ves la imagen pixelada, elige otra calidad.
+- Correcciones de estabilidad.
 
-**Tu moto**
-- **🔧 Libreta de mantenimiento**: cuentakilómetros estimado, aceite, correa, frenos, ITV, seguro… con avisos al conectar con la moto. Y **⛽ repostajes** con tu consumo real.
-- **🅿️ El aparcamiento se guarda al apagar la moto**, sin tener que pulsar Aturar.
-- **🔋 Menos batería con la moto apagada**: si la moto no aparece en 20 minutos, la app deja de buscarla y te avisa.
-- **⚠️ Aviso del servidor de unidad principal de Android Auto**: si Android Auto no responde porque su servidor no está iniciado (pasa tras reiniciar el móvil), la app te lo dice y te lleva directo a sus ajustes.
-- **🔵 Conexión automática al encender la moto**: en *Configuración → Conectar cuando se conecte un dispositivo Bluetooth*, elige el Bluetooth del cuadro (en Zontes empieza por "ZT"). Al arrancar la moto, la app conecta sola. Necesita el permiso "Mostrar sobre otras apps".
-
-**Reloj**
-- **🧭 Brújula hacia tu moto**: una flecha que apunta a donde aparcaste, con la distancia, usando el GPS del propio reloj.
-- **🅿️ Tu moto, a mano**: cuando no estás conectado, la página de la cruceta se convierte en "Tu moto" (hace cuánto aparcaste y botón para buscarla), con la foto de tu moto del Garaje de fondo.
-- Más todo lo de la v1.2: aparcamiento, tile y complicación, vibraciones de giro (experimental) y próxima maniobra.
-
-**Y todo lo de la v1.2**: compartir ruta en directo, aviso de lluvia, tarjetas para compartir, widget, botón de donar y agradecimientos a Alexandru (zanderp), sin quien nada de esto existiría.
+**Y todo lo de la v2**: mapa de calor, récords y trofeos, nombres automáticos de viajes, tu año en moto, libreta de mantenimiento y repostajes, aparcamiento al apagar la moto, conexión automática por Bluetooth y brújula hacia tu moto en el reloj.
 
 ### Instalación en el móvil
-1. Descarga **`RideScreen-AA-v2.apk`** (abajo, en *Assets*).
-2. Si vienes de la **v1/v1.1** o de la versión del grupo (zontes-1/2), se instala **encima** sin perder nada. Si tienes la OpenCfMoto **oficial**, desinstálala primero: están firmadas con claves distintas.
+1. Descarga **`RideScreen-AA-v2.1.apk`** (abajo, en *Assets*).
+2. Si vienes de la **v1/v1.1/v2** o de la versión del grupo (zontes-1/2), se instala **encima** sin perder nada. Si tienes la OpenCfMoto **oficial**, desinstálala primero: están firmadas con claves distintas.
 3. Si sale el aviso de **Play Protect** ("app no segura" o "bloqueada"), es porque Google aún no conoce la app: **Más detalles → Instalar de todas formas**.
 4. Las próximas versiones te las ofrecerá la propia app.
 
@@ -37,7 +25,7 @@ El reloj no instala APK directamente: se hace por depuración inalámbrica, una 
 1. En el reloj: Ajustes → Información del reloj → Software → toca **Versión de software** 5 veces (activa las opciones de desarrollador).
 2. Ajustes → Conexiones → **Wi-Fi en "Activado"** (no Automático), en la misma red que el móvil. Si no te muestra IP, desactiva un momento el Bluetooth del móvil.
 3. Opciones de desarrollador → **Depuración ADB** y **Depuración inalámbrica**. Sube el tiempo de pantalla para que no se apague mientras emparejas.
-4. Desde el móvil, con **Wear Installer 2** o **Bugjaeger** (Play Store): empareja con el código de "Emparejar nuevo dispositivo" y luego instala **`RideScreen-AA-v2-WearOS-reloj.apk`**. Ojo: el puerto para emparejar y el de conectar son distintos.
+4. Desde el móvil, con **Wear Installer 2** o **Bugjaeger** (Play Store): empareja con el código de "Emparejar nuevo dispositivo" y luego instala **`RideScreen-AA-v2.1-WearOS-reloj.apk`**. Ojo: el puerto para emparejar y el de conectar son distintos.
 
 ### Si algo falla
 Desde la app, **Compartir registros** y pásalo por el grupo contando qué ha pasado. Los registros ya ocultan números de serie y contraseñas.

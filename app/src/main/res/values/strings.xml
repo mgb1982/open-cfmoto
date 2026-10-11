@@ -600,7 +600,7 @@
     <string name="notif_media_text">Bike buttons drive Android Auto</string>
 
     <!-- Setup preference descriptions (enums) -->
-    <string name="pref_vq_smooth">Smoother — less data/latency</string>
+    <string name="pref_vq_smooth">Data saver (less sharp)</string>
     <string name="pref_vq_balanced">Balanced (recommended)</string>
     <string name="pref_vq_sharp">Sharper — more data</string>
     <string name="pref_fit_fill">Fill — edge to edge (crops a little)</string>

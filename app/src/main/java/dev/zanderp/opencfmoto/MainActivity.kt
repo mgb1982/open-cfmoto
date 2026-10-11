@@ -317,6 +317,90 @@ class MainActivity : AppCompatActivity() {
         return false
     }
 
+    // ── 📸 Park with photo (v2.1): optional, separate from Stop. Photo first, then disconnect.
+    private val parkPrefs by lazy { getSharedPreferences("park_photo_flow", MODE_PRIVATE) }
+    /** True while the camera is open for "Park with photo" (persisted: the camera may outlive us). */
+    private var photoThenStop: Boolean
+        get() = parkPrefs.getBoolean("then_stop", false)
+        set(v) { parkPrefs.edit().putBoolean("then_stop", v).apply() }
+
+    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { _ ->
+        val thenStop = photoThenStop
+        photoThenStop = false
+        // Some camera apps report "cancelled" after writing the file: trust the file, not the flag.
+        val saved = Parking.commitPendingPhoto(this)
+        val live = ConnectionState.phase == Phase.STREAMING || ConnectionState.phase == Phase.MIRRORING
+        if (thenStop && saved && live) {
+            log("→ Park with photo: photo taken — saving the spot and disconnecting")
+            Parking.saveNow(this)
+            stopEverything()
+        } else if (thenStop && !saved) {
+            log("→ Park with photo: no photo taken — staying connected")
+        }
+        if (saved) Toast.makeText(this, R.string.park_photo_saved, Toast.LENGTH_SHORT).show()
+        renderParked()
+    }
+
+    private val cameraPermLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) launchParkingCamera() else {
+            photoThenStop = false
+            Toast.makeText(this, R.string.park_photo_need_camera, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun takeParkingPhoto(thenStop: Boolean) {
+        photoThenStop = thenStop
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            cameraPermLauncher.launch(Manifest.permission.CAMERA)
+            return
+        }
+        launchParkingCamera()
+    }
+
+    private fun launchParkingCamera() {
+        val f = Parking.pendingPhotoFile(this)
+        f.delete()
+        try {
+            takePhotoLauncher.launch(Parking.photoUri(this, f))
+        } catch (e: Exception) {
+            log("parking camera failed: $e")
+            photoThenStop = false
+            Toast.makeText(this, R.string.park_photo_no_camera, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showParkedOptions(spot: Parking.Spot) {
+        val hasPhoto = Parking.hasPhoto(this)
+        val labels = ArrayList<String>()
+        val actions = ArrayList<() -> Unit>()
+        labels += getString(R.string.parked_walk)
+        actions += {
+            try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
+                Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (hasPhoto) {
+            labels += getString(R.string.parked_view_photo)
+            actions += {
+                try { startActivity(Parking.viewPhotoIntent(this)) } catch (_: Exception) {
+                    Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        labels += getString(if (hasPhoto) R.string.parked_retake_photo else R.string.parked_add_photo)
+        actions += { takeParkingPhoto(thenStop = false) }
+        labels += getString(R.string.parked_delete)
+        actions += {
+            Parking.clear(this)
+            Toast.makeText(this, R.string.parked_cleared, Toast.LENGTH_SHORT).show()
+            renderParked()
+        }
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.parked_options_title)
+            .setItems(labels.toTypedArray()) { _, i -> actions[i]() }
+            .show()
+    }
+
     /** Connect waiting for Nearby / Bluetooth: resumed as soon as both are OK. */
     private var pendingAaQr: QrData? = null
 
@@ -701,6 +785,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_check_update).setOnClickListener { checkUpdateManual() }
         findViewById<View>(R.id.btn_problem_report).setOnClickListener { reportProblem() }
         findViewById<View>(R.id.btn_donate).setOnClickListener { Support.open(this) }
+        findViewById<View>(R.id.btn_fuel)?.setOnClickListener { FuelActivity.start(this) }
+        findViewById<View>(R.id.btn_help)?.setOnClickListener {
+            HelpMenu.show(this, shareLogs = { shareLog() }, reportProblem = { reportProblem() })
+        }
+        findViewById<View>(R.id.btn_park_photo)?.setOnClickListener { takeParkingPhoto(thenStop = true) }
         // Play build: updates come from Google Play only (Play policy forbids self-updating).
         if (!BuildConfig.SELF_UPDATE) findViewById<View>(R.id.btn_check_update).visibility = View.GONE
 
@@ -716,7 +805,10 @@ class MainActivity : AppCompatActivity() {
         // First launch: walk the user through the one-time prerequisites.
         try {
             if (!SetupActivity.hasSeen(this)) SetupActivity.start(this)
-            else maybeAutoConnect()
+            else {
+                maybeAutoConnect()
+                WhatsNew.maybeShow(this)
+            }
             maybeResumeFromParked(intent)
             maybeStartFromBtTrigger(intent)
         } catch (e: Exception) {
@@ -1076,12 +1168,9 @@ class MainActivity : AppCompatActivity() {
         val dist = Parking.distanceFromHere(this, spot)
         btn.text = if (dist != null) getString(R.string.parked_pill_dist, Parking.distanceText(dist), ago)
             else getString(R.string.parked_pill, ago)
+        if (Parking.hasPhoto(this)) btn.text = "${btn.text} · 📷"
         btn.visibility = View.VISIBLE
-        btn.setOnClickListener {
-            try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
-                Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
-            }
-        }
+        btn.setOnClickListener { showParkedOptions(spot) }
         btn.setOnLongClickListener {
             Parking.clear(this)
             Toast.makeText(this, R.string.parked_cleared, Toast.LENGTH_SHORT).show()
@@ -1158,6 +1247,7 @@ class MainActivity : AppCompatActivity() {
         setEnabled(R.id.btn_mirror_start, !busy || live)
         setEnabled(R.id.btn_gpx, !busy || live)
         setEnabled(R.id.btn_aa_stop, busy || live)
+        findViewById<View>(R.id.btn_park_photo)?.visibility = if (live) View.VISIBLE else View.GONE
     }
 
     private fun setEnabled(id: Int, enabled: Boolean) {

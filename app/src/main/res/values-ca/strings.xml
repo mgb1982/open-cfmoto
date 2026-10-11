@@ -600,7 +600,7 @@
     <string name="notif_media_text">Els botons de la moto impulsen Android Auto</string>
 
     <!-- Setup preference descriptions (enums) -->
-    <string name="pref_vq_smooth">Més fluid: menys dades/latència</string>
+    <string name="pref_vq_smooth">Estalvi de dades (menys nitidesa)</string>
     <string name="pref_vq_balanced">Equilibrat (recomanat)</string>
     <string name="pref_vq_sharp">Més nítid: més dades</string>
     <string name="pref_fit_fill">Omple: vora a vora (retalla una mica)</string>

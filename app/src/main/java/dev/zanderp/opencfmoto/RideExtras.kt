@@ -106,10 +106,41 @@ object Parking {
 
     fun clear(ctx: Context) {
         val p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        deletePhoto(ctx)
         if (!p.contains("lat")) return
         p.edit().clear().apply()
         changed(ctx)
     }
+
+    // ── Optional photo of where the bike was left (v2.1). Lives with the spot: a new ride clears both.
+    private fun dir(ctx: Context) = java.io.File(ctx.filesDir, "parking").apply { mkdirs() }
+    fun photoFile(ctx: Context) = java.io.File(dir(ctx), "photo.jpg")
+    /** The camera app writes here first, so a cancelled shot never replaces a good photo. */
+    fun pendingPhotoFile(ctx: Context) = java.io.File(dir(ctx), "pending.jpg")
+    fun hasPhoto(ctx: Context) = photoFile(ctx).let { it.isFile && it.length() > 0 }
+
+    fun photoUri(ctx: Context, f: java.io.File): Uri =
+        androidx.core.content.FileProvider.getUriForFile(ctx, ctx.packageName + ".fileprovider", f)
+
+    /** True when the camera actually produced a picture; it then becomes the spot's photo. */
+    fun commitPendingPhoto(ctx: Context): Boolean {
+        val pending = pendingPhotoFile(ctx)
+        if (!pending.isFile || pending.length() == 0L) { pending.delete(); return false }
+        val target = photoFile(ctx)
+        target.delete()
+        val ok = pending.renameTo(target)
+        LogBus.log("[PARK] photo ${if (ok) "saved" else "move failed"} (${target.length() / 1024} KB)")
+        return ok
+    }
+
+    /** Leaves pending.jpg alone: a camera shot may be in flight while a new session starts. */
+    fun deletePhoto(ctx: Context) {
+        photoFile(ctx).delete()
+    }
+
+    fun viewPhotoIntent(ctx: Context): Intent = Intent(Intent.ACTION_VIEW)
+        .setDataAndType(photoUri(ctx, photoFile(ctx)), "image/jpeg")
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
     /** Distance in metres from where the phone is now, or null when we don't know where it is. */
     fun distanceFromHere(ctx: Context, spot: Spot): Int? {
