@@ -3,4 +3,12 @@
     <string name="trips_logging_off">Trip logging is off: new rides aren\'t saved (nor counted for records, trophies or maintenance).</string>
     <string name="trips_logging_enable">Turn on</string>
     <string name="trips_logging_enabled">Trip logging on — your next ride will be saved</string>
+    <string name="conn_detail_need_nearby">Allow Nearby devices — Android Auto needs it to start on the dash</string>
+    <string name="conn_detail_need_bt_on">Turn on Bluetooth — Android Auto needs it to start on the dash</string>
+    <string name="conn_detail_wifi_off">Phone Wi‑Fi is off — turn it on to connect</string>
+    <string name="conn_detail_bike_wifi_not_found">Can\'t find the bike\'s Wi‑Fi: switch the bike on and put the dash on interface 3, then Connect</string>
+    <string name="wifi_picker_hint">If Android asks to connect to %1$s, tap Connect: it\'s your bike\'s Wi‑Fi</string>
+    <string name="wifi_off_title">Turn on Wi‑Fi</string>
+    <string name="wifi_off_message">RideScreen AA connects to the bike over Wi‑Fi, and your phone\'s Wi‑Fi is off. Turn it on (you don\'t need to join any network) and Connect carries on by itself.</string>
+    <string name="wifi_off_turn_on">Turn on Wi‑Fi</string>
 </resources>

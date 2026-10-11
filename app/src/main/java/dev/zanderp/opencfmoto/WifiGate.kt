@@ -45,7 +45,7 @@ object WifiGate {
             return true
         }
         LogBus.log("[WIFI] phone Wi‑Fi is OFF — prompting for Wi‑Fi settings")
-        ConnectionState.set(Phase.ERROR, "phone Wi‑Fi is off")
+        ConnectionState.set(Phase.ERROR, activity.getString(R.string.conn_detail_wifi_off))
         showDialog(activity)
         return false
     }
@@ -59,7 +59,7 @@ object WifiGate {
             return true
         }
         LogBus.log("[WIFI] phone Wi‑Fi is OFF — posting Wi‑Fi settings notification")
-        ConnectionState.set(Phase.ERROR, "phone Wi‑Fi is off")
+        ConnectionState.set(Phase.ERROR, context.getString(R.string.conn_detail_wifi_off))
         if (!notifiedWhileOff) {
             notifiedWhileOff = true
             postNotification(context)
@@ -72,6 +72,15 @@ object WifiGate {
             context.applicationContext.getSystemService(NotificationManager::class.java)
                 .cancel(NOTIF_ID)
         } catch (_: Exception) {
+        }
+    }
+
+    /** Android 10+: the quick Wi‑Fi panel over the app (one switch, no settings app). */
+    fun openWifiPanel(activity: Activity) {
+        try {
+            activity.startActivity(Intent(Settings.Panel.ACTION_WIFI))
+        } catch (_: Exception) {
+            openWifiSettings(activity)
         }
     }
 
@@ -103,16 +112,13 @@ object WifiGate {
         promptShowing = true
         try {
             MaterialAlertDialogBuilder(activity)
-                .setTitle("Turn on Wi‑Fi")
-                .setMessage(
-                    "OpenCfMoto joins the bike over Wi‑Fi, but your phone’s Wi‑Fi is off.\n\n" +
-                        "Turn it on, then tap Connect again."
-                )
-                .setPositiveButton("Wi‑Fi settings") { _, _ ->
+                .setTitle(R.string.wifi_off_title)
+                .setMessage(R.string.wifi_off_message)
+                .setPositiveButton(R.string.wifi_off_turn_on) { _, _ ->
                     promptShowing = false
-                    openWifiSettings(activity)
+                    openWifiPanel(activity)
                 }
-                .setNegativeButton("Dismiss") { _, _ ->
+                .setNegativeButton(android.R.string.cancel) { _, _ ->
                     promptShowing = false
                 }
                 .setOnCancelListener { promptShowing = false }

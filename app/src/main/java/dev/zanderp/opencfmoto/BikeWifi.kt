@@ -121,6 +121,15 @@ object BikeWifi {
             .build()
 
         log("requesting Wi-Fi join: $ssid …")
+        // First join of a session: Android may show "<app> wants to connect to <bike>". Say so in
+        // our own words first — the most common failure was riders not tapping Connect there.
+        val app = context.applicationContext
+        handler.post {
+            try {
+                android.widget.Toast.makeText(app, app.getString(R.string.wifi_picker_hint, ssid), android.widget.Toast.LENGTH_LONG).show()
+            } catch (_: Exception) {
+            }
+        }
         registerCallback()
     }
 
@@ -204,8 +213,17 @@ object BikeWifi {
                             "or join that network in Settings → Wi‑Fi, then Connect again",
                     )
                     try {
-                        val detail = appContext?.getString(R.string.conn_detail_wifi_picker)
-                            ?: "approve the Wi‑Fi / device picker, then Connect again"
+                        // Tell the two cases apart: picker ignored vs. the bike's Wi‑Fi not around.
+                        val ctx = appContext
+                        val inRange = if (ctx != null) isSsidInRange(ctx, ssid) else null
+                        val detail = when {
+                            ctx == null -> "approve the Wi‑Fi / device picker, then Connect again"
+                            inRange == false -> {
+                                logCb?.invoke("[WIFI] bike Wi‑Fi $ssid not in a fresh scan — bike off / dash not on the phone screen?")
+                                ctx.getString(R.string.conn_detail_bike_wifi_not_found)
+                            }
+                            else -> ctx.getString(R.string.conn_detail_wifi_picker)
+                        }
                         ConnectionState.set(Phase.ERROR, detail)
                     } catch (_: Exception) {
                     }

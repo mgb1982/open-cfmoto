@@ -183,10 +183,17 @@ class MainActivity : AppCompatActivity() {
      *  and a fresh scan, so both paths behave identically. */
     private fun startAaFlow(qr: QrData) {
         try {
-            if (!WifiGate.ensureEnabledOrPrompt(this)) return
+            if (!WifiGate.ensureEnabledOrPrompt(this)) {
+                pendingAaQr = qr
+                return
+            }
             // AA Connect needs Nearby + Bluetooth so HUR (START_WIRELESS_PROJECTION) can run when
             // WirelessStartupActivity is a no-op (common on AA 16.4+/17.4+). Mirror/Map unchanged.
-            if (!ensureNearbyBtForAaConnect()) return
+            if (!ensureNearbyBtForAaConnect()) {
+                pendingAaQr = qr
+                return
+            }
+            pendingAaQr = null
             // Map / Mirror / stale PXC must die first — half-switches leave framesSent=0.
             tearDownForModeSwitch(clearMap = true, clearMirror = true)
             applyProfile(qr)
@@ -278,21 +285,70 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) !=
             PackageManager.PERMISSION_GRANTED
         if (needNearby) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN,
-                ),
-                REQ_BT_FOR_AA,
-            )
-            log("→ Nearby/Bluetooth required for AA Connect — waiting for grant + BT on")
-        } else {
-            log("→ Bluetooth is off — turn it on, then tap Connect again")
+            ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_need_nearby))
+            val asked = getSharedPreferences(PREFS_PERMS, MODE_PRIVATE).getBoolean(KEY_BT_ASKED, false)
+            val canAsk = !asked || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT)
+            if (canAsk) {
+                // The system dialog alone; Connect carries on by itself once it's granted.
+                getSharedPreferences(PREFS_PERMS, MODE_PRIVATE).edit().putBoolean(KEY_BT_ASKED, true).apply()
+                log("→ Nearby devices needed for Android Auto — asking")
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN),
+                    REQ_BT_FOR_AA,
+                )
+            } else {
+                // Denied for good: Android won't show its dialog again → straight to the app's permissions.
+                log("→ Nearby devices denied permanently — offering app settings")
+                showNearbyBtForAaDialog(needNearby = true)
+            }
+            return false
         }
-        ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_need_bluetooth))
-        showNearbyBtForAaDialog(needNearby)
+        // Permission fine, Bluetooth off: one tap on Android's own "turn on Bluetooth?" dialog.
+        ConnectionState.set(Phase.ERROR, getString(R.string.conn_detail_need_bt_on))
+        log("→ Bluetooth is off — asking to turn it on")
+        try {
+            @Suppress("MissingPermission")
+            btEnableLauncher.launch(Intent(android.bluetooth.BluetoothAdapter.ACTION_REQUEST_ENABLE))
+        } catch (e: Exception) {
+            log("Bluetooth enable request failed: $e")
+            showNearbyBtForAaDialog(needNearby = false)
+        }
         return false
+    }
+
+    /** Connect waiting for Nearby / Bluetooth: resumed as soon as both are OK. */
+    private var pendingAaQr: QrData? = null
+
+    private val btEnableLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+    ) { res ->
+        if (res.resultCode == RESULT_OK) resumePendingAaConnect("Bluetooth on")
+        else log("→ Bluetooth left off — Connect needs it for Android Auto")
+    }
+
+    private fun resumePendingAaConnect(why: String) {
+        val qr = pendingAaQr ?: return
+        if (!dev.zanderp.opencfmoto.aa.AaSelfMode.canAttemptHur(this)) {
+            // e.g. permission granted but Bluetooth still off → next step of the same flow
+            ensureNearbyBtForAaConnect()
+            return
+        }
+        pendingAaQr = null
+        log("→ $why — continuing Connect")
+        startAaFlow(qr)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQ_BT_FOR_AA) return
+        if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+            resumePendingAaConnect("Nearby devices granted")
+        } else if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT)) {
+            showNearbyBtForAaDialog(needNearby = true)
+        } else {
+            log("→ Nearby devices denied — Android Auto Connect needs it")
+        }
     }
 
     private fun showNearbyBtForAaDialog(needNearby: Boolean) {
@@ -690,6 +746,12 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Support.onResume(this)
+        // Back from the app's permission page / Bluetooth / Wi‑Fi settings: carry on with Connect.
+        if (pendingAaQr != null && dev.zanderp.opencfmoto.aa.AaSelfMode.canAttemptHur(this) &&
+            WifiGate.isWifiEnabled(this)
+        ) {
+            resumePendingAaConnect("permissions OK")
+        }
         // Maintenance status only changes with rides / edits: once per resume, not every 5 s tick.
         renderMaint()
         try { YearInReview.maybeNotify(this) } catch (_: Exception) {}
@@ -1945,6 +2007,8 @@ class MainActivity : AppCompatActivity() {
         /** When set with [EXTRA_START_GPX], join the bike even if not already live. */
         const val EXTRA_GPX_TO_BIKE = "gpx_to_bike"
         private const val REQ_BT_FOR_AA = 4
+        private const val PREFS_PERMS = "perm_flow"
+        private const val KEY_BT_ASKED = "bt_asked"
         /** Latched once an auto-connect attempt actually starts, so it fires only once per process. */
         @Volatile private var autoConnectStarted = false
         /** So the "idle/not-in-range" reason is logged once, not on every onResume retry. */

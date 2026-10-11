@@ -3,4 +3,12 @@
     <string name="trips_logging_off">El registro de viajes está desactivado: los nuevos viajes no se guardan (ni cuentan para récords, trofeos o mantenimiento).</string>
     <string name="trips_logging_enable">Activar</string>
     <string name="trips_logging_enabled">Registro de viajes activado: tu próximo viaje se guardará</string>
+    <string name="conn_detail_need_nearby">Permite «Dispositivos cercanos»: Android Auto lo necesita para arrancar en el cuadro</string>
+    <string name="conn_detail_need_bt_on">Activa el Bluetooth: Android Auto lo necesita para arrancar en el cuadro</string>
+    <string name="conn_detail_wifi_off">La Wi‑Fi del móvil está apagada: actívala para conectar</string>
+    <string name="conn_detail_bike_wifi_not_found">No encuentro la Wi‑Fi de la moto: enciéndela, pon el cuadro en la interfaz 3 y vuelve a Conectar</string>
+    <string name="wifi_picker_hint">Si Android pregunta si conectar a %1$s, pulsa Conectar: es la Wi‑Fi de tu moto</string>
+    <string name="wifi_off_title">Activa la Wi‑Fi</string>
+    <string name="wifi_off_message">RideScreen AA se conecta a la moto por Wi‑Fi y la del móvil está apagada. Actívala (no hace falta conectarse a ninguna red) y la conexión seguirá sola.</string>
+    <string name="wifi_off_turn_on">Activar Wi‑Fi</string>
 </resources>

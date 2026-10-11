@@ -241,10 +241,11 @@ object AnonymousTelemetry {
         s = s.replace(Regex("""(?i)(pwd|password|passphrase)\s*[=:]\s*\S+"""), "$1=***")
         s = s.replace(Regex("""(?i)"pwd"\s*:\s*"[^"]*""""), "\"pwd\":\"***\"")
         s = s.replace(Regex("""(?i)ssid\s*[=:]\s*\S+"""), "ssid=***")
-        s = s.replace(Regex("""(?i)\b([A-Z0-9]{10,})\b""")) { m ->
-            // Likely serials / long tokens — keep short codes
-            if (m.value.length >= 12) "***" else m.value
-        }
+        // Likely serials / long tokens: 12+ letters-and-digits that mix BOTH. Plain words
+        // ("dispositivos", "WindowInsets", "Choreographer") stay readable — masking them made
+        // crash reports and error titles unreadable (v2).
+        s = s.replace(Regex("""\b(?=[A-Za-z0-9]*\d)(?=[A-Za-z0-9]*[A-Za-z])[A-Za-z0-9]{12,}\b""")) { "***" }
+        s = s.replace(Regex("""\b[0-9A-Fa-f]{16,}\b""")) { "***" }
         return s.take(MAX_PAYLOAD)
     }
 }
