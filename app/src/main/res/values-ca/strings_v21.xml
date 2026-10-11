@@ -73,5 +73,5 @@
     <string name="fit_undo">Desfer</string>
     <string name="fit_reset">Valors de la moto</string>
     <string name="fit_done">Fet</string>
-    <string name="fit_more_options">Resolució, orientació i les pàgines antigues de marges: a Configuració → Pantalla y visualización ←</string>
+    <string name="fit_more_options">Resolució, orientació i les pàgines antigues de marges: a Configuració → Pantalla i visualització ←</string>
 </resources>
