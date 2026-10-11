@@ -11,6 +11,7 @@
 // UUID, version info and an already-redacted crash/error text.
 
 import { handleLive, cleanupLive } from "./live.js";
+import { handleExport } from "./export.js";
 
 const TYPES = new Set(["ping", "crash", "error"]);
 const MAX_BODY = 64 * 1024;
@@ -29,6 +30,7 @@ export default {
       if (request.method === "POST" && url.pathname === "/v1/ping") return await ingest(request, env, ctx);
       if (request.method === "POST" && url.pathname.startsWith("/tg/")) return await telegramWebhook(request, env, url);
       if (request.method === "GET" && url.pathname === "/") return text("RideScreen AA telemetry: ok");
+      if (request.method === "GET" && url.pathname === "/v1/export") return await handleExport(request, env, url);
       if (url.pathname.startsWith("/v1/live") || url.pathname.startsWith("/l/")) {
         const r = await handleLive(request, env, url);
         if (r) return r;
