@@ -1,0 +1,43 @@
+name: Pages (guide + fuel prices)
+# Publishes site/ (install guide) plus fresh SP95 prices per area (scripts/fuel_tiles.py) to
+# https://mgb1982.github.io/open-cfmoto/ — hourly, so the app's "Gasolineras cerca" stays current.
+# Needs Settings → Pages → Source: GitHub Actions.
+on:
+  schedule:
+    - cron: '7 * * * *'
+  push:
+    branches: [main]
+    paths: ['site/**', 'scripts/fuel_tiles.py', '.github/workflows/pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fuel prices → tiles
+        run: |
+          cp -r site /tmp/site
+          python3 scripts/fuel_tiles.py /tmp/site
+          echo "::notice::$(cat /tmp/site/fuel/index.json)"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Cómo instalar RideScreen AA en el móvil, preparar Android Auto y conectar con la Zontes.">
+<title>Guía RideScreen AA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&display=swap">
+<style>
+/* Layout: one reading column; each step is text + phone screenshot side by side, stacked on phones.
+   Palette from the app itself: forest green surfaces, brass/gold accent. Dark-first. */
+:root {
+  --bg: #161D18;
+  --surface: #212B24;
+  --surface-2: #2A362E;
+  --fg: #EEF2EA;
+  --muted: #A9B5A6;
+  --accent: #D1A955;
+  --accent-ink: #18211A;
+  --line: #34423A;
+  --warn: #E9C46A;
+  --display: "Archivo Black", "Arial Black", system-ui, sans-serif;
+  --body: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #F4F2EC; --surface: #FFFFFF; --surface-2: #EDEAE1; --fg: #18211A; --muted: #5C665D;
+    --accent: #8F6A1E; --accent-ink: #FFFFFF; --line: #DCD7CB; --warn: #8A5A00; color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #F4F2EC; --surface: #FFFFFF; --surface-2: #EDEAE1; --fg: #18211A; --muted: #5C665D;
+  --accent: #8F6A1E; --accent-ink: #FFFFFF; --line: #DCD7CB; --warn: #8A5A00; color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 880px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 56px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(30px, 6vw, 46px); line-height: 1.05; }
+h1 span { color: var(--accent); }
+.lede { color: var(--muted); max-width: 62ch; margin: 12px 0 0; font-size: 17px; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+h2 { font-family: var(--display); font-weight: 400; font-size: 24px; margin-top: 44px; }
+section > .eyebrow { margin-top: 44px; display: block; }
+section > .eyebrow + h2 { margin-top: 4px; }
+
+.check { margin-top: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px 20px; }
+.check ul { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.check li { display: grid; grid-template-columns: 26px 1fr; gap: 6px; min-width: 0; }
+.check li::before { content: "✓"; color: var(--accent); font-weight: 700; }
+
+.steps { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 18px; counter-reset: s; }
+.step { counter-increment: s; display: grid; grid-template-columns: 1fr 230px; gap: 22px; align-items: start;
+        background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.step .txt { min-width: 0; }
+.step h3 { font-size: 19px; font-weight: 700; display: flex; gap: 12px; align-items: baseline; }
+.step h3::before { content: counter(s); font-family: var(--display); font-weight: 400; color: var(--accent-ink); background: var(--accent);
+                   min-width: 30px; height: 30px; border-radius: 15px; display: inline-grid; place-items: center; font-size: 15px; flex: none; transform: translateY(4px); }
+.step p { margin: 10px 0 0; }
+.step img { width: 100%; max-width: 230px; border-radius: 22px; border: 1px solid var(--line); display: block; justify-self: center; }
+.note { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 14.5px; }
+.note.warn { border-left: 3px solid var(--warn); }
+kbd { font-family: var(--body); font-weight: 700; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; }
+a { color: var(--accent); }
+.cta { display: inline-block; margin-top: 12px; background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 700;
+       padding: 10px 16px; border-radius: 22px; }
+.cta:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.faq { margin-top: 16px; display: grid; gap: 10px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; }
+.faq summary { cursor: pointer; font-weight: 700; }
+.faq summary small { display: block; font-weight: 400; color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+.faq details p, .faq details ul { margin: 10px 0 0; }
+.faq ul { padding-left: 20px; }
+.foot { margin-top: 40px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+@media (max-width: 640px) {
+  .step { grid-template-columns: 1fr; }
+  .step img { max-width: 260px; }
+}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="eyebrow">RideScreen AA · app del móvil</div>
+  <h1>Instalar y conectar <span>en 10 minutos</span></h1>
+  <p class="lede">Android Auto en el cuadro de tu Zontes, paso a paso. La primera vez lleva unos minutos; después basta con un toque, o ninguno.</p>
+
+  <div class="check">
+    <strong>Antes de empezar</strong>
+    <ul>
+      <li>Móvil Android 10 o más reciente, de 64 bits (casi todos los de los últimos 5 años).</li>
+      <li>Android Auto instalado y actualizado desde Play Store. Ábrelo una vez y acepta sus condiciones.</li>
+      <li>La Wi‑Fi del móvil activada. No hace falta estar conectado a ninguna red.</li>
+      <li>Si tienes la app oficial de la moto (Zontes / EasyConnection / Carbit), ciérrala: en Ajustes → Apps → esa app → <kbd>Forzar detención</kbd>.</li>
+      <li>La moto encendida y parada, para el primer emparejamiento.</li>
+    </ul>
+  </div>
+
+  <section>
+    <span class="eyebrow">Parte 1</span>
+    <h2>Instalar la app</h2>
+    <ol class="steps">
+      <li class="step">
+        <div class="txt">
+          <h3>Descarga el APK del móvil</h3>
+          <p>Abre la página de la última versión y, en <strong>Assets</strong>, toca <strong>RideScreen-AA-v2.apk</strong>.</p>
+          <a class="cta" href="https://github.com/mgb1982/open-cfmoto/releases/latest">Abrir la descarga</a>
+          <div class="note warn">No descargues el que pone <strong>WearOS-reloj</strong>: es para el reloj y en el móvil da "el paquete no es válido".</div>
+        </div>
+        <img src="g1_descarga.png" alt="Página de descarga en GitHub con RideScreen-AA-v2.apk resaltado" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Permite instalar desde el navegador</h3>
+          <p>Abre el archivo descargado. Si Android avisa de que no puede instalar apps de esta fuente, toca <strong>Ajustes</strong>, activa <strong>Permitir de esta fuente</strong> y vuelve atrás.</p>
+          <p>Después toca <strong>Instalar</strong>.</p>
+        </div>
+        <img src="g2_fuentes.png" alt="Aviso de Android y el interruptor Permitir de esta fuente" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Si salta Play Protect, instala igualmente</h3>
+          <p>Aparece porque la app aún no está en Play Store. Toca <strong>Más detalles</strong> y luego <strong>Instalar de todas formas</strong>.</p>
+          <div class="note">Si pulsas <em>Aceptar</em> se cancela la instalación. Puedes repetirla abriendo otra vez el APK.</div>
+        </div>
+        <img src="g3_playprotect.png" alt="Aviso de Play Protect con Instalar de todas formas resaltado" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Abre RideScreen y acepta los permisos</h3>
+          <p>La primera vez se abre la Configuración. Acepta todos los permisos que pida, o toca <strong>Todos concedidos</strong> para revisarlos de una vez.</p>
+          <p>La ubicación la exige Android para unirse a la Wi‑Fi de la moto y para guardar tus viajes. La app no te rastrea.</p>
+        </div>
+        <img src="g4_permisos.png" alt="Pantalla de permisos de RideScreen con el botón Todos concedidos" loading="lazy">
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="eyebrow">Parte 2</span>
+    <h2>Preparar Android Auto</h2>
+    <ol class="steps" style="counter-reset: s 4">
+      <li class="step">
+        <div class="txt">
+          <h3>Activa el modo desarrollador</h3>
+          <p>Abre los ajustes de Android Auto (Ajustes del móvil → Android Auto, o desde RideScreen). Baja del todo y toca <strong>Versión</strong> 10 veces seguidas. Acepta el aviso.</p>
+          <p>Solo hay que hacerlo una vez.</p>
+        </div>
+        <img src="g5_aa_version.png" alt="Ajustes de Android Auto con Versión resaltado y la indicación de tocar 10 veces" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Inicia el servidor de unidad principal</h3>
+          <p>En la misma pantalla, toca <strong>⋮</strong> (arriba a la derecha) → <strong>Iniciar servidor de unidad principal</strong>.</p>
+          <div class="note warn">Este es el paso que más se olvida. Se apaga cada vez que reinicias el móvil o se actualiza Android Auto. Si un día no conecta, repite solo este paso.</div>
+        </div>
+        <img src="g6_aa_servidor.png" alt="Menú de Android Auto con Iniciar servidor de unidad principal resaltado" loading="lazy">
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="eyebrow">Parte 3</span>
+    <h2>Emparejar con la moto</h2>
+    <ol class="steps" style="counter-reset: s 6">
+      <li class="step">
+        <div class="txt">
+          <h3>Escanea el QR del cuadro</h3>
+          <p>En el cuadro, cambia a la <strong>interfaz 3</strong>: la pantalla de proyección del móvil, que muestra un código QR. En RideScreen toca <strong>Escanear</strong> y apunta la cámara.</p>
+          <div class="note warn">El QR que aparece en <strong>Información</strong> no es el bueno: escanea el de la interfaz 3. Deja el cuadro en esa pantalla mientras conecta.</div>
+        </div>
+        <img src="g7_qr.png" alt="Cámara del móvil apuntando al código QR del cuadro" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Acepta la Wi‑Fi de la moto</h3>
+          <p>Toca <strong>Conectar</strong> en RideScreen. Android pregunta si la app puede conectarse a la Wi‑Fi de la moto (se llama como tu moto, por ejemplo ZT…). Toca <strong>Conectar</strong>.</p>
+          <div class="note warn">Hazlo enseguida: la ventana caduca al minuto y medio. Si se te pasa, vuelve a tocar Conectar en la app.</div>
+        </div>
+        <img src="g8_wifi.png" alt="Ventana de Android para conectar a la Wi‑Fi de la moto con Conectar resaltado" loading="lazy">
+      </li>
+      <li class="step">
+        <div class="txt">
+          <h3>Listo: Android Auto en el cuadro</h3>
+          <p>En unos segundos aparece Android Auto en la pantalla de la moto. Puedes guardar el móvil en el bolsillo.</p>
+          <p>La próxima vez basta con tocar <strong>Conectar</strong>. Para que se conecte sola al arrancar la moto: Configuración → <strong>Conectar cuando se conecte un dispositivo Bluetooth</strong> → elige el Bluetooth del cuadro (empieza por "ZT") y permite <strong>Mostrar sobre otras apps</strong>.</p>
+        </div>
+        <img src="g9_listo.png" alt="RideScreen conectado, con Android Auto en el cuadro" loading="lazy">
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <span class="eyebrow">Si algo falla</span>
+    <h2>Lo que dice la app y qué hacer</h2>
+    <div class="faq">
+      <details>
+        <summary>"La aplicación no se ha instalado" / "el paquete no es válido"<small>Al instalar el APK</small></summary>
+        <ul>
+          <li>Comprueba que bajaste <strong>RideScreen-AA-v2.apk</strong> y no el del reloj (WearOS-reloj).</li>
+          <li>Si la descarga se cortó, el archivo queda dañado: bórralo y descárgalo otra vez con buena conexión.</li>
+          <li>Si pone "no compatible", tu móvil es de 32 bits o tiene Android 9 o anterior. Avísanos con el modelo de móvil.</li>
+          <li>Si tenías la OpenCfMoto <em>oficial</em> de Alexandru, desinstálala antes: están firmadas con claves distintas.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>"Acepta el selector de Wi‑Fi o de dispositivos del teléfono…"<small>Al conectar</small></summary>
+        <ul>
+          <li>Salió la ventana de la Wi‑Fi de la moto y no se aceptó a tiempo. Toca Conectar otra vez y acepta enseguida.</li>
+          <li>Si la ventana no llega a salir: la moto tiene que estar encendida y cerca, y el cuadro en la interfaz 3.</li>
+          <li>Si sale pero nunca conecta, comprueba que escaneaste el QR de la interfaz 3 y no el de Información. Si dudas, vuelve a escanearlo.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>"Concede Dispositivos cercanos / Bluetooth y vuelve a tocar Conectar"<small>Al conectar</small></summary>
+        <ul>
+          <li>Falta el permiso <strong>Dispositivos cercanos</strong>, que Android exige para conectar con la Wi‑Fi y el Bluetooth de la moto.</li>
+          <li>Ajustes del móvil → Aplicaciones → RideScreen AA → Permisos → <strong>Dispositivos cercanos</strong> → Permitir. Luego toca Conectar.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>"La Wi‑Fi del móvil está desactivada" (phone Wi‑Fi is off)<small>Al conectar</small></summary>
+        <p>Activa la Wi‑Fi en el móvil. No hace falta conectarse a ninguna red: la app se une sola a la de la moto.</p>
+      </details>
+      <details>
+        <summary>"Cierra la app oficial y vuelve a conectar"<small>Al conectar</small></summary>
+        <p>La app oficial de la moto (Zontes / EasyConnection / Carbit) está ocupando la conexión con el cuadro. Ajustes → Apps → esa app → <kbd>Forzar detención</kbd>, y vuelve a Conectar. Si no la usas, lo más sencillo es desinstalarla.</p>
+      </details>
+      <details>
+        <summary>"Android Auto no se ha enganchado" / se conecta y se desconecta<small>Wi‑Fi de la moto conectada, pero no sale Android Auto</small></summary>
+        <ul>
+          <li>Casi siempre es el servidor de unidad principal (paso 6). Ábrelo e inícialo. Si ya estaba iniciado: ⋮ → Detener, y luego Iniciar otra vez.</li>
+          <li>Después de reiniciar el móvil siempre hay que iniciarlo de nuevo.</li>
+          <li>No desinstales las actualizaciones de Android Auto: no hace falta y empeora las cosas.</li>
+        </ul>
+      </details>
+      <details>
+        <summary>Conecta la primera vez, pero no al volver a arrancar la moto<small>Después de apagar y encender</small></summary>
+        <ul>
+          <li>Al encender, pon el cuadro en la <strong>interfaz 3</strong> y espera unos 20–30 segundos: la app encuentra la moto sola.</li>
+          <li>Si sigue sin imagen, toca <strong>Detener</strong> y luego <strong>Conectar</strong> en RideScreen.</li>
+          <li>Si entretanto has reiniciado el móvil, inicia antes el servidor de unidad principal (paso 6).</li>
+        </ul>
+      </details>
+      <details>
+        <summary>Nada de lo anterior<small>Cómo pedir ayuda</small></summary>
+        <p>En RideScreen toca <strong>Registros → Compartir registros</strong> justo después del fallo, y mándalo al grupo diciendo tu moto y tu móvil. Los registros no incluyen contraseñas ni números de serie.</p>
+      </details>
+    </div>
+  </section>
+
+  <p class="foot">RideScreen AA es gratuita y de código abierto, basada en OpenCfMoto de Alexandru (zanderp). No es una app oficial de Zontes. Las capturas son ilustrativas: los textos exactos pueden variar según tu móvil.</p>
+</div>
+
+</body>
+</html>
