@@ -896,6 +896,7 @@ class MainActivity : AppCompatActivity() {
     private fun maybeStartFromBtTrigger(intent: Intent?) {
         if (intent?.getBooleanExtra(EXTRA_BT_TRIGGER, false) != true) return
         intent.removeExtra(EXTRA_BT_TRIGGER)
+        BtConnectTrigger.clearNotification(this)
         if (AndroidAutoService.isRunning) return
         if (ConnectionState.phase.busy ||
             ConnectionState.phase == Phase.STREAMING ||

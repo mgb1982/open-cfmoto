@@ -74,4 +74,7 @@
     <string name="fit_reset">Valores de la moto</string>
     <string name="fit_done">Listo</string>
     <string name="fit_more_options">Resolución, orientación y las páginas antiguas de márgenes: en Configuración → Pantalla y visualización ←</string>
+    <string name="bt_trigger_channel">Moto detectada</string>
+    <string name="bt_trigger_title">%1$s encendida</string>
+    <string name="bt_trigger_text">Toca para conectar con el cuadro</string>
 </resources>

@@ -74,4 +74,7 @@
     <string name="fit_reset">Bike default</string>
     <string name="fit_done">Done</string>
     <string name="fit_more_options">Resolution, orientation and the old margin pages: back in Settings → Screen &amp; display ←</string>
+    <string name="bt_trigger_channel">Bike detected</string>
+    <string name="bt_trigger_title">%1$s is on</string>
+    <string name="bt_trigger_text">Tap to connect to the dash</string>
 </resources>

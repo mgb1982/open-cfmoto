@@ -74,4 +74,7 @@
     <string name="fit_reset">Valors de la moto</string>
     <string name="fit_done">Fet</string>
     <string name="fit_more_options">Resolució, orientació i les pàgines antigues de marges: a Configuració → Pantalla i visualització ←</string>
+    <string name="bt_trigger_channel">Moto detectada</string>
+    <string name="bt_trigger_title">%1$s engegada</string>
+    <string name="bt_trigger_text">Toca per connectar amb el quadre</string>
 </resources>
