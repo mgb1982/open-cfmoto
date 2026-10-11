@@ -207,6 +207,7 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.profile_nk_adv).setOnClickListener { setProfileOverride(ProfileOverride.NK_ADV) }
         findViewById<MaterialButton>(R.id.profile_clc450).setOnClickListener { setProfileOverride(ProfileOverride.CLC450) }
         findViewById<MaterialButton>(R.id.btn_screen_margins).setOnClickListener { ScreenMarginsActivity.start(this) }
+        findViewById<MaterialButton>(R.id.btn_fit_to_dash).setOnClickListener { ScreenFitActivity.start(this) }
         findViewById<MaterialButton>(R.id.btn_custom_resolution).setOnClickListener { CustomResolutionActivity.start(this) }
         findViewById<MaterialButton>(R.id.transport_auto).setOnClickListener { setTransport(WifiTransport.AUTO) }
         findViewById<MaterialButton>(R.id.transport_ap).setOnClickListener { setTransport(WifiTransport.AP) }

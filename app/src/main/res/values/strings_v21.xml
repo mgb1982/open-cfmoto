@@ -42,4 +42,36 @@
     <string name="whats_new_ok">Got it</string>
     <string name="whats_new_body">⛽ Nearby petrol stations with the Gasolina 95 price (Spain). Sort by cheapest or closest; tap one and Maps takes you there on the dash.\n\n📸 Park with photo: an optional button while connected. It takes a photo of where you left the bike, then disconnects and saves the spot. You can also add or see the photo later from the 🅿️ button.\n\n❓ New Help button: installation guide, share logs, what\'s new and report a problem.\n\n🔌 Easier first connection: Bluetooth permission, phone Wi‑Fi off and the bike\'s Wi‑Fi are explained step by step.\n\n🧭 If trip logging is off, the trips screen tells you and lets you turn it back on.\n\n🎞️ \"Smoother\" video quality is now called \"Data saver (less sharp)\", which is what it really does.\n\n🛠️ Stability fixes.</string>
     <string name="park_photo_need_camera">Allow the camera to take the parking photo</string>
+    <string name="fit_open">🎯 Fit the screen to the dash (live)</string>
+    <string name="fit_open_hint">Arrows on the phone, result live on the bike. Connect first to see it on the dash.</string>
+    <string name="fit_title">Fit to the dash</string>
+    <string name="fit_status_live">● Live: look at the bike\'s dash</string>
+    <string name="fit_status_offline">Not connected: you can adjust, but connect to the bike to see it live.</string>
+    <string name="fit_how">The dash shows a yellow frame: that\'s where Android Auto is drawn. Move each edge with its arrows until the yellow line sits right on the visible edge of the screen, on all four sides. Hold an arrow to move faster.</string>
+    <string name="fit_margins_now">Top %1$d · bottom %2$d · left %3$d · right %4$d px\nAndroid Auto area: %5$d × %6$d</string>
+    <string name="fit_step_fine">Fine (2 px)</string>
+    <string name="fit_step_coarse">Fast (10 px)</string>
+    <string name="fit_mode_title">How to fill the frame</string>
+    <string name="fit_mode_fill">Fill</string>
+    <string name="fit_mode_fit">Whole image</string>
+    <string name="fit_mode_stretch">Stretch</string>
+    <string name="fit_mode_hint">Fill: no black bars, may crop a little. Whole image: nothing cropped, black bars. Stretch: fills everything, slightly distorted. Changes live.</string>
+    <string name="fit_shape_title">Panel shape for Android Auto</string>
+    <string name="fit_shape_manual">Manual: %1$d × %2$d. Android Auto lays out its screen for this shape.</string>
+    <string name="fit_shape_off">Off: Android Auto uses its standard shape.</string>
+    <string name="fit_shape_auto_is">Automatic: %1$d × %2$d (from your bike).</string>
+    <string name="fit_shape_auto_unknown">Automatic: not known yet (connect once).</string>
+    <string name="fit_shape_from_frame">= yellow frame</string>
+    <string name="fit_shape_save">Save size</string>
+    <string name="fit_shape_auto">Automatic</string>
+    <string name="fit_shape_hint">If the map looks cropped or squashed after framing, tap \"= yellow frame\" so Android Auto draws for exactly that size. Works for vertical panels too. This one needs Android Auto to restart.</string>
+    <string name="fit_shape_invalid">Enter a width and height (16 or more)</string>
+    <string name="fit_shape_reconnect">The new shape is applied when Android Auto restarts. Restart now? The dash goes black for a few seconds.</string>
+    <string name="fit_shape_reconnect_now">Restart now</string>
+    <string name="fit_shape_reconnect_later">Later</string>
+    <string name="fit_shape_saved_next">Saved: applied on the next connection</string>
+    <string name="fit_undo">Undo</string>
+    <string name="fit_reset">Bike default</string>
+    <string name="fit_done">Done</string>
+    <string name="fit_more_options">Resolution, orientation and the old margin pages: back in Settings → Screen &amp; display ←</string>
 </resources>

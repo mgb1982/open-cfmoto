@@ -86,6 +86,13 @@ class AaCompositor(private val log: (String) -> Unit) {
     @Volatile private var vpW = 0
     @Volatile private var vpH = 0
     @Volatile private var fitMode: ScreenFit = ScreenFit.FILL
+    // Usable area after ScreenMargins, top-left origin (same convention as vpX/vpY and touch).
+    @Volatile private var areaX = 0
+    @Volatile private var areaY = 0
+    @Volatile private var areaWpx = 0
+    @Volatile private var areaHpx = 0
+    /** "Fit to dash" screen open: draw a yellow frame around the usable area on the bike. */
+    @Volatile private var calibrating = false
 
     private val texMatrix = FloatArray(16)
 
@@ -327,6 +334,54 @@ class AaCompositor(private val log: (String) -> Unit) {
         }
         vpX = mL + (areaW - vpW) / 2
         vpY = mT + (areaH - vpH) / 2
+        areaX = mL; areaY = mT; areaWpx = areaW; areaHpx = areaH
+    }
+
+    /** Live from the "Fit to dash" screen: change [ScreenFit] without reconnecting. */
+    fun setFit(fit: ScreenFit) {
+        handler.post {
+            fitMode = fit
+            computeViewport()
+            if (hasContent) drawFrame()
+            log("[COMPOSITOR] fit → $fit (live) draw rect=${vpW}x$vpH @($vpX,$vpY)")
+        }
+    }
+
+    /** Show / hide the yellow calibration frame on the dash. */
+    fun setCalibration(on: Boolean) {
+        handler.post {
+            calibrating = on
+            if (hasContent) drawFrame()
+        }
+    }
+
+    /** GL (bottom-left origin) frame around the usable area, drawn with scissored clears. */
+    private fun drawCalibrationFrame() {
+        if (canvasW == 0 || canvasH == 0 || areaWpx <= 0 || areaHpx <= 0) return
+        val t = 4
+        val x = areaX
+        val y = canvasH - areaY - areaHpx
+        val w = areaWpx
+        val h = areaHpx
+        GLES20.glEnable(GLES20.GL_SCISSOR_TEST)
+        GLES20.glClearColor(1f, 0.82f, 0.1f, 1f)
+        fun bar(bx: Int, by: Int, bw: Int, bh: Int) {
+            if (bw <= 0 || bh <= 0) return
+            GLES20.glScissor(bx, by, bw, bh)
+            GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+        }
+        bar(x, y + h - t, w, t)          // top
+        bar(x, y, w, t)                  // bottom
+        bar(x, y, t, h)                  // left
+        bar(x + w - t, y, t, h)          // right
+        // Arrow-ish tabs at each edge's midpoint so a partly hidden edge is still obvious.
+        val tab = 24
+        bar(x + w / 2 - tab, y + h - t - 10, tab * 2, 10)
+        bar(x + w / 2 - tab, y + t, tab * 2, 10)
+        bar(x + t, y + h / 2 - tab, 10, tab * 2)
+        bar(x + w - t - 10, y + h / 2 - tab, 10, tab * 2)
+        GLES20.glDisable(GLES20.GL_SCISSOR_TEST)
+        GLES20.glClearColor(0f, 0f, 0f, 1f)
     }
 
     /**
@@ -406,7 +461,9 @@ class AaCompositor(private val log: (String) -> Unit) {
     private fun drawFrame() {
         if (windowSurface == EGL14.EGL_NO_SURFACE && previewSurface == EGL14.EGL_NO_SURFACE) return
         surfaceTexture.getTransformMatrix(texMatrix)
-        if (windowSurface != EGL14.EGL_NO_SURFACE) renderTo(windowSurface, vpX, vpY, vpW, vpH)
+        // vpY is measured from the top (touch mapping); GL viewports are from the bottom. Same
+        // result for symmetric margins, but a top-only inset used to land at the bottom.
+        if (windowSurface != EGL14.EGL_NO_SURFACE) renderTo(windowSurface, vpX, canvasH - vpY - vpH, vpW, vpH)
         if (previewSurface != EGL14.EGL_NO_SURFACE) renderTo(previewSurface, ppX, ppY, ppW, ppH)
         lastDrawMs = android.os.SystemClock.uptimeMillis()
         pendingFrame = false
@@ -450,6 +507,7 @@ class AaCompositor(private val log: (String) -> Unit) {
         GLES20.glDisableVertexAttribArray(aPosition)
         GLES20.glDisableVertexAttribArray(aTexCoord)
         GLES20.glDisable(GLES20.GL_SCISSOR_TEST)
+        if (calibrating && target === windowSurface) drawCalibrationFrame()
 
         // Monotonic presentation time so repeated (keep-alive) frames aren't dropped as duplicate PTS.
         EGLExt.eglPresentationTimeANDROID(eglDisplay, target, System.nanoTime())

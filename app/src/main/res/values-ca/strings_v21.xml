@@ -42,4 +42,36 @@
     <string name="whats_new_ok">Entesos</string>
     <string name="whats_new_body">⛽ Benzineres a prop amb el preu de la Gasolina 95 (Espanya). Ordena-les per més barates o més properes; toca\'n una i Maps t\'hi porta al quadre.\n\n📸 Aparcar amb foto: botó opcional mentre estàs connectat. Fes una foto d\'on deixes la moto i l\'app desconnecta i desa el lloc. També pots afegir o veure la foto després des del botó 🅿️.\n\n❓ Nou botó Ajuda: guia d\'instal·lació, compartir registres, novetats i informar d\'un problema.\n\n🔌 Primera connexió més fàcil: el permís de Bluetooth, la Wi‑Fi del mòbil apagada i la Wi‑Fi de la moto s\'expliquen pas a pas.\n\n🧭 Si tens el registre de viatges desactivat, la pantalla de viatges t\'avisa i et deixa reactivar-lo.\n\n🎞️ La qualitat «Més fluid» ara es diu «Estalvi de dades (menys nitidesa)», que és el que fa de debò.\n\n🛠️ Correccions d\'estabilitat.</string>
     <string name="park_photo_need_camera">Permet la càmera per fer la foto de l\'aparcament</string>
+    <string name="fit_open">🎯 Ajustar la pantalla al quadre (en directe)</string>
+    <string name="fit_open_hint">Fletxes al mòbil i resultat en directe a la moto. Connecta primer per veure-ho al quadre.</string>
+    <string name="fit_title">Ajustar al quadre</string>
+    <string name="fit_status_live">● En directe: mira el quadre de la moto</string>
+    <string name="fit_status_offline">Sense connexió: pots ajustar, però connecta amb la moto per veure-ho en directe.</string>
+    <string name="fit_how">Al quadre veuràs un marc groc: és on es dibuixa Android Auto. Mou cada vora amb les seves fletxes fins que la línia groga quedi just a la vora visible de la pantalla, als quatre costats. Mantén premuda una fletxa per anar més de pressa.</string>
+    <string name="fit_margins_now">Dalt %1$d · baix %2$d · esquerra %3$d · dreta %4$d px\nZona d\'Android Auto: %5$d × %6$d</string>
+    <string name="fit_step_fine">Fi (2 px)</string>
+    <string name="fit_step_coarse">Ràpid (10 px)</string>
+    <string name="fit_mode_title">Com omplir el marc</string>
+    <string name="fit_mode_fill">Omplir</string>
+    <string name="fit_mode_fit">Imatge sencera</string>
+    <string name="fit_mode_stretch">Estirar</string>
+    <string name="fit_mode_hint">Omplir: sense franges negres, pot retallar una mica. Imatge sencera: no retalla res, amb franges negres. Estirar: ho omple tot, una mica deformat. Es canvia en directe.</string>
+    <string name="fit_shape_title">Forma del panell per a Android Auto</string>
+    <string name="fit_shape_manual">Manual: %1$d × %2$d. Android Auto organitza la pantalla per a aquesta forma.</string>
+    <string name="fit_shape_off">Desactivat: Android Auto fa servir la seva forma estàndard.</string>
+    <string name="fit_shape_auto_is">Automàtica: %1$d × %2$d (de la teva moto).</string>
+    <string name="fit_shape_auto_unknown">Automàtica: encara no se sap (connecta un cop).</string>
+    <string name="fit_shape_from_frame">= marc groc</string>
+    <string name="fit_shape_save">Desar mida</string>
+    <string name="fit_shape_auto">Automàtica</string>
+    <string name="fit_shape_hint">Si després d\'enquadrar el mapa es veu retallat o aixafat, prem «= marc groc» perquè Android Auto es dibuixi just a aquesta mida. També serveix per a panells verticals. Això sí que cal reiniciar Android Auto.</string>
+    <string name="fit_shape_invalid">Escriu una amplada i una alçada (16 o més)</string>
+    <string name="fit_shape_reconnect">La nova forma s\'aplica en reiniciar Android Auto. Reiniciar ara? El quadre queda en negre uns segons.</string>
+    <string name="fit_shape_reconnect_now">Reiniciar ara</string>
+    <string name="fit_shape_reconnect_later">Més tard</string>
+    <string name="fit_shape_saved_next">Desat: s\'aplicarà a la propera connexió</string>
+    <string name="fit_undo">Desfer</string>
+    <string name="fit_reset">Valors de la moto</string>
+    <string name="fit_done">Fet</string>
+    <string name="fit_more_options">Resolució, orientació i les pàgines antigues de marges: a Configuració → Pantalla y visualización ←</string>
 </resources>

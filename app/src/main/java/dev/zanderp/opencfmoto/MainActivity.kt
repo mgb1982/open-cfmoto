@@ -829,6 +829,12 @@ class MainActivity : AppCompatActivity() {
         setIntent(intent)
         maybeResumeFromParked(intent)
         maybeStartFromBtTrigger(intent)
+        if (intent.getBooleanExtra(EXTRA_RECONNECT, false)) {
+            intent.removeExtra(EXTRA_RECONNECT)
+            log("→ Fit to dash: restarting Android Auto with the new panel shape")
+            stopEverything()
+            connectBtn.postDelayed({ reconnectSavedBike() }, 2500)
+        }
         if (intent.getBooleanExtra(EXTRA_START_GPX, false)) {
             intent.removeExtra(EXTRA_START_GPX)
             beginGpxProjection()
@@ -2094,6 +2100,8 @@ class MainActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_START_GPX = "start_gpx"
         const val EXTRA_BT_TRIGGER = "bt_trigger"
+        /** From "Fit to dash": restart Android Auto so a new panel shape takes effect. */
+        const val EXTRA_RECONNECT = "fit_reconnect"
         /** When set with [EXTRA_START_GPX], join the bike even if not already live. */
         const val EXTRA_GPX_TO_BIKE = "gpx_to_bike"
         private const val REQ_BT_FOR_AA = 4

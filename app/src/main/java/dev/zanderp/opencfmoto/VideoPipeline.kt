@@ -651,6 +651,13 @@ class VideoPipeline(
     /** Live update when the rider changes [ScreenMargins] while projecting. */
     fun refreshScreenMargins() = aaCompositor?.refreshMargins()
 
+    /** "Fit to dash" screen: live fit change + yellow frame on the bike. Null outside AA. */
+    fun setLiveFit(fit: ScreenFit) = aaCompositor?.setFit(fit)
+    fun setCalibration(on: Boolean) = aaCompositor?.setCalibration(on)
+    /** Bike canvas (encoder) size once the dash reported it, else null. */
+    fun canvasSize(): Pair<Int, Int>? = if (encoderW > 0 && encoderH > 0) encoderW to encoderH else null
+    val compositing: Boolean get() = aaCompositor != null
+
     /** Called by the data socket on each REQ_RV_DATA_NEXT(114). Returns one access unit. */
     fun pollFrame(timeoutMs: Long): ByteArray? =
         try { frameQueue.pollFirst(timeoutMs, TimeUnit.MILLISECONDS) } catch (e: InterruptedException) { null }

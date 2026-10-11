@@ -126,6 +126,10 @@
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
         <activity
+            android:name=".ScreenFitActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ScreenMarginsActivity"
             android:exported="false" />
         <activity

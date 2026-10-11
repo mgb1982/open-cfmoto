@@ -42,4 +42,36 @@
     <string name="whats_new_ok">Entendido</string>
     <string name="whats_new_body">⛽ Gasolineras cerca con el precio de la Gasolina 95 (España). Ordénalas por más baratas o más cercanas; toca una y Maps te lleva en el cuadro.\n\n📸 Aparcar con foto: botón opcional mientras estás conectado. Haz una foto de dónde dejas la moto y la app desconecta y guarda el sitio. También puedes añadir o ver la foto después desde el botón 🅿️.\n\n❓ Nuevo botón Ayuda: guía de instalación, compartir registros, novedades e informar de un problema.\n\n🔌 Primera conexión más fácil: el permiso de Bluetooth, la Wi‑Fi del móvil apagada y la Wi‑Fi de la moto se explican paso a paso.\n\n🧭 Si tienes el registro de viajes desactivado, la pantalla de viajes te avisa y te deja reactivarlo.\n\n🎞️ La calidad «Más fluido» ahora se llama «Ahorro de datos (menos nitidez)», que es lo que hace de verdad.\n\n🛠️ Correcciones de estabilidad.</string>
     <string name="park_photo_need_camera">Permite la cámara para hacer la foto del aparcamiento</string>
+    <string name="fit_open">🎯 Ajustar la pantalla al cuadro (en directo)</string>
+    <string name="fit_open_hint">Flechas en el móvil y resultado en directo en la moto. Conecta primero para verlo en el cuadro.</string>
+    <string name="fit_title">Ajustar al cuadro</string>
+    <string name="fit_status_live">● En directo: mira el cuadro de la moto</string>
+    <string name="fit_status_offline">Sin conexión: puedes ajustar, pero conecta con la moto para verlo en directo.</string>
+    <string name="fit_how">En el cuadro verás un marco amarillo: es donde se dibuja Android Auto. Mueve cada borde con sus flechas hasta que la línea amarilla quede justo en el borde visible de la pantalla, en los cuatro lados. Mantén pulsada una flecha para ir más rápido.</string>
+    <string name="fit_margins_now">Arriba %1$d · abajo %2$d · izquierda %3$d · derecha %4$d px\nZona de Android Auto: %5$d × %6$d</string>
+    <string name="fit_step_fine">Fino (2 px)</string>
+    <string name="fit_step_coarse">Rápido (10 px)</string>
+    <string name="fit_mode_title">Cómo llenar el marco</string>
+    <string name="fit_mode_fill">Llenar</string>
+    <string name="fit_mode_fit">Imagen entera</string>
+    <string name="fit_mode_stretch">Estirar</string>
+    <string name="fit_mode_hint">Llenar: sin franjas negras, puede recortar un poco. Imagen entera: no recorta nada, con franjas negras. Estirar: lo llena todo, algo deformado. Se cambia en directo.</string>
+    <string name="fit_shape_title">Forma del panel para Android Auto</string>
+    <string name="fit_shape_manual">Manual: %1$d × %2$d. Android Auto organiza su pantalla para esta forma.</string>
+    <string name="fit_shape_off">Desactivado: Android Auto usa su forma estándar.</string>
+    <string name="fit_shape_auto_is">Automática: %1$d × %2$d (de tu moto).</string>
+    <string name="fit_shape_auto_unknown">Automática: aún no se conoce (conecta una vez).</string>
+    <string name="fit_shape_from_frame">= marco amarillo</string>
+    <string name="fit_shape_save">Guardar medida</string>
+    <string name="fit_shape_auto">Automática</string>
+    <string name="fit_shape_hint">Si después de encuadrar el mapa se ve recortado o aplastado, pulsa «= marco amarillo» para que Android Auto se dibuje justo a esa medida. También sirve para paneles verticales. Esto sí necesita reiniciar Android Auto.</string>
+    <string name="fit_shape_invalid">Escribe un ancho y un alto (16 o más)</string>
+    <string name="fit_shape_reconnect">La nueva forma se aplica al reiniciar Android Auto. ¿Reiniciar ahora? El cuadro se queda en negro unos segundos.</string>
+    <string name="fit_shape_reconnect_now">Reiniciar ahora</string>
+    <string name="fit_shape_reconnect_later">Más tarde</string>
+    <string name="fit_shape_saved_next">Guardado: se aplicará en la próxima conexión</string>
+    <string name="fit_undo">Deshacer</string>
+    <string name="fit_reset">Valores de la moto</string>
+    <string name="fit_done">Listo</string>
+    <string name="fit_more_options">Resolución, orientación y las páginas antiguas de márgenes: en Configuración → Pantalla y visualización ←</string>
 </resources>

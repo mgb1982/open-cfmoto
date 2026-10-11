@@ -16,7 +16,7 @@ import android.content.Context
  */
 object ScreenMargins {
     private const val PREF = "screen_margins"
-    const val MAX = 200
+    const val MAX = 400
 
     @Volatile private var userTop = 0
     @Volatile private var userBottom = 0
