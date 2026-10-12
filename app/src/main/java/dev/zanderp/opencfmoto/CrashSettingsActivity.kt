@@ -148,6 +148,7 @@ class CrashSettingsActivity : AppCompatActivity() {
             MaterialAlertDialogBuilder(this)
                 .setMessage(R.string.crash_simulate_confirm)
                 .setPositiveButton(R.string.crash_simulate) { _, _ -> CrashDetector.startAlarm(this, test = true) }
+                .setNeutralButton(getString(R.string.crash_simulate_delayed, SIM_DELAY_S)) { _, _ -> simulateDelayed() }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         })
@@ -243,6 +244,26 @@ class CrashSettingsActivity : AppCompatActivity() {
         status.setOnClickListener { if (problems.isNotEmpty()) requestNeeded() }
     }
 
+    /**
+     * Simulation with a delay, so the rider can lock the phone and check the alarm really comes up
+     * full-screen over the lock screen (what happens with the phone in a pocket). The screen-off top
+     * app isn't frozen; a short partial wake lock keeps the CPU up until the alarm fires.
+     */
+    private fun simulateDelayed() {
+        val app = applicationContext
+        Toast.makeText(this, getString(R.string.crash_simulate_delayed_toast, SIM_DELAY_S), Toast.LENGTH_LONG).show()
+        LogBus.log("[CRASH] delayed simulation: alarm in ${SIM_DELAY_S}s")
+        val wl = try {
+            (getSystemService(POWER_SERVICE) as android.os.PowerManager)
+                .newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "ridescreen:crash-sim")
+                .apply { acquire((SIM_DELAY_S + 15) * 1000L) }
+        } catch (_: Exception) { null }
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            CrashDetector.startAlarm(app, test = true)
+            try { if (wl?.isHeld == true) wl.release() } catch (_: Exception) {}
+        }, SIM_DELAY_S * 1000L)
+    }
+
     private fun header(s: String) = TextView(this).apply {
         text = s; textSize = 16f
         setTextColor(color(R.color.text_primary))
@@ -268,5 +289,6 @@ class CrashSettingsActivity : AppCompatActivity() {
 
     companion object {
         fun start(ctx: Context) = ctx.startActivity(Intent(ctx, CrashSettingsActivity::class.java))
+        private const val SIM_DELAY_S = 15
     }
 }

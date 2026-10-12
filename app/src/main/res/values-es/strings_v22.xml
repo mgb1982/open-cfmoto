@@ -102,4 +102,6 @@
     <string name="setup_bt_trigger_pick">Elige un dispositivo emparejado</string>
     <string name="setup_bt_trigger_none">Desactivado</string>
     <string name="setup_bt_trigger_set">Activador: %1$s</string>
+    <string name="crash_simulate_delayed">En %1$d s (para bloquear el móvil)</string>
+    <string name="crash_simulate_delayed_toast">Bloquea el móvil ahora: la alarma de prueba saltará en %1$d s</string>
 </resources>
