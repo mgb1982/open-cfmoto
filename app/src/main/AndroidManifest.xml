@@ -141,6 +141,9 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".ParkingPhotoActivity"
+            android:exported="false" />
+        <activity
             android:name=".TripVideoActivity"
             android:exported="false" />
         <activity

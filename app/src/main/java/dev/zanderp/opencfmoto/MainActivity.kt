@@ -391,9 +391,7 @@ class MainActivity : AppCompatActivity() {
         if (hasPhoto) {
             labels += getString(R.string.parked_view_photo)
             actions += {
-                try { startActivity(Parking.viewPhotoIntent(this)) } catch (_: Exception) {
-                    Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
-                }
+                ParkingPhotoActivity.start(this)   // v2.2: in-app viewer, no external gallery app
             }
         }
         labels += getString(if (hasPhoto) R.string.parked_retake_photo else R.string.parked_add_photo)

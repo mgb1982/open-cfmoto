@@ -28,22 +28,29 @@ import androidx.core.app.NotificationCompat
 class BtConnectTrigger : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != BluetoothDevice.ACTION_ACL_CONNECTED) return
-        val want = AppSettings.btTriggerMac(context) ?: return
-        val device = deviceFrom(intent) ?: return
-        val mac = try {
-            device.address
-        } catch (_: SecurityException) {
-            LogBus.log("→ BT trigger: no Bluetooth permission to read the device")
+        // v2.2: every early return is logged ([BT-TRIG]) — "doesn't connect by itself" reports came with
+        // logs that showed nothing at all, so we couldn't tell "not configured" from "wrong device"
+        // from "broadcast never arrived".
+        val device = deviceFrom(intent)
+        val mac = try { device?.address } catch (_: SecurityException) {
+            LogBus.log("[BT-TRIG] ACL connected but no Bluetooth permission to read the device")
             return
-        } ?: return
-        if (!mac.equals(want, ignoreCase = true)) return
+        }
+        val name = try { device?.name } catch (_: SecurityException) { null }
+        val want = AppSettings.btTriggerMac(context)
+        LogBus.log("[BT-TRIG] connected: ${name ?: "?"} ($mac) · trigger=${want ?: "not set"} · AA service=${AndroidAutoService.isRunning}")
+        if (want == null || mac == null) return
+        if (!mac.equals(want, ignoreCase = true)) {
+            LogBus.log("[BT-TRIG] not the trigger device — ignored")
+            return
+        }
         if (AndroidAutoService.isRunning) {
             // v2: within 20 min of switching off, the service is still up and parked — it used to
             // swallow the trigger here. The dash's Bluetooth means the bike is on: resume now.
             if (AndroidAutoService.isParked) {
                 LogBus.log("→ BT trigger: $mac connected — bike back, resuming the parked session")
                 AndroidAutoService.requestResume()
-            }
+            } else LogBus.log("[BT-TRIG] session already running — nothing to do")
             return
         }
         val saved = BikeMemory.lastQr(context)
