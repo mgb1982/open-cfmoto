@@ -4,7 +4,7 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 
 ### Novedades de la v2.2
 **Seguridad**
-- **🆘 Detector de caídas** (opcional, en *Configuración → Extras de ruta*): si el móvil nota un golpe fuerte y después la moto se queda parada, suena una alarma de 60 s en el móvil y en el reloj. Si nadie pulsa **«Estoy bien»**, envía un SMS con tu ubicación a hasta 3 contactos, y otro a los 5 minutos. Tiene botón para simularlo y SMS de prueba. Nunca llama a emergencias por su cuenta. No es un dispositivo certificado.
+- **🆘 Detector de caídas** (opcional, en *Configuración → Extras de ruta*): si mientras vas en moto el móvil nota un golpe fuerte y después todo se queda quieto, suena una alarma de 60 s en el móvil y en el reloj. Si nadie pulsa **«Estoy bien»**, envía un SMS con tu ubicación a hasta 3 contactos, y otro a los 5 minutos. Tiene botón para simularlo y SMS de prueba. Nunca llama a emergencias por su cuenta. No es un dispositivo certificado.
 
 **Conexión**
 - **🔌 Vuelve a conectar sola al encender la moto**: pasados 20 minutos sin la moto, en vez de rendirse, sigue esperando su Wi-Fi en **modo ahorro** y conecta cuando la enciendes. La conexión por Bluetooth del cuadro ahora solo arranca si la Wi-Fi de la moto está encendida (el Bluetooth del cuadro sigue activo con la moto apagada).
