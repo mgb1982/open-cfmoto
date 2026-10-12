@@ -40,4 +40,30 @@
     <string name="crash_warn_fullscreen">Permite las alertas a pantalla completa para que la alarma salga sobre la pantalla de bloqueo (toca aquí)</string>
     <string name="crash_status_off">Desactivado</string>
     <string name="crash_status_ready">✅ Listo: activo siempre que estés conectado a la moto</string>
+    <string name="tl_entry">🚦 Tus semáforos y trayectos</string>
+    <string name="tl_title">Tus semáforos</string>
+    <string name="tl_progress_trips">Leyendo tus viajes…</string>
+    <string name="tl_progress_signals">Descargando semáforos de OpenStreetMap (%1$d/%2$d)…</string>
+    <string name="tl_progress_analysing">Buscando dónde paras…</string>
+    <string name="tl_failed">No se han podido analizar tus viajes. Vuelve a intentarlo con conexión.</string>
+    <string name="tl_no_trips">Aún no hay viajes guardados. Sal con el registro de viajes activado y vuelve.</string>
+    <string name="tl_summary">%1$d viajes · %2$d semáforos por los que pasas</string>
+    <string name="tl_partial">Algunas zonas no se han podido descargar (sin conexión): vuelve a abrirlo más tarde para completarlas.</string>
+    <string name="tl_tap_hint">Rojo = paras casi siempre, amarillo = a veces, verde = pocas veces. Más grande = pasas más a menudo. Toca uno.</string>
+    <string name="tl_worst_title">Donde más paras</string>
+    <string name="tl_routes_title">Mismo trayecto, distintos caminos</string>
+    <string name="tl_line">Has parado %1$d de %2$d veces (%3$d %%) · espera media %4$d s</string>
+    <string name="tl_main_dir">Sobre todo yendo hacia el %1$s: paras %2$d de %3$d</string>
+    <string name="tl_cycle">Experimental: ciclo ≈ %1$d s (ajuste %2$d %%)</string>
+    <string name="tl_no_stops">Aún no se han encontrado paradas en semáforos.</string>
+    <string name="tl_no_routes">Cuando hagas el mismo trayecto (A → B) por calles distintas, se compararán aquí.</string>
+    <string name="tl_variant">Camino %1$d (%2$d×): %3$d min · %4$d semáforos en rojo · %5$s km</string>
+    <string name="tl_variant_hint">Medianas. 🏆 = el más rápido normalmente. Toca para verlo en el mapa.</string>
+    <string name="tl_footer">Calculado en tu móvil a partir de tus viajes guardados; semáforos de OpenStreetMap. Las paradas por atasco cerca de un semáforo también cuentan.</string>
+    <string-array name="tl_dirs">
+        <item>norte</item>
+        <item>este</item>
+        <item>sur</item>
+        <item>oeste</item>
+    </string-array>
 </resources>

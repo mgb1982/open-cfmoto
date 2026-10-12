@@ -70,6 +70,7 @@ class TripsListActivity : AppCompatActivity() {
         }
         findViewById<MaterialButton>(R.id.trips_all_map).setOnClickListener { TripMapActivity.startAll(this) }
         findViewById<MaterialButton>(R.id.trips_year).setOnClickListener { YearInReviewActivity.start(this) }
+        findViewById<MaterialButton>(R.id.trips_traffic_lights).setOnClickListener { TrafficLightsActivity.start(this) }
         findViewById<MaterialButton>(R.id.trips_logging_enable).setOnClickListener {
             AppSettings.setLogTrips(this, true)
             LogBus.log("[trip] logging turned on from the Trips screen")

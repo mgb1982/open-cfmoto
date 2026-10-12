@@ -127,6 +127,9 @@
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
         <activity
+            android:name=".TrafficLightsActivity"
+            android:exported="false" />
+        <activity
             android:name=".CrashSettingsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
