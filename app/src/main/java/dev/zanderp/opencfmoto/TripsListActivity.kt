@@ -35,6 +35,8 @@ import java.util.Locale
  * each trip card can open the map, export GPX, or long-press delete.
  */
 class TripsListActivity : AppCompatActivity() {
+    private val clipCounter = java.util.concurrent.Executors.newSingleThreadExecutor()
+
 
     private lateinit var container: LinearLayout
     private lateinit var empty: TextView
@@ -266,8 +268,29 @@ class TripsListActivity : AppCompatActivity() {
                 text = getString(R.string.trips_export_gpx)
                 textSize = 13f
                 setOnClickListener { exportGpx(trip) }
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+                ).apply { marginEnd = dp(8) }
             },
         )
+        // 🎬 Trip video: always here; shows the clip count (gold) when the gallery has videos
+        // recorded during this trip. Counted in the background, only if video access is granted.
+        val videoBtn = MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
+            text = getString(R.string.tv_button)
+            textSize = 13f
+            setOnClickListener { TripVideoActivity.start(this@TripsListActivity, trip.id) }
+        }
+        actions.addView(videoBtn)
+        if (TripVideo.hasVideoAccess(this)) {
+            clipCounter.execute {
+                val n = TripVideo.quickClipCount(this, trip)
+                if (n > 0) runOnUiThread {
+                    videoBtn.text = getString(R.string.tv_button_clips, n)
+                    videoBtn.strokeColor = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_gold))
+                    videoBtn.setTextColor(ContextCompat.getColor(this, R.color.brand_gold))
+                }
+            }
+        }
         col.addView(actions)
 
         card.addView(col)

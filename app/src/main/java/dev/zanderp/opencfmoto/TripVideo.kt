@@ -43,6 +43,24 @@ object TripVideo {
 
     data class Clip(val uri: Uri, val name: String, val startMs: Long, val durationMs: Long, val width: Int, val height: Int, val rotation: Int)
 
+    fun hasVideoAccess(ctx: Context): Boolean {
+        val perms = when {
+            android.os.Build.VERSION.SDK_INT >= 34 -> listOf(android.Manifest.permission.READ_MEDIA_VIDEO, android.Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+            android.os.Build.VERSION.SDK_INT >= 33 -> listOf(android.Manifest.permission.READ_MEDIA_VIDEO)
+            else -> listOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        return perms.any { androidx.core.content.ContextCompat.checkSelfPermission(ctx, it) == android.content.pm.PackageManager.PERMISSION_GRANTED }
+    }
+
+    /** Fast (one gallery query, no file reads): videos whose recording date falls inside [trip]. */
+    fun quickClipCount(ctx: Context, trip: Trip): Int = try {
+        ctx.contentResolver.query(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Video.Media._ID),
+            "${MediaStore.Video.Media.DATE_TAKEN} BETWEEN ? AND ?",
+            arrayOf((trip.start - MARGIN_MS).toString(), (trip.end + MARGIN_MS).toString()), null,
+        )?.use { it.count } ?: 0
+    } catch (_: Exception) { 0 }
+
     /** Blocking. Gallery videos recorded during [trip] (container date first, gallery date as fallback). */
     fun findClips(ctx: Context, trip: Trip): List<Clip> {
         val out = ArrayList<Clip>()

@@ -91,4 +91,5 @@
     <string name="crash_restricted_title">Android bloquea los SMS a las apps instaladas desde un APK</string>
     <string name="crash_restricted_steps">Es una protección de Android («ajustes restringidos») para las apps que no vienen de una tienda. Se desbloquea una sola vez:\n\n1. Pulsa «Abrir ajustes de la app».\n2. Toca ⋮ (arriba a la derecha) → «Permitir ajustes restringidos» y confirma.\n3. Ve a Permisos → SMS → Permitir.\n4. Vuelve aquí.\n\nSi no ves «Permitir ajustes restringidos», intenta primero activar los SMS en Permisos una vez; después aparece la opción.</string>
     <string name="crash_restricted_open">Abrir ajustes de la app</string>
+    <string name="tv_button_clips">🎬 Vídeo · %1$d clip(s)</string>
 </resources>
