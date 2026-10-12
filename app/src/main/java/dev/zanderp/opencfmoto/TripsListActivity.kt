@@ -268,9 +268,6 @@ class TripsListActivity : AppCompatActivity() {
                 text = getString(R.string.trips_export_gpx)
                 textSize = 13f
                 setOnClickListener { exportGpx(trip) }
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ).apply { marginEnd = dp(8) }
             },
         )
         // 🎬 Trip video: always here; shows the clip count (gold) when the gallery has videos
@@ -280,7 +277,12 @@ class TripsListActivity : AppCompatActivity() {
             textSize = 13f
             setOnClickListener { TripVideoActivity.start(this@TripsListActivity, trip.id) }
         }
-        actions.addView(videoBtn)
+        // Its own full-width row: three buttons didn't fit side by side (the third wrapped onto two
+        // lines and got clipped), and "🎬 Vídeo · 3 clip(s)" is longer still.
+        videoBtn.isSingleLine = true
+        videoBtn.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+        ).apply { topMargin = dp(4) }
         if (TripVideo.hasVideoAccess(this)) {
             clipCounter.execute {
                 val n = TripVideo.quickClipCount(this, trip)
@@ -292,6 +294,7 @@ class TripsListActivity : AppCompatActivity() {
             }
         }
         col.addView(actions)
+        col.addView(videoBtn)
 
         card.addView(col)
         return card
