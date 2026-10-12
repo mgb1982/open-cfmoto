@@ -329,12 +329,13 @@ class MainActivity : AppCompatActivity() {
         get() = parkPrefs.getBoolean("then_stop", false)
         set(v) { parkPrefs.edit().putBoolean("then_stop", v).apply() }
 
-    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { _ ->
+    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         val thenStop = photoThenStop
         photoThenStop = false
         // Some camera apps report "cancelled" after writing the file: trust the file, not the flag.
         val saved = Parking.commitPendingPhoto(this)
-        val live = ConnectionState.phase == Phase.STREAMING || ConnectionState.phase == Phase.MIRRORING
+        // Parking usually starts with the bike's Wi-Fi going away: "reconnecting" still counts.
+        val live = sessionAlive(ConnectionState.phase)
         if (thenStop && saved && live) {
             log("→ Park with photo: photo taken — saving the spot and disconnecting")
             Parking.saveNow(this)
@@ -362,11 +363,14 @@ class MainActivity : AppCompatActivity() {
         launchParkingCamera()
     }
 
+    /** A projection session exists (connected, or reconnecting after the bike's Wi-Fi blipped). */
+    private fun sessionAlive(phase: Phase) = phase == Phase.STREAMING || phase == Phase.MIRRORING ||
+        ((phase == Phase.RECONNECTING || phase == Phase.WAITING_FOR_BIKE) && AndroidAutoService.isRunning)
+
     private fun launchParkingCamera() {
-        val f = Parking.pendingPhotoFile(this)
-        f.delete()
+        Parking.pendingPhotoFile(this).delete()
         try {
-            takePhotoLauncher.launch(Parking.photoUri(this, f))
+            takePhotoLauncher.launch(Intent(this, ParkingCameraActivity::class.java))
         } catch (e: Exception) {
             log("parking camera failed: $e")
             photoThenStop = false
@@ -1311,7 +1315,7 @@ class MainActivity : AppCompatActivity() {
         setEnabled(R.id.btn_mirror_start, !busy || live)
         setEnabled(R.id.btn_gpx, !busy || live)
         setEnabled(R.id.btn_aa_stop, busy || live)
-        findViewById<View>(R.id.btn_park_photo)?.visibility = if (live) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.btn_park_photo)?.visibility = if (sessionAlive(phase)) View.VISIBLE else View.GONE
     }
 
     private fun setEnabled(id: Int, enabled: Boolean) {

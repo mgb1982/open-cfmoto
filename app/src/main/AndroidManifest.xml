@@ -137,6 +137,10 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
         <activity
+            android:name=".ParkingCameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".TripVideoActivity"
             android:exported="false" />
         <activity

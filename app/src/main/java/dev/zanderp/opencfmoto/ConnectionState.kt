@@ -45,9 +45,20 @@ object ConnectionState {
      * the existing detail (e.g. the bike name set when the connection started, so a background
      * component can flip to [Phase.STREAMING] without knowing which bike it is).
      */
+    /** The detail an ERROR left behind; dropped once things recover so it doesn't stick to "Connected". */
+    @Volatile private var errorDetail: String? = null
+
     fun set(newPhase: Phase, newDetail: String? = null) {
         phase = newPhase
         if (newDetail != null) detail = newDetail
+        if (newPhase == Phase.ERROR) {
+            errorDetail = detail
+        } else if (newDetail == null && errorDetail != null && detail == errorDetail) {
+            detail = ""
+            errorDetail = null
+        } else if (newDetail != null) {
+            errorDetail = null
+        }
         val d = detail
         val text = if (d.isBlank()) newPhase.logLabel else "${newPhase.logLabel} — $d"
         LogBus.log("[state] $text")

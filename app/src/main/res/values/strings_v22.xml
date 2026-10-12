@@ -92,4 +92,7 @@
     <string name="crash_restricted_steps">It\'s an Android protection (\"restricted settings\") for apps that don\'t come from a store. It\'s unlocked once:\n\n1. Tap \"Open app settings\".\n2. Tap ⋮ (top right) → \"Allow restricted settings\" and confirm.\n3. Go to Permissions → SMS → Allow.\n4. Come back here.\n\nIf you don\'t see \"Allow restricted settings\", first try to turn on SMS in Permissions once, then the option appears.</string>
     <string name="crash_restricted_open">Open app settings</string>
     <string name="tv_button_clips">🎬 Video · %1$d clip(s)</string>
+    <string name="park_cam_hint">Take a photo of where you leave the bike (floor, bay number…)</string>
+    <string name="park_photo_failed">Couldn\'t take the photo. Try again.</string>
+    <string name="tv_sync">Sync %1$s s</string>
 </resources>

@@ -80,7 +80,13 @@ object TripVideo {
                     val taken = c.getLong(2)
                     val dur = c.getLong(4)
                     val meta = metadata(ctx, uri)
-                    val start = meta?.first ?: taken.takeIf { it > 0 } ?: continue
+                    // Phones (and most cameras) name the file after the START of the recording, in
+                    // local time — more reliable than the container date, which some apps set to the
+                    // end of the clip or to the import time.
+                    val fromName = startFromName(name)
+                    val start = fromName ?: meta?.first ?: taken.takeIf { it > 0 } ?: continue
+                    LogBus.log("[VIDEO] clip $name: name=${fromName?.let { stamp(it) }} file=${meta?.first?.let { stamp(it) }} " +
+                        "taken=${if (taken > 0) stamp(taken) else "-"} added=${stamp(c.getLong(3) * 1000)} dur=${(meta?.second ?: dur) / 1000}s → start ${stamp(start)}")
                     val durMs = meta?.second?.takeIf { it > 0 } ?: dur
                     // Some cameras stamp the END of the recording: accept either reading.
                     val overlaps = (start in (trip.start - MARGIN_MS)..(trip.end + MARGIN_MS)) ||
@@ -93,6 +99,16 @@ object TripVideo {
             LogBus.log("[VIDEO] gallery query failed: $e")
         }
         return out.sortedBy { it.startMs }
+    }
+
+    private fun stamp(ms: Long) = SimpleDateFormat("HH:mm:ss", Locale.US).format(Date(ms))
+
+    /** "VID_20261012_141530…", "PXL_20261012_141530123…", "20261012_141530.mp4" → local time. */
+    private fun startFromName(name: String): Long? {
+        val m = Regex("""(20\d{2})(\d{2})(\d{2})[_-]?(\d{2})(\d{2})(\d{2})""").find(name) ?: return null
+        return try {
+            SimpleDateFormat("yyyyMMddHHmmss", Locale.US).parse(m.groupValues.drop(1).joinToString(""))?.time
+        } catch (_: Exception) { null }
     }
 
     /** (recording start epoch ms, duration ms, [w, h, rotation]) from the file itself. */
@@ -123,11 +139,11 @@ object TripVideo {
     }
 
     /** The edit: clips in order, overlay on each, optionally ×[speed] with no sound. */
-    fun composition(ctx: Context, trip: Trip, clips: List<Clip>, speed: Float): Composition {
+    fun composition(ctx: Context, trip: Trip, clips: List<Clip>, speed: Float, offsetMs: Long = 0L): Composition {
         val title = TripNames.title(ctx, trip)
         val items = clips.map { clip ->
             val effects = ArrayList<androidx.media3.common.Effect>()
-            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(trip, clip, title)))
+            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(trip, clip.copy(startMs = clip.startMs + offsetMs), title)))
             if (speed > 1f) effects += SpeedChangeEffect(speed)
             EditedMediaItem.Builder(MediaItem.fromUri(clip.uri))
                 .setRemoveAudio(speed > 1f)

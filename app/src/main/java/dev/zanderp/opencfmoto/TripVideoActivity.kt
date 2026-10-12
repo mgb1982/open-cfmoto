@@ -51,6 +51,8 @@ class TripVideoActivity : AppCompatActivity() {
     private lateinit var resultRow: LinearLayout
     private var clips: List<TripVideo.Clip> = emptyList()
     private var speed = 1f
+    private var offsetS = 0
+    private lateinit var offsetLabel: TextView
     private var transformer: Transformer? = null
     private var saved: Uri? = null
     private val io = Executors.newSingleThreadExecutor()
@@ -86,6 +88,16 @@ class TripVideoActivity : AppCompatActivity() {
         speeds.addView(normalBtn, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
         speeds.addView(fastBtn, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         root.addView(speeds)
+        // Manual nudge if the overlay runs ahead of / behind the picture (applies to every clip).
+        val sync = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL; setPadding(0, dp(8), 0, 0) }
+        offsetLabel = body("").apply { setPadding(0, 0, 0, 0) }
+        sync.addView(button("−5 s") { offsetS -= 5; markOffset() })
+        sync.addView(button("−1 s") { offsetS -= 1; markOffset() })
+        sync.addView(offsetLabel, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6); marginEnd = dp(6) })
+        sync.addView(button("+1 s") { offsetS += 1; markOffset() })
+        sync.addView(button("+5 s") { offsetS += 5; markOffset() })
+        root.addView(sync)
+        markOffset()
         makeBtn = button(getString(R.string.tv_make)) { make() }
         root.addView(makeBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
         progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 100; visibility = View.GONE }
@@ -144,6 +156,11 @@ class TripVideoActivity : AppCompatActivity() {
         }
     }
 
+    private fun markOffset() {
+        offsetLabel.text = getString(R.string.tv_sync, (if (offsetS > 0) "+" else "") + offsetS)
+        offsetLabel.gravity = android.view.Gravity.CENTER
+    }
+
     private fun mark() {
         normalBtn.alpha = if (speed == 1f) 1f else 0.5f
         fastBtn.alpha = if (speed > 1f) 1f else 0.5f
@@ -186,7 +203,7 @@ class TripVideoActivity : AppCompatActivity() {
             .build()
         transformer = t
         try {
-            t.start(TripVideo.composition(this, trip, clips, speed), out.absolutePath)
+            t.start(TripVideo.composition(this, trip, clips, speed, offsetS * 1000L), out.absolutePath)
         } catch (e: Exception) {
             transformer = null
             status.text = getString(R.string.tv_failed, e.javaClass.simpleName)

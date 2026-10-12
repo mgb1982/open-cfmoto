@@ -92,4 +92,7 @@
     <string name="crash_restricted_steps">Es una protección de Android («ajustes restringidos») para las apps que no vienen de una tienda. Se desbloquea una sola vez:\n\n1. Pulsa «Abrir ajustes de la app».\n2. Toca ⋮ (arriba a la derecha) → «Permitir ajustes restringidos» y confirma.\n3. Ve a Permisos → SMS → Permitir.\n4. Vuelve aquí.\n\nSi no ves «Permitir ajustes restringidos», intenta primero activar los SMS en Permisos una vez; después aparece la opción.</string>
     <string name="crash_restricted_open">Abrir ajustes de la app</string>
     <string name="tv_button_clips">🎬 Vídeo · %1$d clip(s)</string>
+    <string name="park_cam_hint">Haz una foto de dónde dejas la moto (planta, número de plaza…)</string>
+    <string name="park_photo_failed">No se ha podido hacer la foto. Vuelve a intentarlo.</string>
+    <string name="tv_sync">Sincronía %1$s s</string>
 </resources>
