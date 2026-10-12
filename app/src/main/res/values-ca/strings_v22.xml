@@ -95,4 +95,5 @@
     <string name="park_cam_hint">Fes una foto d\'on deixes la moto (planta, número de plaça…)</string>
     <string name="park_photo_failed">No s\'ha pogut fer la foto. Torna-ho a provar.</string>
     <string name="tv_sync">Sincronia %1$s s</string>
+    <string name="qr_camera_failed">La càmera no arrenca en aquest mòbil. Fes servir «Importa un codi QR des d\'una foto» amb una captura o foto del QR de la pantalla.</string>
 </resources>

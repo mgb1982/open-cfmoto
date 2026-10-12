@@ -80,9 +80,12 @@ class QrScanActivity : AppCompatActivity() {
 
     private fun startCamera() {
         val previewView = findViewById<PreviewView>(R.id.preview_view)
-        val providerFuture = ProcessCameraProvider.getInstance(this)
+        // Catch Throwable: on ROMs that fake their API level CameraX throws NoSuchMethodError (an Error).
+        val providerFuture = try { ProcessCameraProvider.getInstance(this) } catch (e: Throwable) {
+            cameraFailed(e); return
+        }
         providerFuture.addListener({
-            val provider = providerFuture.get()
+            val provider = try { providerFuture.get() } catch (e: Throwable) { cameraFailed(e); return@addListener }
             val preview = Preview.Builder().build().also {
                 it.surfaceProvider = previewView.surfaceProvider
             }
@@ -96,10 +99,16 @@ class QrScanActivity : AppCompatActivity() {
                     this, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis,
                 )
                 setupZoomButtons()
-            } catch (e: Exception) {
-                findViewById<TextView>(R.id.hint).text = "Camera bind failed: ${e.message}"
+            } catch (e: Throwable) {
+                cameraFailed(e)
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    /** Camera unusable on this phone: say so and leave the "pick a photo of the QR" path available. */
+    private fun cameraFailed(e: Throwable) {
+        LogBus.log("[QR] camera start failed: $e")
+        findViewById<TextView>(R.id.hint).text = getString(R.string.qr_camera_failed)
     }
 
     private fun setupZoomButtons() {

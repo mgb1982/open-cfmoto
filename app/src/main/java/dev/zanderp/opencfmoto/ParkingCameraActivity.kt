@@ -68,7 +68,12 @@ class ParkingCameraActivity : AppCompatActivity() {
         })
         setContentView(root)
 
-        val future = ProcessCameraProvider.getInstance(this)
+        // Some ROMs report a newer Android than their framework really has (seen in a crash report:
+        // "API 34" without Context.getDeviceId()) and CameraX dies with NoSuchMethodError — an Error,
+        // not an Exception. Catch Throwable so it's a "no camera" toast, never a crash.
+        val future = try { ProcessCameraProvider.getInstance(this) } catch (e: Throwable) {
+            cameraUnavailable(e); return
+        }
         future.addListener({
             try {
                 val provider = future.get()
@@ -77,12 +82,16 @@ class ParkingCameraActivity : AppCompatActivity() {
                 provider.unbindAll()
                 provider.bindToLifecycle(this, CameraSelector.DEFAULT_BACK_CAMERA, p, ic)
                 capture = ic
-            } catch (e: Exception) {
-                LogBus.log("[PARK] camera start failed: $e")
-                Toast.makeText(this, R.string.park_photo_no_camera, Toast.LENGTH_LONG).show()
-                setResult(RESULT_CANCELED); finish()
+            } catch (e: Throwable) {
+                cameraUnavailable(e)
             }
         }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun cameraUnavailable(e: Throwable) {
+        LogBus.log("[PARK] camera start failed: $e")
+        Toast.makeText(this, R.string.park_photo_no_camera, Toast.LENGTH_LONG).show()
+        setResult(RESULT_CANCELED); finish()
     }
 
     private fun shoot() {
@@ -90,7 +99,7 @@ class ParkingCameraActivity : AppCompatActivity() {
         if (busy) return
         busy = true
         val f = Parking.pendingPhotoFile(this).apply { delete() }
-        ic.takePicture(
+        try { ic.takePicture(
             ImageCapture.OutputFileOptions.Builder(f).build(),
             ContextCompat.getMainExecutor(this),
             object : ImageCapture.OnImageSavedCallback {
@@ -104,6 +113,10 @@ class ParkingCameraActivity : AppCompatActivity() {
                     Toast.makeText(this@ParkingCameraActivity, R.string.park_photo_failed, Toast.LENGTH_LONG).show()
                 }
             },
-        )
+        ) } catch (e: Throwable) {
+            busy = false
+            LogBus.log("[PARK] capture failed: $e")
+            Toast.makeText(this, R.string.park_photo_failed, Toast.LENGTH_LONG).show()
+        }
     }
 }
