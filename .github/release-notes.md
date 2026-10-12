@@ -25,6 +25,8 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 
 **Y además**: botón **❓ Ayuda** (guía, registros, novedades, problemas), pantalla de **novedades**, aviso si tienes el registro de viajes desactivado, «Más fluido» pasa a llamarse **«Ahorro de datos (menos nitidez)»**, y correcciones de estabilidad.
 
+**Y todo lo de la v2**: mapa de calor, récords y trofeos, nombres automáticos de viajes, tu año en moto, libreta de mantenimiento y repostajes, aparcamiento al apagar la moto y brújula hacia tu moto en el reloj.
+
 ### Instalación en el móvil
 1. Descarga **`RideScreen-AA-v2.2.apk`** (abajo, en *Assets*).
 2. Si vienes de la **v1/v1.1/v2** o de la versión del grupo (zontes-1/2), se instala **encima** sin perder nada. Si tienes la OpenCfMoto **oficial**, desinstálala primero: están firmadas con claves distintas.
