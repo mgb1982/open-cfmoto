@@ -66,4 +66,26 @@
         <item>south</item>
         <item>west</item>
     </string-array>
+    <string name="tv_button">🎬 Video</string>
+    <string name="tv_title">Trip video</string>
+    <string name="tv_how">Joins the clips you filmed during this trip (Ray-Ban Meta, action cam, phone…) in order, with your route, position, speed and time on top. They have to be in the phone\'s gallery: for the glasses, import them in the Meta AI app first.</string>
+    <string name="tv_searching">Looking for clips filmed during the trip…</string>
+    <string name="tv_none">No clips found from this trip\'s time. Import them to the gallery first (Meta AI app → your media → save/import) and come back.</string>
+    <string name="tv_no_permission">Allow access to your videos so the app can find the clips.</string>
+    <string name="tv_found">%1$d clip(s) · %2$d min %3$d s</string>
+    <string name="tv_speed_normal">Normal speed</string>
+    <string name="tv_speed_fast">Fast ×4 (no sound)</string>
+    <string name="tv_make">Make the video</string>
+    <string name="tv_making">Making the video… keep this screen open.</string>
+    <string name="tv_done">Done: saved in Movies/RideScreen AA</string>
+    <string name="tv_save_failed">The video was made but couldn\'t be saved to the gallery.</string>
+    <string name="tv_failed">Couldn\'t make the video (%1$s).</string>
+    <string name="tv_open">Watch</string>
+    <string name="tv_meta_tip">Tip: with the glasses, short clips at the best moments look better than one long recording. Recording on the road is your responsibility: keep your eyes on the road.</string>
+    <string name="watch_channel">Waiting for the bike</string>
+    <string name="watch_title">Waiting for %1$s</string>
+    <string name="watch_text">Low-power mode: it connects when you switch the bike on</string>
+    <string name="watch_stop">Stop waiting</string>
+    <string name="watch_setting">Keep waiting for the bike in low-power mode</string>
+    <string name="watch_setting_desc">After 20 minutes without the bike, instead of giving up, the app checks now and then whether the bike\'s Wi-Fi is up (it only exists with the ignition on) and connects by itself. No wake locks: it\'s quickest when you look at your phone.</string>
 </resources>

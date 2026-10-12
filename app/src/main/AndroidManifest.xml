@@ -41,6 +41,12 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <!-- Trip video: find the clips filmed during a ride (Ray-Ban Meta imports, action cams). -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <!-- Best-effort close of the official CFMoto/EasyConnect app when it's holding the bike's
          mirroring-link ports (10920-10922) and blocking our connection. Only ever targets that one
          package; the reliable fallback is opening its App-info screen for a manual Force stop. -->
@@ -126,6 +132,13 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
+        <service
+            android:name=".BikeWatchService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+        <activity
+            android:name=".TripVideoActivity"
+            android:exported="false" />
         <activity
             android:name=".TrafficLightsActivity"
             android:exported="false" />

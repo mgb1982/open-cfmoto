@@ -44,6 +44,10 @@ object AppSettings {
     fun setAutoConnect(ctx: Context, on: Boolean) =
         prefs(ctx).edit().putBoolean(KEY_AUTO_CONNECT, on).apply()
 
+    /** v2.2: after 20 min without the bike, keep waiting for its Wi-Fi in low-power mode. */
+    fun waitForBike(ctx: Context): Boolean = prefs(ctx).getBoolean("wait_for_bike", true)
+    fun setWaitForBike(ctx: Context, on: Boolean) = prefs(ctx).edit().putBoolean("wait_for_bike", on).apply()
+
     fun autoRecovery(ctx: Context): Boolean = prefs(ctx).getBoolean(KEY_AUTO_RECOVERY, true)
     fun setAutoRecovery(ctx: Context, on: Boolean) =
         prefs(ctx).edit().putBoolean(KEY_AUTO_RECOVERY, on).apply()

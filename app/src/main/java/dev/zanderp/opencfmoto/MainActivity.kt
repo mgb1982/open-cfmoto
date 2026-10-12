@@ -198,6 +198,7 @@ class MainActivity : AppCompatActivity() {
                 return
             }
             pendingAaQr = null
+            BikeWatchService.stop(this)
             // Map / Mirror / stale PXC must die first — half-switches leave framesSent=0.
             tearDownForModeSwitch(clearMap = true, clearMirror = true)
             applyProfile(qr)

@@ -1292,6 +1292,22 @@
                     android:layout_height="wrap_content"
                     android:text="@string/setup_bt_trigger_none" />
 
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_wait_for_bike"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/watch_setting"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/watch_setting_desc"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp" />
+
                 <!-- Auto-recovery -->
                 <TextView
                     android:layout_width="match_parent"

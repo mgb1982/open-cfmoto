@@ -135,6 +135,9 @@ dependencies {
     implementation(libs.protobuf.java)
     implementation(libs.conscrypt.android)
     implementation(libs.osmdroid)
+    implementation(libs.media3.transformer)
+    implementation(libs.media3.effect)
+    implementation(libs.media3.common)
     implementation(libs.maplibre)
     // Wear OS companion link (module :wear).
     implementation(libs.play.services.wearable)

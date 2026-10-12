@@ -25,6 +25,9 @@ object RideStop {
     fun stopAll(ctx: Context) {
         val app = ctx.applicationContext
         LogBus.log("→ stopping everything (bike not seen for ${BikeWifi.GIVE_UP_AFTER_MS / 60_000} min)")
+        // v2.2: keep waiting for the bike's Wi-Fi in low-power mode (started before the AA service
+        // stops, while we're still allowed to start a foreground service).
+        val watching = AppSettings.waitForBike(app) && BikeWatchService.start(app, BikeWatchService.Mode.LONG)
         try { AaVideoBridge.onSteadyVideo = null } catch (_: Exception) {}
         try { AndroidAutoService.stop(app) } catch (_: Exception) {}
         try { BikeLink.prober?.stop() } catch (_: Exception) {}
@@ -35,7 +38,7 @@ object RideStop {
         try { DashClockBle.stop() } catch (_: Exception) {}
         try { BikeWifi.leave(app, LogBus::log) } catch (_: Exception) {}
         ConnectionState.set(Phase.STOPPED, "")
-        notifyStopped(app)
+        if (!watching) notifyStopped(app)
     }
 
     private fun notifyStopped(ctx: Context) {

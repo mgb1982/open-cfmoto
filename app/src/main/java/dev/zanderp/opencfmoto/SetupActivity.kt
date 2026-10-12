@@ -126,6 +126,13 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.dpi_240).setOnClickListener { setAaDpi(240) }
         findViewById<MaterialButton>(R.id.dpi_320).setOnClickListener { setAaDpi(320) }
         findViewById<MaterialButton>(R.id.btn_bt_trigger).setOnClickListener { pickBtTrigger() }
+        findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switch_wait_for_bike).apply {
+            isChecked = AppSettings.waitForBike(this@SetupActivity)
+            setOnCheckedChangeListener { _, on ->
+                AppSettings.setWaitForBike(this@SetupActivity, on)
+                if (!on) BikeWatchService.stop(this@SetupActivity)
+            }
+        }
         findViewById<MaterialButton>(R.id.theme_auto).setOnClickListener { setMapTheme(MapTheme.AUTO) }
         findViewById<MaterialButton>(R.id.theme_day).setOnClickListener { setMapTheme(MapTheme.DAY) }
         findViewById<MaterialButton>(R.id.theme_night).setOnClickListener { setMapTheme(MapTheme.NIGHT) }

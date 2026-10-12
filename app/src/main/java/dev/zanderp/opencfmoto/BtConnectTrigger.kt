@@ -46,54 +46,30 @@ class BtConnectTrigger : BroadcastReceiver() {
             }
             return
         }
-        if (BikeMemory.lastQr(context) == null) {
+        val saved = BikeMemory.lastQr(context)
+        if (saved == null) {
             LogBus.log("→ BT trigger $mac ignored — no saved bike")
             return
         }
-        LogBus.log("→ BT trigger: $mac connected — starting Connect")
-        val launch = Intent(context, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            putExtra(MainActivity.EXTRA_BT_TRIGGER, true)
-        }
-        // Fallback first: if Android blocks the background launch (silently), one tap still connects.
-        notifyTapToConnect(context, launch)
-        val app = context.applicationContext
-        if (!Settings.canDrawOverlays(app)) {
-            LogBus.log("→ BT trigger: no \"display over other apps\" permission — tap the notification to connect")
-            return
-        }
-        // Android 15+: "display over other apps" only allows a background activity start while the
-        // app has a *visible* overlay window. Show a 1 px one for a moment, launch, then remove it.
-        val pending = goAsync()
-        val main = Handler(Looper.getMainLooper())
-        val wm = app.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val dot = View(app).apply { setBackgroundColor(Color.TRANSPARENT) }
-        var added = false
-        try {
-            wm.addView(dot, WindowManager.LayoutParams(
-                1, 1,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                PixelFormat.TRANSLUCENT,
-            ).apply { gravity = Gravity.TOP or Gravity.START })
-            added = true
-        } catch (e: Exception) {
-            LogBus.log("BT trigger overlay failed: $e")
-        }
-        main.postDelayed({
-            try {
-                app.startActivity(launch)
-            } catch (e: Exception) {
-                LogBus.log("BT trigger launch failed: $e")
+        // The dash's Bluetooth can be up with the bike off (and the phone may connect walking past).
+        // Only the bike's Wi-Fi means "on": connect if it's visible, else watch for it for a few minutes.
+        when (BikeWifi.isSsidInRange(context, saved.ssid)) {
+            true -> {
+                LogBus.log("→ BT trigger: $mac connected and the bike's Wi-Fi is up — starting Connect")
+                val pending = goAsync()
+                launchConnect(context.applicationContext, "BT trigger") { pending.finish() }
             }
-            main.postDelayed({
-                if (added) try { wm.removeView(dot) } catch (_: Exception) {}
-                pending.finish()
-            }, 2500)
-        }, 400)
+            else -> {
+                LogBus.log("→ BT trigger: $mac connected — bike Wi-Fi not seen yet, watching for it")
+                if (!BikeWatchService.start(context, BikeWatchService.Mode.SHORT)) {
+                    val pending = goAsync()
+                    launchConnect(context.applicationContext, "BT trigger (no watch)") { pending.finish() }
+                }
+            }
+        }
     }
 
-    private fun notifyTapToConnect(ctx: Context, launch: Intent) {
+    internal fun notifyTapToConnect(ctx: Context, launch: Intent) {
         try {
             val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (Build.VERSION.SDK_INT >= 26) {
@@ -129,6 +105,49 @@ class BtConnectTrigger : BroadcastReceiver() {
         }
 
     companion object {
+        /**
+         * Open the app and start Connect from the background: a "tap to connect" notification first
+         * (in case Android blocks the launch), then — with "display over other apps" — a 1 px overlay
+         * for a moment, because Android 15+ only lets an overlay holder start an activity from the
+         * background while one of its overlay windows is visible.
+         */
+        fun launchConnect(ctx: Context, reason: String, done: () -> Unit = {}) {
+            val app = ctx.applicationContext
+            val launch = Intent(app, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                putExtra(MainActivity.EXTRA_BT_TRIGGER, true)
+            }
+            BtConnectTrigger().notifyTapToConnect(app, launch)
+            if (!Settings.canDrawOverlays(app)) {
+                LogBus.log("→ $reason: no \"display over other apps\" permission — tap the notification to connect")
+                done(); return
+            }
+            val main = Handler(Looper.getMainLooper())
+            val wm = app.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            val dot = View(app).apply { setBackgroundColor(Color.TRANSPARENT) }
+            main.post {
+                var added = false
+                try {
+                    wm.addView(dot, WindowManager.LayoutParams(
+                        1, 1,
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                        PixelFormat.TRANSLUCENT,
+                    ).apply { gravity = Gravity.TOP or Gravity.START })
+                    added = true
+                } catch (e: Exception) {
+                    LogBus.log("$reason overlay failed: $e")
+                }
+                main.postDelayed({
+                    try { app.startActivity(launch) } catch (e: Exception) { LogBus.log("$reason launch failed: $e") }
+                    main.postDelayed({
+                        if (added) try { wm.removeView(dot) } catch (_: Exception) {}
+                        done()
+                    }, 2500)
+                }, 400)
+            }
+        }
+
         private const val CHANNEL = "bike_detected"
         const val NOTIF_ID = 4310
 

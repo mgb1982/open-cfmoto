@@ -66,4 +66,26 @@
         <item>sur</item>
         <item>oeste</item>
     </string-array>
+    <string name="tv_button">🎬 Vídeo</string>
+    <string name="tv_title">Vídeo del viaje</string>
+    <string name="tv_how">Junta en orden los clips que grabaste durante este viaje (Ray-Ban Meta, cámara de acción, móvil…), con tu ruta, posición, velocidad y hora encima. Tienen que estar en la galería del móvil: los de las gafas, impórtalos antes en la app Meta AI.</string>
+    <string name="tv_searching">Buscando clips grabados durante el viaje…</string>
+    <string name="tv_none">No hay clips de la hora de este viaje. Pásalos antes a la galería (app Meta AI → tus contenidos → guardar/importar) y vuelve.</string>
+    <string name="tv_no_permission">Permite el acceso a tus vídeos para que la app pueda encontrar los clips.</string>
+    <string name="tv_found">%1$d clip(s) · %2$d min %3$d s</string>
+    <string name="tv_speed_normal">Velocidad normal</string>
+    <string name="tv_speed_fast">Rápido ×4 (sin sonido)</string>
+    <string name="tv_make">Crear el vídeo</string>
+    <string name="tv_making">Creando el vídeo… deja esta pantalla abierta.</string>
+    <string name="tv_done">Listo: guardado en Películas/RideScreen AA</string>
+    <string name="tv_save_failed">El vídeo se ha creado pero no se ha podido guardar en la galería.</string>
+    <string name="tv_failed">No se ha podido crear el vídeo (%1$s).</string>
+    <string name="tv_open">Ver</string>
+    <string name="tv_meta_tip">Consejo: con las gafas quedan mejor clips cortos en los mejores momentos que una grabación larga. Grabar en marcha es responsabilidad tuya: la vista, en la carretera.</string>
+    <string name="watch_channel">Esperando a la moto</string>
+    <string name="watch_title">Esperando a %1$s</string>
+    <string name="watch_text">Modo ahorro: conectará cuando enciendas la moto</string>
+    <string name="watch_stop">Dejar de esperar</string>
+    <string name="watch_setting">Seguir esperando a la moto en modo ahorro</string>
+    <string name="watch_setting_desc">Tras 20 minutos sin la moto, en vez de rendirse, la app mira de vez en cuando si aparece la Wi-Fi de la moto (solo existe con el contacto puesto) y conecta sola. No mantiene el móvil despierto: es más rápida cuando miras el móvil.</string>
 </resources>

@@ -89,6 +89,10 @@ class TripMapActivity : AppCompatActivity() {
 
         renderRoute(trip)
         findViewById<View>(R.id.map_share).setOnClickListener { RideShare.shareTrip(this, trip) }
+        findViewById<View>(R.id.map_video).apply {
+            visibility = View.VISIBLE
+            setOnClickListener { TripVideoActivity.start(this@TripMapActivity, trip.id) }
+        }
     }
 
     // ---------------------------------------------------------------- single trip

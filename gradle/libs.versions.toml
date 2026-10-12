@@ -14,6 +14,7 @@ jmdns = "3.5.9"
 protobuf = "3.25.1"
 conscrypt = "2.5.3"
 osmdroid = "6.1.20"
+media3 = "1.8.0"
 maplibre = "13.3.1"
 playWearable = "19.0.0"
 wear = "1.3.0"
@@ -40,6 +41,9 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 jmdns = { group = "org.jmdns", name = "jmdns", version.ref = "jmdns" }
 protobuf-java = { group = "com.google.protobuf", name = "protobuf-java", version.ref = "protobuf" }
 conscrypt-android = { group = "org.conscrypt", name = "conscrypt-android", version.ref = "conscrypt" }
+media3-transformer = { group = "androidx.media3", name = "media3-transformer", version.ref = "media3" }
+media3-effect = { group = "androidx.media3", name = "media3-effect", version.ref = "media3" }
+media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3" }
 osmdroid = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 # OpenGL backend — more reliable on VirtualDisplay / Presentation than Vulkan default.
 maplibre = { group = "org.maplibre.gl", name = "android-sdk-opengl", version.ref = "maplibre" }
