@@ -46,6 +46,7 @@ class EasyConnProber(
         /** How many times to auto re-probe after a link drop before giving up (user taps Connect). */
         /** Cap before Phase.ERROR; watchdog [rearmFromError] resets this so a bike back in range recovers. */
         private const val MAX_RECONNECT_ATTEMPTS = 20
+        private const val MAX_EMPTY_SESSIONS = 3
         /** Proactive PXC heartbeat interval on each :10922 channel socket (CAR_CTRL + CAR_DATA). */
         private const val PXC_HEARTBEAT_INTERVAL_MS = 2000L
 
@@ -134,6 +135,13 @@ class EasyConnProber(
     @Volatile private var everConnected = false
     @Volatile private var reprobing = false
     @Volatile private var reconnectAttempts = 0
+    /**
+     * Dash sessions in a row that closed without a single video frame sent. The dash hangs up ~10 s
+     * after connecting when it gets no picture; re-probing then loops forever ("Link dropped —
+     * attempt 1" every ~13 s, seen on a POCO / Android 16 when Android Auto had died). Stop after
+     * [MAX_EMPTY_SESSIONS] and tell the rider instead.
+     */
+    @Volatile private var emptySessions = 0
 
     /**
      * @param gatewayOverride when set (Wi‑Fi Direct P2P path), use this bike GO IP instead of
@@ -156,6 +164,7 @@ class EasyConnProber(
         lastFrameAt = 0L
         everConnected = false
         reconnectAttempts = 0
+        emptySessions = 0
         liveConns.set(0)
         this.network = network
         dumpEnvironment(network)
@@ -381,6 +390,7 @@ class EasyConnProber(
      */
     fun rearmFromError() {
         if (!running || liveConns.get() > 0) return
+        if (emptySessions >= MAX_EMPTY_SESSIONS) return   // no video to show — re-probing would just loop
         log("[watchdog] re-arming reconnect after error")
         reconnectAttempts = 0
         onAllConnectionsClosed()
@@ -631,6 +641,12 @@ class EasyConnProber(
      */
     private fun onAllConnectionsClosed() {
         if (!running || !everConnected || reprobing) return
+        if (framesSent == 0 && (yunmo?.framesSent ?: 0) == 0) emptySessions++ else emptySessions = 0
+        if (emptySessions >= MAX_EMPTY_SESSIONS) {
+            log("[reconnect] dash hung up $emptySessions times without getting a single frame — no video source (Android Auto not running?). Stopping the re-probe loop.")
+            ConnectionState.set(Phase.ERROR, "Android Auto isn't sending video — tap Connect")
+            return
+        }
         if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
             log("[reconnect] gave up after $reconnectAttempts attempts — tap Connect to retry")
             ConnectionState.set(Phase.ERROR, "lost bike link")

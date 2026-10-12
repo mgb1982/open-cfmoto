@@ -108,12 +108,22 @@ class TripRecorder(private val appContext: Context) : LocationListener {
     )
 
     override fun onLocationChanged(location: Location) {
-        lastSeen = location
-        if (!recording) return
+        if (!recording) { if (plausible(location)) lastSeen = location; return }
         val now = SystemClock.elapsedRealtime()
         val prev = lastFix
         val d = prev?.distanceTo(location) ?: 0f
         val dtMs = if (prev != null && lastFixAt > 0) now - lastFixAt else 0L
+        // v2.2: phantom trips ("Vuelta por Los Tempranales", 0.1–0.2 km in ~30 s, a place the rider
+        // never went) come from bad fixes — GPS cold start / indoors (accuracy of hundreds of metres)
+        // or a jump between two fixes — being summed as distance. Drop them before they count.
+        val jump = prev != null && dtMs > 0 && d / (dtMs / 1000f) > MAX_PLAUSIBLE_MS
+        if (!plausible(location) || jump) {
+            if (jump) LogBus.log("[trip] ignored GPS jump of ${d.toInt()} m in ${dtMs} ms")
+            // Keep the live speed readout alive (tunnels, poor sky) but don't add distance or points.
+            if (!jump && location.hasSpeed()) { curSpeedKmh = (location.speed * 3.6f).toInt(); emit() }
+            return
+        }
+        lastSeen = location
 
         var speedMs = if (location.hasSpeed()) location.speed
             else if (dtMs in 1..5000) d / (dtMs / 1000f) else 0f
@@ -196,7 +206,16 @@ class TripRecorder(private val appContext: Context) : LocationListener {
 
         private const val MIN_MOVING_MS = 0.8f          // ~2.9 km/h below which we treat as stopped
         private const val IDLE_SPLIT_MS = 3 * 60_000L    // parked > 3 min → split into a new leg
-        private const val MIN_SAVE_DISTANCE_M = 100.0    // don't save trivial legs
-        private const val MIN_SAVE_TIME_MS = 15_000L
+        private const val MIN_SAVE_DISTANCE_M = 300.0    // don't save trivial legs (was 100: GPS noise passed it)
+        private const val MIN_SAVE_TIME_MS = 30_000L
+        private const val MAX_ACCURACY_M = 35f           // worse fixes don't count toward a ride
+        private const val MAX_PLAUSIBLE_MS = 75f         // ~270 km/h between two fixes = a jump, not riding
+
+        /** A fix good enough to build a track from: real (not mocked) and reasonably accurate. */
+        private fun plausible(l: Location): Boolean {
+            if (android.os.Build.VERSION.SDK_INT >= 31 && l.isMock) return false
+            if (l.hasAccuracy() && l.accuracy > MAX_ACCURACY_M) return false
+            return true
+        }
     }
 }

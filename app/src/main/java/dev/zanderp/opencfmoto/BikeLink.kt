@@ -125,6 +125,19 @@ object BikeLink {
             return
         }
         val p = prober ?: return
+        // No Android Auto video yet (AA failed to attach, or dropped before going steady): linking the
+        // dash now gives it a black screen, it hangs up after ~10 s and we loop. Keep the fresh network
+        // and let the normal gate ([markAaVideoSteady]) start the dash once AA really has frames.
+        // Only for the AA flow: Map / Mirror never go through the gate (networkReady stays false there).
+        if (networkReady && !aaVideoSteady) {
+            LogBus.log("→ Wi-Fi back but Android Auto has no video yet — holding the dash link until it does")
+            try { p.stop() } catch (_: Exception) {}
+            bikeNetwork = network
+            networkReady = true
+            proberStarted = false
+            ConnectionState.set(Phase.ERROR, "Android Auto isn't sending video — tap Connect")
+            return
+        }
         LogBus.log("→ restarting bike link on re-acquired Wi-Fi")
         ConnectionState.set(Phase.PXC_CONNECTING, "reconnecting")
         try { p.stop() } catch (_: Exception) {}
