@@ -62,7 +62,31 @@ class CrashSettingsActivity : AppCompatActivity() {
         refresh()
     }
 
-    private val askPerms = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { refresh() }
+    private val askPerms = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
+        // Android 13+ blocks SMS for apps installed from an APK ("restricted settings"): the request
+        // fails without even asking. Explain the one-time unlock instead of failing silently.
+        if (res.containsKey(Manifest.permission.SEND_SMS) && !granted(Manifest.permission.SEND_SMS)) {
+            getSharedPreferences("crash_detector", MODE_PRIVATE).edit().putBoolean("sms_asked", true).apply()
+            if (Build.VERSION.SDK_INT >= 33 &&
+                !shouldShowRequestPermissionRationale(Manifest.permission.SEND_SMS)
+            ) showRestrictedHelp()
+        }
+        refresh()
+    }
+
+    private fun showRestrictedHelp() {
+        if (isFinishing || isDestroyed) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.crash_restricted_title)
+            .setMessage(R.string.crash_restricted_steps)
+            .setPositiveButton(R.string.crash_restricted_open) { _, _ ->
+                try {
+                    startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+                } catch (_: Exception) {}
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -162,6 +186,11 @@ class CrashSettingsActivity : AppCompatActivity() {
         val want = ArrayList<String>()
         if (CrashDetector.smsSupported && !granted(Manifest.permission.SEND_SMS)) want += Manifest.permission.SEND_SMS
         if (Build.VERSION.SDK_INT >= 33 && !granted(Manifest.permission.POST_NOTIFICATIONS)) want += Manifest.permission.POST_NOTIFICATIONS
+        // Already refused once (or blocked as a restricted setting): go straight to the explanation.
+        val smsAsked = getSharedPreferences("crash_detector", MODE_PRIVATE).getBoolean("sms_asked", false)
+        if (Manifest.permission.SEND_SMS in want && smsAsked && Build.VERSION.SDK_INT >= 33 &&
+            !shouldShowRequestPermissionRationale(Manifest.permission.SEND_SMS)
+        ) { showRestrictedHelp(); return }
         if (want.isNotEmpty()) askPerms.launch(want.toTypedArray())
         else if (!fullScreenOk()) openFullScreenSettings()
     }

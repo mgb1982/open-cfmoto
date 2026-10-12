@@ -88,4 +88,7 @@
     <string name="watch_stop">Dejar de esperar</string>
     <string name="watch_setting">Seguir esperando a la moto en modo ahorro</string>
     <string name="watch_setting_desc">Tras 20 minutos sin la moto, en vez de rendirse, la app mira de vez en cuando si aparece la Wi-Fi de la moto (solo existe con el contacto puesto) y conecta sola. No mantiene el móvil despierto: es más rápida cuando miras el móvil.</string>
+    <string name="crash_restricted_title">Android bloquea los SMS a las apps instaladas desde un APK</string>
+    <string name="crash_restricted_steps">Es una protección de Android («ajustes restringidos») para las apps que no vienen de una tienda. Se desbloquea una sola vez:\n\n1. Pulsa «Abrir ajustes de la app».\n2. Toca ⋮ (arriba a la derecha) → «Permitir ajustes restringidos» y confirma.\n3. Ve a Permisos → SMS → Permitir.\n4. Vuelve aquí.\n\nSi no ves «Permitir ajustes restringidos», intenta primero activar los SMS en Permisos una vez; después aparece la opción.</string>
+    <string name="crash_restricted_open">Abrir ajustes de la app</string>
 </resources>
