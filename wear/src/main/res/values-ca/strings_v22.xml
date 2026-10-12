@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_title">T\'has caigut?</string>
+    <string name="crash_im_ok">ESTIC BÉ</string>
+    <string name="crash_sent">Avís enviat als teus contactes</string>
+    <string name="crash_close">Tanca</string>
+</resources>

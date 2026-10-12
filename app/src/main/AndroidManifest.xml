@@ -40,6 +40,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <!-- Best-effort close of the official CFMoto/EasyConnect app when it's holding the bike's
          mirroring-link ports (10920-10922) and blocking our connection. Only ever targets that one
          package; the reliable fallback is opening its App-info screen for a manual Force stop. -->
@@ -125,6 +126,20 @@
             android:exported="false"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden" />
+        <activity
+            android:name=".CrashSettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".CrashAlertActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true" />
+        <receiver
+            android:name=".CrashActionReceiver"
+            android:exported="false" />
         <activity
             android:name=".ScreenFitActivity"
             android:exported="false"

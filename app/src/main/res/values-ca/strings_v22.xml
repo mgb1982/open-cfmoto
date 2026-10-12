@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_entry">🆘 Detector de caigudes</string>
+    <string name="crash_channel">Alarma de caiguda</string>
+    <string name="crash_alert_title">T\'has caigut?</string>
+    <string name="crash_alert_title_test">T\'has caigut? (simulació)</string>
+    <string name="crash_alert_text">Avisarem els teus contactes d\'aquí a %1$d s si no prems Estic bé</string>
+    <string name="crash_im_ok">ESTIC BÉ</string>
+    <string name="crash_send_now">Envia l\'avís ara</string>
+    <string name="crash_alert_info">Si no respons, s\'enviarà un SMS amb la teva ubicació a %1$d contacte(s).</string>
+    <string name="crash_sent_title">Avís de caiguda enviat</string>
+    <string name="crash_sent_none">No s\'ha pogut enviar cap SMS (sense contactes o sense permís). Demana ajuda si la necessites.</string>
+    <string name="crash_sent_to">SMS enviat a: %1$s</string>
+    <string name="crash_sim_done">Simulació: s\'hauria enviat a %1$d contacte(s). No s\'ha enviat res.</string>
+    <string name="crash_close">Tanca</string>
+    <string name="crash_sms_someone">El motorista</string>
+    <string name="crash_sms_no_location">ubicació desconeguda</string>
+    <string name="crash_sms_body">🆘 RideScreen AA: %1$s pot haver patit una caiguda amb moto i no respon des de fa %2$d s. Ubicació: %3$s (%4$s). Missatge automàtic.</string>
+    <string name="crash_sms_followup">🆘 RideScreen AA, actualització: %1$s encara no respon (primer avís després de %2$d s). Ubicació ara: %3$s (%4$s). Missatge automàtic.</string>
+    <string name="crash_sms_test_prefix">[PROVA, ignora-ho]</string>
+    <string name="crash_title">Detector de caigudes</string>
+    <string name="crash_how">Mentre vas amb moto, el mòbil vigila si hi ha un cop fort i després la moto i el mòbil es queden quiets. Llavors sona una alarma de 60 s al mòbil i al rellotge. Si ningú prem «Estic bé», envia un SMS a fins a 3 contactes amb un enllaç al mapa d\'on ets, i un altre 5 minuts després. Mai no truca a emergències pel seu compte.</string>
+    <string name="crash_enable">Detector de caigudes activat</string>
+    <string name="crash_name_title">El teu nom (per al missatge)</string>
+    <string name="crash_name_hint">p. ex. Manel</string>
+    <string name="crash_contacts_title">Contactes d\'emergència (fins a %1$d)</string>
+    <string name="crash_add_contact">＋ Afegeix un contacte</string>
+    <string name="crash_contacts_full">Màxim %1$d contactes</string>
+    <string name="crash_no_contacts">Encara no hi ha contactes</string>
+    <string name="crash_test_title">Provar-ho</string>
+    <string name="crash_simulate">Simula una caiguda</string>
+    <string name="crash_simulate_confirm">Sonarà l\'alarma i començarà el compte enrere, també al rellotge. No s\'enviarà res: al final veuràs el missatge que s\'hauria enviat.</string>
+    <string name="crash_test_sms">Envia un SMS de prova</string>
+    <string name="crash_test_sms_confirm">S\'enviarà un SMS real, marcat com a prova, a: %1$s</string>
+    <string name="crash_disclaimer">No és un dispositiu de seguretat certificat: pot no detectar una caiguda o donar una falsa alarma. Avisa els teus contactes perquè un missatge no els espanti. Els SMS costen el que cobri la teva tarifa.</string>
+    <string name="crash_disclaimer_play">En aquesta versió (Google Play) l\'app no pot enviar SMS: només fa sonar l\'alarma. No és un dispositiu de seguretat certificat.</string>
+    <string name="crash_warn_contacts">Afegeix almenys un contacte</string>
+    <string name="crash_warn_sms">Permet els SMS (toca aquí)</string>
+    <string name="crash_warn_notif">Permet les notificacions (toca aquí)</string>
+    <string name="crash_warn_fullscreen">Permet les alertes a pantalla completa perquè l\'alarma surti sobre la pantalla de bloqueig (toca aquí)</string>
+    <string name="crash_status_off">Desactivat</string>
+    <string name="crash_status_ready">✅ A punt: actiu sempre que estiguis connectat a la moto</string>
+</resources>

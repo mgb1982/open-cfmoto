@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_entry">🆘 Detector de caídas</string>
+    <string name="crash_channel">Alarma de caída</string>
+    <string name="crash_alert_title">¿Te has caído?</string>
+    <string name="crash_alert_title_test">¿Te has caído? (simulación)</string>
+    <string name="crash_alert_text">Avisaremos a tus contactos en %1$d s si no pulsas Estoy bien</string>
+    <string name="crash_im_ok">ESTOY BIEN</string>
+    <string name="crash_send_now">Enviar el aviso ya</string>
+    <string name="crash_alert_info">Si no respondes, se enviará un SMS con tu ubicación a %1$d contacto(s).</string>
+    <string name="crash_sent_title">Aviso de caída enviado</string>
+    <string name="crash_sent_none">No se ha podido enviar ningún SMS (sin contactos o sin permiso). Pide ayuda si la necesitas.</string>
+    <string name="crash_sent_to">SMS enviado a: %1$s</string>
+    <string name="crash_sim_done">Simulación: se habría enviado a %1$d contacto(s). No se ha enviado nada.</string>
+    <string name="crash_close">Cerrar</string>
+    <string name="crash_sms_someone">El motorista</string>
+    <string name="crash_sms_no_location">ubicación desconocida</string>
+    <string name="crash_sms_body">🆘 RideScreen AA: %1$s puede haber sufrido una caída en moto y no responde desde hace %2$d s. Ubicación: %3$s (%4$s). Mensaje automático.</string>
+    <string name="crash_sms_followup">🆘 RideScreen AA, actualización: %1$s sigue sin responder (primer aviso tras %2$d s). Ubicación ahora: %3$s (%4$s). Mensaje automático.</string>
+    <string name="crash_sms_test_prefix">[PRUEBA, ignóralo]</string>
+    <string name="crash_title">Detector de caídas</string>
+    <string name="crash_how">Mientras vas en moto, el móvil vigila si hay un golpe fuerte y después la moto y el móvil se quedan quietos. Entonces suena una alarma de 60 s en el móvil y en el reloj. Si nadie pulsa «Estoy bien», envía un SMS a hasta 3 contactos con un enlace al mapa de dónde estás, y otro 5 minutos después. Nunca llama a emergencias por su cuenta.</string>
+    <string name="crash_enable">Detector de caídas activado</string>
+    <string name="crash_name_title">Tu nombre (para el mensaje)</string>
+    <string name="crash_name_hint">p. ej. Manel</string>
+    <string name="crash_contacts_title">Contactos de emergencia (hasta %1$d)</string>
+    <string name="crash_add_contact">＋ Añadir contacto</string>
+    <string name="crash_contacts_full">Máximo %1$d contactos</string>
+    <string name="crash_no_contacts">Aún no hay contactos</string>
+    <string name="crash_test_title">Probarlo</string>
+    <string name="crash_simulate">Simular caída</string>
+    <string name="crash_simulate_confirm">Sonará la alarma y empezará la cuenta atrás, también en el reloj. No se enviará nada: al final verás el mensaje que se habría enviado.</string>
+    <string name="crash_test_sms">Enviar SMS de prueba</string>
+    <string name="crash_test_sms_confirm">Se enviará un SMS real, marcado como prueba, a: %1$s</string>
+    <string name="crash_disclaimer">No es un dispositivo de seguridad certificado: puede no detectar una caída o dar una falsa alarma. Avisa a tus contactos para que un mensaje no les asuste. Los SMS cuestan lo que cobre tu tarifa.</string>
+    <string name="crash_disclaimer_play">En esta versión (Google Play) la app no puede enviar SMS: solo hace sonar la alarma. No es un dispositivo de seguridad certificado.</string>
+    <string name="crash_warn_contacts">Añade al menos un contacto</string>
+    <string name="crash_warn_sms">Permite los SMS (toca aquí)</string>
+    <string name="crash_warn_notif">Permite las notificaciones (toca aquí)</string>
+    <string name="crash_warn_fullscreen">Permite las alertas a pantalla completa para que la alarma salga sobre la pantalla de bloqueo (toca aquí)</string>
+    <string name="crash_status_off">Desactivado</string>
+    <string name="crash_status_ready">✅ Listo: activo siempre que estés conectado a la moto</string>
+</resources>

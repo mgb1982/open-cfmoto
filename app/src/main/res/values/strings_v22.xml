@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_entry">🆘 Crash detection</string>
+    <string name="crash_channel">Crash alarm</string>
+    <string name="crash_alert_title">Did you crash?</string>
+    <string name="crash_alert_title_test">Did you crash? (simulation)</string>
+    <string name="crash_alert_text">Your contacts will be alerted in %1$d s unless you tap I\'m OK</string>
+    <string name="crash_im_ok">I\'M OK</string>
+    <string name="crash_send_now">Send the alert now</string>
+    <string name="crash_alert_info">If you don\'t answer, an SMS with your location goes to %1$d contact(s).</string>
+    <string name="crash_sent_title">Crash alert sent</string>
+    <string name="crash_sent_none">No SMS could be sent (no contacts or no permission). Call for help if you need it.</string>
+    <string name="crash_sent_to">SMS sent to: %1$s</string>
+    <string name="crash_sim_done">Simulation: this would have gone to %1$d contact(s). Nothing was sent.</string>
+    <string name="crash_close">Close</string>
+    <string name="crash_sms_someone">The rider</string>
+    <string name="crash_sms_no_location">location unknown</string>
+    <string name="crash_sms_body">🆘 RideScreen AA: %1$s may have crashed their motorbike and hasn\'t answered for %2$d s. Location: %3$s (%4$s). Automatic message.</string>
+    <string name="crash_sms_followup">🆘 RideScreen AA, update: %1$s still hasn\'t answered (first alert after %2$d s). Location now: %3$s (%4$s). Automatic message.</string>
+    <string name="crash_sms_test_prefix">[TEST, ignore]</string>
+    <string name="crash_title">Crash detection</string>
+    <string name="crash_how">While you ride, the phone watches for a hard impact followed by the bike and the phone staying still. Then it sounds an alarm for 60 s on the phone and the watch. If nobody taps \"I\'m OK\", it texts up to 3 contacts with a map link to where you are, and again 5 minutes later. It never calls emergency services by itself.</string>
+    <string name="crash_enable">Crash detection on</string>
+    <string name="crash_name_title">Your name (for the message)</string>
+    <string name="crash_name_hint">e.g. Manel</string>
+    <string name="crash_contacts_title">Emergency contacts (up to %1$d)</string>
+    <string name="crash_add_contact">＋ Add a contact</string>
+    <string name="crash_contacts_full">Up to %1$d contacts</string>
+    <string name="crash_no_contacts">No contacts yet</string>
+    <string name="crash_test_title">Try it</string>
+    <string name="crash_simulate">Simulate a crash</string>
+    <string name="crash_simulate_confirm">The alarm will sound and the countdown will start, on the watch too. Nothing will be sent: at the end you\'ll see the message that would have gone out.</string>
+    <string name="crash_test_sms">Send a test SMS</string>
+    <string name="crash_test_sms_confirm">A real SMS marked as a test will be sent to: %1$s</string>
+    <string name="crash_disclaimer">This is not a certified safety device: it can miss a crash or raise a false alarm. Tell your contacts about it so a message doesn\'t scare them. SMS cost what your plan charges.</string>
+    <string name="crash_disclaimer_play">In this version (Google Play) the app can\'t send SMS: it only sounds the alarm. This is not a certified safety device.</string>
+    <string name="crash_warn_contacts">Add at least one contact</string>
+    <string name="crash_warn_sms">Allow SMS (tap here)</string>
+    <string name="crash_warn_notif">Allow notifications (tap here)</string>
+    <string name="crash_warn_fullscreen">Allow full-screen alerts so the alarm shows over the lock screen (tap here)</string>
+    <string name="crash_status_off">Off</string>
+    <string name="crash_status_ready">✅ Ready: active whenever you\'re connected to the bike</string>
+</resources>

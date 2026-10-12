@@ -179,6 +179,7 @@ class SetupActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.clocklab_sync_phone).setOnClickListener {
             setClockLabTimeSync(ClockTimeSyncMode.PHONE)
         }
+        findViewById<MaterialButton>(R.id.btn_crash_settings).setOnClickListener { CrashSettingsActivity.start(this) }
         findViewById<MaterialButton>(R.id.extras_park_on).setOnClickListener { RideExtras.setParking(this, true); refreshOptions() }
         findViewById<MaterialButton>(R.id.extras_park_off).setOnClickListener { RideExtras.setParking(this, false); refreshOptions() }
         findViewById<MaterialButton>(R.id.extras_rain_on).setOnClickListener { RideExtras.setRain(this, true); refreshOptions() }

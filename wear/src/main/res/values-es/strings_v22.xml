@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_title">¿Te has caído?</string>
+    <string name="crash_im_ok">ESTOY BIEN</string>
+    <string name="crash_sent">Aviso enviado a tus contactos</string>
+    <string name="crash_close">Cerrar</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="crash_title">Did you crash?</string>
+    <string name="crash_im_ok">I\'M OK</string>
+    <string name="crash_sent">Alert sent to your contacts</string>
+    <string name="crash_close">Close</string>
+</resources>

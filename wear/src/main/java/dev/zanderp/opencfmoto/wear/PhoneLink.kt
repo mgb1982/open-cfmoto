@@ -333,6 +333,11 @@ class SessionListenerService : WearableListenerService() {
     }
 
     override fun onMessageReceived(messageEvent: MessageEvent) {
+        if (messageEvent.path == CrashAlert.PATH) {
+            PhoneLink.rememberPhone(messageEvent.sourceNodeId)
+            CrashAlert.onMessage(this, String(messageEvent.data, Charsets.UTF_8).trim())
+            return
+        }
         when (messageEvent.path) {
             PhoneLink.PATH_TURN -> {
                 PhoneLink.vibrateTurn(this, String(messageEvent.data, Charsets.UTF_8))

@@ -44,6 +44,8 @@ object WearBridge {
     const val PATH_TURN = "/ocm/turn"
     const val PATH_PARKED = "/ocm/parked"
     const val PATH_TILE = "/ocm/tile"
+    /** 🆘 Crash alarm: phone → watch "start:<s>" / "stop" / "sent"; watch → phone "ok". */
+    const val PATH_CRASH = "/ocm/crash"
     private const val TILE_EVERY_MS = 60_000L
     @Volatile private var lastTileAt = 0L
     @Volatile private var husAttemptAt = 0L
@@ -109,6 +111,10 @@ object WearBridge {
     internal fun onMessage(ctx: Context, event: MessageEvent) {
         appCtx = ctx.applicationContext
         val text = String(event.data, Charsets.UTF_8).trim()
+        if (event.path == PATH_CRASH) {
+            if (text == "ok") CrashDetector.cancelAlarm(ctx, "watch")
+            return
+        }
         when (event.path) {
             // Watch in ambient mode: one snapshot, no 1 Hz stream.
             PATH_SUB -> if (text == "once") main.post { subscriber = event.sourceNodeId; sendStats(ctx.applicationContext) } else main.post {
