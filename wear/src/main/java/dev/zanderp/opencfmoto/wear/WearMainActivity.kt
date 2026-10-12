@@ -424,9 +424,25 @@ class WearMainActivity : ComponentActivity(), MessageClient.OnMessageReceivedLis
         val openCompass = View.OnClickListener { startActivity(android.content.Intent(this, FindBikeActivity::class.java)) }
         parkPage?.setOnClickListener(openCompass)
         parkFind?.setOnClickListener(openCompass)
+        // ▲ / ▼ turn the Android Auto knob (that's what moves through lists and menus): watches with
+        // no bezel or crown had no way to scroll. A long press still sends the old D-pad nudge.
+        for ((id, step, code) in listOf(
+            Triple(R.id.btn_up, -1, PhoneLink.KEY_UP),
+            Triple(R.id.btn_down, 1, PhoneLink.KEY_DOWN),
+        )) {
+            v.findViewById<View>(id).apply {
+                setOnClickListener { b ->
+                    b.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    PhoneLink.send(this@WearMainActivity, PhoneLink.PATH_SCROLL, step.toString())
+                }
+                setOnLongClickListener { b ->
+                    b.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                    PhoneLink.send(this@WearMainActivity, PhoneLink.PATH_KEY, code.toString())
+                    true
+                }
+            }
+        }
         val keys = mapOf(
-            R.id.btn_up to PhoneLink.KEY_UP,
-            R.id.btn_down to PhoneLink.KEY_DOWN,
             R.id.btn_left to PhoneLink.KEY_LEFT,
             R.id.btn_right to PhoneLink.KEY_RIGHT,
             R.id.btn_ok to PhoneLink.KEY_ENTER,
