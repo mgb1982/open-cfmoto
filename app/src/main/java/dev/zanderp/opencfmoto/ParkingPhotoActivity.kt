@@ -117,7 +117,7 @@ class ParkingPhotoActivity : AppCompatActivity() {
 
         init {
             setImageBitmap(bmp)
-            scaleType = ScaleType.MATRIX
+            scaleType = ImageView.ScaleType.MATRIX
         }
 
         override fun onSizeChanged(w: Int, h: Int, ow: Int, oh: Int) {
