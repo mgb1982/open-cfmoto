@@ -129,11 +129,20 @@ class TripRecorder(private val appContext: Context) : LocationListener {
             else if (dtMs in 1..5000) d / (dtMs / 1000f) else 0f
 
         val moving = speedMs >= MIN_MOVING_MS
+        var bridged = false
         if (prev != null && moving && dtMs in 1..5000) {
             distanceMeters += d
             movingTimeMs += dtMs
+        } else if (prev != null && dtMs in 5001..MAX_GAP_BRIDGE_MS && d / (dtMs / 1000f) >= MIN_MOVING_MS) {
+            // Coming out of a tunnel (no fixes, or only poor ones we ignored): we kept moving the whole
+            // time, so count the gap as a straight line instead of losing it. Same leg, no split.
+            distanceMeters += d
+            movingTimeMs += dtMs
+            bridged = true
+            LogBus.log("[trip] bridged GPS gap: ${d.toInt()} m in ${dtMs / 1000} s (tunnel?)")
         }
-        if (moving) lastMovingAt = now
+        // A tunnel longer than IDLE_SPLIT_MS ending at a red light must not look like "parked".
+        if (moving || bridged) lastMovingAt = now
         else if (lastMovingAt > 0 && now - lastMovingAt > IDLE_SPLIT_MS && distanceMeters > 0) {
             // Parked long enough — bank this leg and start a fresh one, staying in recording mode.
             finalizeLeg(save = true)
@@ -209,6 +218,7 @@ class TripRecorder(private val appContext: Context) : LocationListener {
         private const val MIN_SAVE_DISTANCE_M = 300.0    // don't save trivial legs (was 100: GPS noise passed it)
         private const val MIN_SAVE_TIME_MS = 30_000L
         private const val MAX_ACCURACY_M = 35f           // worse fixes don't count toward a ride
+        private const val MAX_GAP_BRIDGE_MS = 10 * 60_000L // GPS gap still counted as riding (long tunnels)
         private const val MAX_PLAUSIBLE_MS = 75f         // ~270 km/h between two fixes = a jump, not riding
 
         /** A fix good enough to build a track from: real (not mocked) and reasonably accurate. */
