@@ -109,7 +109,7 @@ object TripVideo {
         val title = TripNames.title(ctx, trip)
         val items = clips.map { clip ->
             val effects = ArrayList<androidx.media3.common.Effect>()
-            effects += OverlayEffect(ImmutableList.of(TripOverlay(trip, clip, title)))
+            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(trip, clip, title)))
             if (speed > 1f) effects += SpeedChangeEffect(speed)
             EditedMediaItem.Builder(MediaItem.fromUri(clip.uri))
                 .setRemoveAudio(speed > 1f)

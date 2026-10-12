@@ -48,7 +48,7 @@ object HelpMenu {
  */
 object WhatsNew {
     /** Bump together with whats_new_body / whats_new_title for the next feature release. */
-    private const val RELEASE = "2.1"
+    private const val RELEASE = "2.2"
     private const val PREFS = "whats_new"
     private const val KEY_SEEN = "seen"
 
