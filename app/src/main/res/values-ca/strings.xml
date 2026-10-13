@@ -553,7 +553,7 @@
     <string name="main_hide_logs">Amaga registres</string>
     <string name="main_connect_to">Connecta\'t a %1$s</string>
     <string name="main_no_bike_paired">Encara no hi ha cap moto aparellada: toqueu Connecta per escanejar el QR del quadre</string>
-    <string name="main_paired">Aparellat: %1$s: toqueu Connecta per tornar a connectar</string>
+    <string name="main_paired">%1$s desada · toca Connecta</string>
     <string name="main_invalid_qr">QR no vàlid</string>
     <string name="main_phone_hotspot_hint">Activa el punt d\'accés d\'Android amb l\'SSID i la contrasenya que es mostren al quadre de comandament i espera: la moto es connectarà al teu telèfon</string>
     <string name="main_phone_hotspot_status">Esperant la moto al punt d\'accés del telèfon…</string>

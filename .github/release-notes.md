@@ -3,18 +3,24 @@
 Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zanderp). No es una app oficial de Zontes ni de CFMoto. Código fuente en este repositorio, licencia AGPL-3.0.
 
 ### Novedades de la v2.2
+**🏠 Pantalla principal nueva**
+- Estado y números del día en una sola tarjeta. Con la moto aparcada, la tarjeta **🅿️ Tu moto** muestra la foto del sitio, la distancia y los botones **«Cómo llegar»** y **«Ver foto»** (la foto se ve dentro de la app, con zoom).
+- Seis accesos con color y un dato a la vista: **Viajes**, **Gasolineras**, **Mantenimiento**, **Semáforos**, **Ruta en directo** y **Ayuda**.
+- Al conectar, la pantalla cambia: **Aparcar con foto**, **Controles**, **Vista del cuadro**, **Viaje actual** y el buscador de destino, a mano.
+- Registros, «Acerca de», buscar actualizaciones y donar pasan al menú **❓ Ayuda**.
+
 **Seguridad**
-- **🆘 Detector de caídas** (opcional, en *Configuración → Extras de ruta*): si mientras vas en moto el móvil nota un golpe fuerte y después todo se queda quieto, suena una alarma de 60 s en el móvil y en el reloj. Si nadie pulsa **«Estoy bien»**, envía un SMS con tu ubicación a hasta 3 contactos, y otro a los 5 minutos. Tiene botón para simularlo y SMS de prueba. Nunca llama a emergencias por su cuenta. No es un dispositivo certificado.
+- **🆘 Detector de caídas** (opcional, en *Configuración → Extras de ruta*): si mientras vas en moto el móvil nota un golpe fuerte y después todo se queda quieto, y el móvil acaba tumbado (moto o motorista en el suelo), suena una alarma de 60 s en el móvil y en el reloj. Frenar en un semáforo después de un bache no la dispara. Si nadie pulsa **«Estoy bien»**, envía un SMS con tu ubicación a hasta 3 contactos, y otro a los 5 minutos. Tiene botón para simularlo (también con 15 s de margen para bloquear el móvil) y SMS de prueba. Nunca llama a emergencias por su cuenta. No es un dispositivo certificado.
 
 **Conexión**
-- **🔌 Vuelve a conectar sola al encender la moto**: pasados 20 minutos sin la moto, en vez de rendirse, sigue esperando su Wi-Fi en **modo ahorro** y conecta cuando la enciendes. La conexión por Bluetooth del cuadro ahora solo arranca si la Wi-Fi de la moto está encendida (el Bluetooth del cuadro sigue activo con la moto apagada).
+- **🔌 Vuelve a conectar sola al encender la moto**: pasados 20 minutos sin la moto, en vez de rendirse, sigue esperando su Wi-Fi en **modo ahorro** y conecta cuando la enciendes. Si eliges el Bluetooth del cuadro como activador, ahora lo reconoce aunque el móvil lo tenga emparejado con dos direcciones, y solo arranca si la Wi-Fi de la moto está encendida (el Bluetooth del cuadro sigue activo con la moto apagada).
 - **🎙️ «Ok Google» y los botones de voz** del intercomunicador y del reloj vuelven a funcionar: la app pide el micrófono al conectar (elige *«Mientras se usa la app»*).
 - **🔌 Primera conexión más fácil**: el permiso de "Dispositivos cercanos", el Bluetooth y la Wi-Fi apagados, y la pregunta de Android para conectar a la Wi-Fi de la moto se explican paso a paso.
 - **🎯 Ajustar la pantalla al cuadro** con flechas, viendo el resultado **en directo en la moto** (un marco amarillo marca la zona de Android Auto). La medida manual del panel sigue a la vista, también para paneles verticales.
 
 **En ruta**
 - **⛽ Gasolineras cerca con el precio de la Gasolina 95**: ordénalas por más baratas o más cercanas; toca una y Maps te lleva en el cuadro. Precios oficiales del Ministerio, cada hora (solo España).
-- **📸 Aparcar con foto** (opcional): mientras estás conectado, haz una foto de dónde dejas la moto y la app desconecta y guarda el sitio. **Detener** sigue igual. Desde el botón 🅿️ puedes ver, repetir o añadir la foto.
+- **📸 Aparcar con foto** (opcional): mientras estás conectado, haz una foto de dónde dejas la moto y la app desconecta y guarda el sitio. **Detener** sigue igual. Desde la tarjeta 🅿️ puedes ver, repetir o añadir la foto.
 
 **Tus viajes**
 - **🚦 Tus semáforos**: mapa de los semáforos donde más paras, cuánto esperas y, cuando haces el mismo trayecto por caminos distintos, cuál es de verdad más rápido.
@@ -23,7 +29,7 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 **Reloj**
 - **⌚ Relojes sin bisel**: ▲ y ▼ de la cruceta ya recorren los menús de Android Auto (mantén pulsado para la flecha de antes).
 
-**Y además**: botón **❓ Ayuda** (guía, registros, novedades, problemas), pantalla de **novedades**, aviso si tienes el registro de viajes desactivado, «Más fluido» pasa a llamarse **«Ahorro de datos (menos nitidez)»**, y correcciones de estabilidad.
+**Y además**: si Android Auto no arranca en el cuadro, el error trae el acceso directo para reiniciar su servidor de unidad principal; viajes fantasma corregidos (posiciones GPS malas) sin perder los túneles; botón **❓ Ayuda** (guía, registros, novedades, problemas), pantalla de **novedades**, aviso si tienes el registro de viajes desactivado, «Más fluido» pasa a llamarse **«Ahorro de datos (menos nitidez)»**, y correcciones de estabilidad.
 
 **Y todo lo de la v2**: mapa de calor, récords y trofeos, nombres automáticos de viajes, tu año en moto, libreta de mantenimiento y repostajes, aparcamiento al apagar la moto y brújula hacia tu moto en el reloj.
 

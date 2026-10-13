@@ -553,7 +553,7 @@
     <string name="main_hide_logs">Hide logs</string>
     <string name="main_connect_to">Connect to %1$s</string>
     <string name="main_no_bike_paired">No bike paired yet — tap Connect to scan the dash QR</string>
-    <string name="main_paired">Paired: %1$s — tap Connect to reconnect</string>
+    <string name="main_paired">%1$s saved · tap Connect</string>
     <string name="main_invalid_qr">Invalid QR</string>
     <string name="main_phone_hotspot_hint">Turn on Android hotspot with the SSID and password shown on the dash, then wait — the bike joins your phone</string>
     <string name="main_phone_hotspot_status">Waiting for bike on phone hotspot…</string>

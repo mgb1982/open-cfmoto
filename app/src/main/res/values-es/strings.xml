@@ -491,7 +491,7 @@
     <string name="conn_aa_video_live">Android Auto en vivo: unirse a la moto...</string>
     <string name="conn_joining_wifi">Conectándose al Wi-Fi de la moto...</string>
     <string name="conn_pxc_connecting">Vinculando al panel...</string>
-    <string name="conn_streaming">Conectado: proyectando al tablero</string>
+    <string name="conn_streaming">Conectado: proyectando en el cuadro</string>
     <string name="conn_mirroring">Duplicando la pantalla en el tablero</string>
     <string name="conn_reconnecting">Enlace caído - reconectando...</string>
     <string name="conn_waiting_for_bike">Moto fuera de alcance - esperando...</string>
@@ -510,7 +510,7 @@
     <string name="main_hide_logs">Ocultar registros</string>
     <string name="main_connect_to">Conectar con %1$s</string>
     <string name="main_no_bike_paired">Aún no hay ninguna moto emparejada: toca Conectar para escanear el QR del tablero</string>
-    <string name="main_paired">Emparejado: %1$s: toca Conectar para volver a conectarte</string>
+    <string name="main_paired">%1$s guardada · toca Conectar</string>
     <string name="main_invalid_qr">QR no válido</string>
     <string name="main_phone_hotspot_hint">Enciende el punto de acceso de Android con el SSID y la contraseña que muestra el tablero y espera: la moto se conecta a tu teléfono</string>
     <string name="main_phone_hotspot_status">Esperando a la moto en el punto de acceso del teléfono…</string>
