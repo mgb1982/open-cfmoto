@@ -41,7 +41,7 @@ import kotlin.math.sqrt
  * ends (a crash usually kills the engine → the dash → the session, so ending must not disarm us), and
  * only if the phone saw ≥ [ARM_SPEED_KMH] in the last [ARM_WINDOW_MS]. A crash is a hard impact
  * (≥ [IMPACT_G]) followed, within [CONFIRM_WINDOW_MS], by the phone lying still for [STILL_MS] with the
- * GPS speed near zero. Then a [COUNTDOWN_S] alarm (phone + watch) the rider can cancel; if nobody does,
+ * GPS speed near zero and tilted ≥ [MIN_TILT_DEG] from how it sat while riding (bike or rider down). Then a [COUNTDOWN_S] alarm (phone + watch) the rider can cancel; if nobody does,
  * an SMS with a map link goes to up to 3 contacts, and a second one with a fresh position after
  * [FOLLOW_UP_MS]. Never calls emergency services by itself (a false positive there is serious).
  * SMS needs the GitHub build (Play forbids SEND_SMS for non-messaging apps); the Play build alarms and
@@ -60,6 +60,14 @@ object CrashDetector : SensorEventListener {
     private const val STILL_MS = 10_000L
     private const val STILL_TOLERANCE = 0.6f          // m/s² deviation from 1 g
     private const val STOPPED_KMH = 5f
+    /**
+     * v2.2 field test: two false alarms in one day, both a pothole/kerb bump (4–5 g, which a phone on
+     * a handlebar mount sees all the time) followed by a red light (still + stopped). What a red light
+     * doesn't have is the bike (or the rider) ending up on its side: require the resting gravity
+     * direction to differ from the riding one by at least this much.
+     */
+    private const val MIN_TILT_DEG = 40.0
+    private const val GRAV_ALPHA = 0.97f                // low-pass ≈ 0.6 s at SENSOR_DELAY_GAME
     private const val CHANNEL = "crash_alert"
     const val NOTIF_ID = 4501
 
@@ -73,6 +81,10 @@ object CrashDetector : SensorEventListener {
     private var lastFastAt = 0L
     private var impactAt = 0L
     private var stillSince = 0L
+    private val grav = FloatArray(3)
+    private var gravReady = false
+    private val ridingGrav = FloatArray(3)
+    private var ridingGravReady = false
     @Volatile var alarmActive = false
         private set
     @Volatile var alarmTest = false
@@ -130,7 +142,7 @@ object CrashDetector : SensorEventListener {
         val sm = app.getSystemService(Context.SENSOR_SERVICE) as? SensorManager ?: return
         val acc = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return
         sensorOn = sm.registerListener(this, acc, SensorManager.SENSOR_DELAY_GAME, main)
-        impactAt = 0L; stillSince = 0L
+        impactAt = 0L; stillSince = 0L; gravReady = false; ridingGravReady = false
         LogBus.log("[CRASH] detector armed (${contacts(app).size} contact(s), sms=${canSms(app)})")
     }
 
@@ -156,8 +168,12 @@ object CrashDetector : SensorEventListener {
         val v = speedKmh()
         if (v != null && v >= ARM_SPEED_KMH) lastFastAt = now
         val mag = sqrt(e.values[0] * e.values[0] + e.values[1] * e.values[1] + e.values[2] * e.values[2])
+        if (!gravReady) { e.values.copyInto(grav, endIndex = 3); gravReady = true }
+        else for (i in 0..2) grav[i] = GRAV_ALPHA * grav[i] + (1 - GRAV_ALPHA) * e.values[i]
 
         if (impactAt == 0L) {
+            // Remember which way "down" is while riding normally; frozen once an impact is being watched.
+            if (v != null && v >= ARM_SPEED_KMH) { grav.copyInto(ridingGrav); ridingGravReady = true }
             if (mag >= IMPACT_G * SensorManager.GRAVITY_EARTH && now - lastFastAt <= ARM_WINDOW_MS) {
                 impactAt = now
                 stillSince = 0L
@@ -176,9 +192,22 @@ object CrashDetector : SensorEventListener {
         val stopped = (v ?: 0f) < STOPPED_KMH
         if (now - stillSince >= STILL_MS && stopped) {
             impactAt = 0L
-            LogBus.log("[CRASH] impact + ${STILL_MS / 1000}s still + stopped → alarm")
+            val tilt = if (ridingGravReady) angleDeg(ridingGrav, grav) else null
+            if (tilt != null && tilt < MIN_TILT_DEG) {
+                LogBus.log("[CRASH] impact + still + stopped, but upright (tilt ${tilt.toInt()}°) — red light, not a crash")
+                return
+            }
+            LogBus.log("[CRASH] impact + ${STILL_MS / 1000}s still + stopped + tilt ${tilt?.toInt() ?: "?"}° → alarm")
             startAlarm(app, test = false)
         }
+    }
+
+    private fun angleDeg(a: FloatArray, b: FloatArray): Double {
+        val dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+        val na = sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
+        val nb = sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2])
+        if (na < 1e-3f || nb < 1e-3f) return 180.0
+        return Math.toDegrees(kotlin.math.acos((dot / (na * nb)).coerceIn(-1f, 1f).toDouble()))
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}

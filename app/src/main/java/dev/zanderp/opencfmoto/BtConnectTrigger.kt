@@ -38,12 +38,16 @@ class BtConnectTrigger : BroadcastReceiver() {
         }
         val name = try { device?.name } catch (_: SecurityException) { null }
         val want = AppSettings.btTriggerMac(context)
-        LogBus.log("[BT-TRIG] connected: ${name ?: "?"} ($mac) · trigger=${want ?: "not set"} · AA service=${AndroidAutoService.isRunning}")
-        if (want == null || mac == null) return
-        if (!mac.equals(want, ignoreCase = true)) {
-            LogBus.log("[BT-TRIG] not the trigger device — ignored")
+        if (want == null || mac == null) {
+            LogBus.logThrottled("bttrig-off", "[BT-TRIG] ${name ?: "?"} connected · no trigger device set", 10 * 60_000L)
             return
         }
+        if (!isTrigger(mac, name, want, AppSettings.btTriggerName(context))) {
+            // Watch, earbuds, passing cars… keep it to one line per device per 10 min.
+            LogBus.logThrottled("bttrig-$mac", "[BT-TRIG] ${name ?: "?"} ($mac) connected · not the trigger (${AppSettings.btTriggerName(context)} $want) — ignored", 10 * 60_000L)
+            return
+        }
+        LogBus.log("[BT-TRIG] trigger device ${name ?: "?"} ($mac) connected · AA service=${AndroidAutoService.isRunning}")
         if (AndroidAutoService.isRunning) {
             // v2: within 20 min of switching off, the service is still up and parked — it used to
             // swallow the trigger here. The dash's Bluetooth means the bike is on: resume now.
@@ -101,6 +105,19 @@ class BtConnectTrigger : BroadcastReceiver() {
         } catch (e: Exception) {
             LogBus.log("BT trigger notification failed: $e")
         }
+    }
+
+    /**
+     * Manel's Zontes dash is bonded twice: classic Bluetooth DC:0D:30:85:10:66 (what actually connects)
+     * and DD:0D:30:85:10:66 (same chip, other address — probably the BLE bond the official app made).
+     * The picker saved the DD one, so the trigger never matched. Accept the same name, or the same
+     * address apart from the first byte.
+     */
+    private fun isTrigger(mac: String, name: String?, wantMac: String, wantName: String?): Boolean {
+        if (mac.equals(wantMac, ignoreCase = true)) return true
+        if (!name.isNullOrBlank() && !wantName.isNullOrBlank() && name.trim().length >= 4 &&
+            name.trim().equals(wantName.trim(), ignoreCase = true)) return true
+        return mac.length == 17 && wantMac.length == 17 && mac.substring(3).equals(wantMac.substring(3), ignoreCase = true)
     }
 
     private fun deviceFrom(intent: Intent): BluetoothDevice? =
