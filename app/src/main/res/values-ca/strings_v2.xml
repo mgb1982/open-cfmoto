@@ -7,8 +7,8 @@
     <string name="map_period_month">Mes</string>
     <string name="map_period_year">Any</string>
     <string name="map_period_all">Tot</string>
-    <string name="hus_title">⚠️ El servidor d\'unitat principal d\'Android Auto no està iniciat</string>
-    <string name="hus_body">Sense ell, Android Auto no sortirà al quadre. Cal tornar-lo a iniciar cada cop que es reinicia el mòbil.</string>
+    <string name="hus_title">⚠️ El servidor d\'unitat principal d\'Android Auto no respon</string>
+    <string name="hus_body">Sense ell, Android Auto no surt al quadre. A Android Auto: ⋮ → Atura el servidor d\'unitat principal i després Inicia\'l. Passa sovint després de reiniciar el mòbil.</string>
     <string name="hus_open">Obre Android Auto</string>
     <string name="hus_how">Com?</string>
     <string name="hus_how_title">Iniciar el servidor d\'unitat principal</string>

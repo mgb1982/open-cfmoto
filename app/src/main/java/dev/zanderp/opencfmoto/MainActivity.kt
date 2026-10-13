@@ -1111,7 +1111,8 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
                 // Only warn on a definite "no"; while connected we can't look (and it's clearly running).
-                banner.visibility = if (running == false) View.VISIBLE else View.GONE
+                val aaError = ConnectionState.phase == Phase.ERROR && isHusConnectNoise(ConnectionState.detail)
+                banner.visibility = if (running == false || aaError) View.VISIBLE else View.GONE
             }
         }, "hus-probe").start()
         findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
@@ -1417,6 +1418,20 @@ class MainActivity : AppCompatActivity() {
         setEnabled(R.id.btn_gpx, !busy || live)
         setEnabled(R.id.btn_aa_stop, busy || live)
         renderHomeMode(phase)
+        // v2.2: "Android Auto didn't attach / attached then dropped" is almost always its head unit
+        // server (stopped, or hung after the last session). Put the shortcut right under the error
+        // instead of waiting for the 15 s probe, which can't see the hung case at all.
+        val aaFailed = phase == Phase.ERROR && (
+            ConnectionState.detail == getString(R.string.conn_detail_aa_not_started) ||
+                ConnectionState.detail == getString(R.string.conn_detail_aa_dropped) ||
+                isHusConnectNoise(ConnectionState.detail))
+        findViewById<View?>(R.id.hus_banner)?.let { banner ->
+            if (aaFailed) {
+                banner.visibility = View.VISIBLE
+                findViewById<View>(R.id.hus_open).setOnClickListener { HeadUnitServer.openSettings(this) }
+                findViewById<View>(R.id.hus_how).setOnClickListener { HeadUnitServer.showHowTo(this) }
+            } else if (sessionAlive(phase)) banner.visibility = View.GONE
+        }
     }
 
     private fun setEnabled(id: Int, enabled: Boolean) {

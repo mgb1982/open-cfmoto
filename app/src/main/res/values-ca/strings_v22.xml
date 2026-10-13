@@ -2,8 +2,8 @@
 <resources>
     <string name="crash_entry">🆘 Detector de caigudes</string>
     <string name="crash_channel">Alarma de caiguda</string>
-    <string name="crash_alert_title">T\'has caigut?</string>
-    <string name="crash_alert_title_test">T\'has caigut? (simulació)</string>
+    <string name="crash_alert_title">Has caigut?</string>
+    <string name="crash_alert_title_test">Has caigut? (simulació)</string>
     <string name="crash_alert_text">Avisarem els teus contactes d\'aquí a %1$d s si no prems Estic bé</string>
     <string name="crash_im_ok">ESTIC BÉ</string>
     <string name="crash_send_now">Envia l\'avís ara</string>

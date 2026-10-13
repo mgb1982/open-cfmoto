@@ -7,8 +7,8 @@
     <string name="map_period_month">Mes</string>
     <string name="map_period_year">Año</string>
     <string name="map_period_all">Todo</string>
-    <string name="hus_title">⚠️ El servidor de unidad principal de Android Auto no está iniciado</string>
-    <string name="hus_body">Sin él, Android Auto no saldrá en el cuadro. Hay que volver a iniciarlo cada vez que se reinicia el móvil.</string>
+    <string name="hus_title">⚠️ El servidor de unidad principal de Android Auto no responde</string>
+    <string name="hus_body">Sin él, Android Auto no sale en el cuadro. En Android Auto: ⋮ → Detener servidor de unidad principal y luego Iniciar. Pasa a menudo tras reiniciar el móvil.</string>
     <string name="hus_open">Abrir Android Auto</string>
     <string name="hus_how">¿Cómo?</string>
     <string name="hus_how_title">Iniciar el servidor de unidad principal</string>
