@@ -251,23 +251,25 @@ class TripsListActivity : AppCompatActivity() {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
             ).apply { topMargin = dp(8) }
-            gravity = Gravity.END
         }
         actions.addView(
             MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
                 text = getString(R.string.share_button)
                 textSize = 13f
+                isSingleLine = true
                 setOnClickListener { RideShare.shareTrip(this@TripsListActivity, trip) }
-                layoutParams = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                ).apply { marginEnd = dp(8) }
+                // v2.2: two equal halves, lined up with the full-width 🎬 Vídeo row below.
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                    .apply { marginEnd = dp(8) }
             },
         )
         actions.addView(
             MaterialButton(this, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
                 text = getString(R.string.trips_export_gpx)
                 textSize = 13f
+                isSingleLine = true
                 setOnClickListener { exportGpx(trip) }
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
             },
         )
         // 🎬 Trip video: always here; shows the clip count (gold) when the gallery has videos
