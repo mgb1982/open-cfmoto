@@ -104,4 +104,33 @@
     <string name="setup_bt_trigger_set">Activador: %1$s</string>
     <string name="crash_simulate_delayed">En %1$d s (para bloquear el móvil)</string>
     <string name="crash_simulate_delayed_toast">Bloquea el móvil ahora: la alarma de prueba saltará en %1$d s</string>
+    <!-- v2.2 home (proposal A) -->
+    <string name="home_tile_trips">Viajes</string>
+    <string name="home_tile_fuel">Gasolineras</string>
+    <string name="home_tile_fuel_sub">SP95 cerca</string>
+    <string name="home_tile_maint">Mantenimiento</string>
+    <string name="home_tile_tl">Semáforos</string>
+    <string name="home_tile_live">Ruta en directo</string>
+    <string name="home_tile_live_on">Compartiendo · toca para parar</string>
+    <string name="home_tile_help">Ayuda</string>
+    <string name="home_tile_help_sub">y registros</string>
+    <string name="home_big_park">Aparcar con foto</string>
+    <string name="home_big_park_sub">y desconectar</string>
+    <string name="home_big_controls_sub">D-pad / manillar</string>
+    <string name="home_big_hud_sub">lo que ve la moto</string>
+    <string name="home_big_trip">Viaje actual</string>
+    <string name="home_big_trip_sub">en directo</string>
+    <string name="home_view_photo">Ver foto</string>
+    <string name="home_settings_short">Ajustes</string>
+    <string name="home_parked_title">🅿️ Tu moto</string>
+    <string name="home_parked_title_dist">🅿️ Tu moto · a %1$s</string>
+    <string name="home_parked_sub">Aparcada %1$s</string>
+    <string name="help_view_logs">📜 Ver registros</string>
+    <string name="help_about">ℹ️ Acerca de y créditos</string>
+    <string name="help_check_update">🔄 Buscar actualizaciones</string>
+    <string name="help_support">☕ Apoyar el proyecto</string>
+    <plurals name="home_tile_trips_today">
+        <item quantity="one">%1$d hoy</item>
+        <item quantity="other">%1$d hoy</item>
+    </plurals>
 </resources>

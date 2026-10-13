@@ -98,4 +98,33 @@
     <string name="qr_camera_failed">The camera can\'t start on this phone. Use \"Import QR from photo\" with a screenshot or photo of the dash QR instead.</string>
     <string name="crash_simulate_delayed">In %1$d s (to lock the phone)</string>
     <string name="crash_simulate_delayed_toast">Lock the phone now: the simulated alarm goes off in %1$d s</string>
+    <!-- v2.2 home (proposal A) -->
+    <string name="home_tile_trips">Rides</string>
+    <string name="home_tile_fuel">Petrol</string>
+    <string name="home_tile_fuel_sub">SP95 nearby</string>
+    <string name="home_tile_maint">Maintenance</string>
+    <string name="home_tile_tl">Traffic lights</string>
+    <string name="home_tile_live">Live route</string>
+    <string name="home_tile_live_on">Sharing now · tap to stop</string>
+    <string name="home_tile_help">Help</string>
+    <string name="home_tile_help_sub">and logs</string>
+    <string name="home_big_park">Park with photo</string>
+    <string name="home_big_park_sub">and disconnect</string>
+    <string name="home_big_controls_sub">D-pad / handlebar</string>
+    <string name="home_big_hud_sub">what the bike shows</string>
+    <string name="home_big_trip">This ride</string>
+    <string name="home_big_trip_sub">live stats</string>
+    <string name="home_view_photo">View photo</string>
+    <string name="home_settings_short">Settings</string>
+    <string name="home_parked_title">🅿️ Your bike</string>
+    <string name="home_parked_title_dist">🅿️ Your bike · %1$s</string>
+    <string name="home_parked_sub">Parked %1$s</string>
+    <string name="help_view_logs">📜 View logs</string>
+    <string name="help_about">ℹ️ About and credits</string>
+    <string name="help_check_update">🔄 Check for updates</string>
+    <string name="help_support">☕ Support the project</string>
+    <plurals name="home_tile_trips_today">
+        <item quantity="one">%1$d today</item>
+        <item quantity="other">%1$d today</item>
+    </plurals>
 </resources>

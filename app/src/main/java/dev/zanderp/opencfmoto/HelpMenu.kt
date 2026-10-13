@@ -13,23 +13,16 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 object HelpMenu {
     const val GUIDE_URL = "https://mgb1982.github.io/open-cfmoto/guia/"
 
-    fun show(activity: Activity, shareLogs: () -> Unit, reportProblem: () -> Unit) {
-        val items = arrayOf(
-            activity.getString(R.string.help_guide),
-            activity.getString(R.string.help_share_logs),
-            activity.getString(R.string.help_whats_new),
-            activity.getString(R.string.help_report),
-        )
+    fun show(activity: Activity, shareLogs: () -> Unit, reportProblem: () -> Unit, extras: List<Pair<String, () -> Unit>> = emptyList()) {
+        val items = listOf(
+            activity.getString(R.string.help_guide) to { openGuide(activity) },
+            activity.getString(R.string.help_share_logs) to shareLogs,
+            activity.getString(R.string.help_whats_new) to { WhatsNew.show(activity) },
+            activity.getString(R.string.help_report) to reportProblem,
+        ) + extras
         MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.help_title)
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> openGuide(activity)
-                    1 -> shareLogs()
-                    2 -> WhatsNew.show(activity)
-                    3 -> reportProblem()
-                }
-            }
+            .setItems(items.map { it.first }.toTypedArray()) { _, which -> items[which].second() }
             .show()
     }
 

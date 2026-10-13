@@ -98,4 +98,33 @@
     <string name="qr_camera_failed">La càmera no arrenca en aquest mòbil. Fes servir «Importa un codi QR des d\'una foto» amb una captura o foto del QR de la pantalla.</string>
     <string name="crash_simulate_delayed">D\'aquí a %1$d s (per bloquejar el mòbil)</string>
     <string name="crash_simulate_delayed_toast">Bloqueja el mòbil ara: l\'alarma de prova saltarà d\'aquí a %1$d s</string>
+    <!-- v2.2 home (proposal A) -->
+    <string name="home_tile_trips">Viatges</string>
+    <string name="home_tile_fuel">Benzineres</string>
+    <string name="home_tile_fuel_sub">SP95 a prop</string>
+    <string name="home_tile_maint">Manteniment</string>
+    <string name="home_tile_tl">Semàfors</string>
+    <string name="home_tile_live">Ruta en directe</string>
+    <string name="home_tile_live_on">Compartint · toca per aturar</string>
+    <string name="home_tile_help">Ajuda</string>
+    <string name="home_tile_help_sub">i registres</string>
+    <string name="home_big_park">Aparca amb foto</string>
+    <string name="home_big_park_sub">i desconnecta</string>
+    <string name="home_big_controls_sub">D-pad / manillar</string>
+    <string name="home_big_hud_sub">el que veu la moto</string>
+    <string name="home_big_trip">Viatge actual</string>
+    <string name="home_big_trip_sub">en directe</string>
+    <string name="home_view_photo">Mira la foto</string>
+    <string name="home_settings_short">Ajustos</string>
+    <string name="home_parked_title">🅿️ La teva moto</string>
+    <string name="home_parked_title_dist">🅿️ La teva moto · a %1$s</string>
+    <string name="home_parked_sub">Aparcada %1$s</string>
+    <string name="help_view_logs">📜 Mostra els registres</string>
+    <string name="help_about">ℹ️ Quant a i crèdits</string>
+    <string name="help_check_update">🔄 Cerca actualitzacions</string>
+    <string name="help_support">☕ Dona suport al projecte</string>
+    <plurals name="home_tile_trips_today">
+        <item quantity="one">%1$d avui</item>
+        <item quantity="other">%1$d avui</item>
+    </plurals>
 </resources>

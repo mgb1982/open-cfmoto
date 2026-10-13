@@ -631,43 +631,13 @@ class MainActivity : AppCompatActivity() {
         (connectBtn as? MaterialButton)?.setIconResource(R.drawable.ic_power)
         findViewById<android.widget.TextView>(R.id.brand_version).text =
             "v${BuildConfig.VERSION_NAME}"
-        // Scan / Map / Mirror: icon on top (Tile style). maxLines=1 + autoSize keeps labels
-        // horizontal on narrow phones / large system font (Samsung S22 report).
-        fun MaterialButton.asIconTopTile(iconRes: Int) {
-            setIconResource(iconRes)
-            iconGravity = MaterialButton.ICON_GRAVITY_TOP
-            iconPadding = resources.getDimensionPixelSize(R.dimen.btn_tile_icon_padding)
-            maxLines = 1
-            isSingleLine = true
-        }
-        (findViewById<View>(R.id.btn_aa_start) as? MaterialButton)?.asIconTopTile(R.drawable.ic_qr)
-        (findViewById<View>(R.id.btn_gpx) as? MaterialButton)?.asIconTopTile(R.drawable.ic_place)
-        (findViewById<View>(R.id.btn_mirror_start) as? MaterialButton)?.asIconTopTile(R.drawable.ic_cast)
-        (findViewById<View>(R.id.btn_aa_stop) as? MaterialButton)?.setIconResource(R.drawable.ic_stop)
-        (findViewById<View>(R.id.btn_hud_view) as? MaterialButton)?.apply {
-            setIconResource(R.drawable.ic_cast)
-            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-            maxLines = 1
-        }
-        (findViewById<View>(R.id.btn_controls) as? MaterialButton)?.apply {
-            setIconResource(R.drawable.ic_devices)
-            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-            maxLines = 1
-        }
-        // Footer 2×2 — icon + label (same pattern as Dash view / Controls).
-        fun MaterialButton.asFooterLink(iconRes: Int) {
-            setIconResource(iconRes)
-            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
-            iconPadding = (6 * resources.displayMetrics.density).toInt()
-            iconSize = (18 * resources.displayMetrics.density).toInt()
-            setIconTintResource(R.color.text_secondary)
-            maxLines = 1
-            isSingleLine = true
-        }
-        (findViewById<View>(R.id.btn_setup) as? MaterialButton)?.asFooterLink(R.drawable.ic_settings)
-        (findViewById<View>(R.id.btn_devices) as? MaterialButton)?.asFooterLink(R.drawable.ic_devices)
-        (findViewById<View>(R.id.btn_trip) as? MaterialButton)?.asFooterLink(R.drawable.ic_ride)
-        (toggleLogBtn as? MaterialButton)?.asFooterLink(R.drawable.ic_logs)
+        // v2.2 home (proposal A): "Más" row icons + the tiles (icon bubble, title, live detail).
+        (findViewById<View>(R.id.btn_gpx) as? MaterialButton)?.setIconResource(R.drawable.ic_place)
+        (findViewById<View>(R.id.btn_mirror_start) as? MaterialButton)?.setIconResource(R.drawable.ic_cast)
+        (findViewById<View>(R.id.btn_aa_start) as? MaterialButton)?.setIconResource(R.drawable.ic_qr)
+        (findViewById<View>(R.id.btn_devices) as? MaterialButton)?.setIconResource(R.drawable.ic_devices)
+        (findViewById<View>(R.id.btn_setup) as? MaterialButton)?.setIconResource(R.drawable.ic_settings)
+        setupHomeTiles()
 
         // All components (bike PXC, Android Auto receiver, video pipeline — including those
         // running in the foreground service) log through LogBus; mirror it into the view.
@@ -756,9 +726,10 @@ class MainActivity : AppCompatActivity() {
         toggleLogBtn.setOnClickListener {
             val show = logPanel.visibility != View.VISIBLE
             logPanel.visibility = if (show) View.VISIBLE else View.GONE
-            // The tips panel and the log panel share the flexible space, so only one shows at a time.
-            tipsPanel.visibility = if (show) View.GONE else View.VISIBLE
-            toggleLogBtn.text = if (show) getString(R.string.main_hide_logs) else getString(R.string.main_logs)
+            // v2.2: opened from ❓ Help → Logs; scroll down to it.
+            if (show) findViewById<androidx.core.widget.NestedScrollView>(R.id.main_scroll)?.post {
+                findViewById<androidx.core.widget.NestedScrollView>(R.id.main_scroll)?.smoothScrollTo(0, logPanel.top)
+            }
         }
 
         findViewById<View>(R.id.btn_hud_view).setOnClickListener { startActivity(Intent(this, HudViewActivity::class.java)) }
@@ -838,7 +809,6 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btn_setup).setOnClickListener { SetupActivity.start(this) }
         findViewById<View>(R.id.btn_hero_menu).setOnClickListener { SetupActivity.start(this) }
         findViewById<View>(R.id.btn_trips_list).setOnClickListener { TripsListActivity.start(this) }
-        (findViewById<View>(R.id.btn_trips_list) as? MaterialButton)?.setIconResource(R.drawable.ic_ride)
         findViewById<View>(R.id.brand_title).setOnClickListener { AboutActivity.start(this) }
         findViewById<View>(R.id.btn_about_page).setOnClickListener { AboutActivity.start(this) }
         findViewById<View>(R.id.btn_check_update).setOnClickListener { checkUpdateManual() }
@@ -846,7 +816,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.btn_donate).setOnClickListener { Support.open(this) }
         findViewById<View>(R.id.btn_fuel)?.setOnClickListener { FuelActivity.start(this) }
         findViewById<View>(R.id.btn_help)?.setOnClickListener {
-            HelpMenu.show(this, shareLogs = { shareLog() }, reportProblem = { reportProblem() })
+            HelpMenu.show(this, shareLogs = { shareLog() }, reportProblem = { reportProblem() }, extras = helpExtras())
         }
         findViewById<View>(R.id.btn_park_photo)?.setOnClickListener { takeParkingPhoto(thenStop = true) }
         // Play build: updates come from Google Play only (Play policy forbids self-updating).
@@ -1191,53 +1161,186 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    // ---- v2.2 home (proposal A) ----
+
+    private class Tile(val sub: TextView, val title: TextView)
+    private val tiles = HashMap<Int, Tile>()
+
+    /** Icon bubble (soft colour per shortcut) + title + a live detail line, inside a HomeTile container. */
+    private fun buildTile(id: Int, emoji: String, color: Int, title: String, sub: String = "", big: Boolean = false) {
+        val box = findViewById<android.widget.LinearLayout?>(id) ?: return
+        box.removeAllViews()
+        val dp = resources.displayMetrics.density
+        val bubble = TextView(this).apply {
+            text = emoji
+            textSize = if (big) 20f else 22f
+            gravity = android.view.Gravity.CENTER
+            background = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.OVAL
+                setColor((color and 0x00FFFFFF) or 0x33000000)
+            }
+        }
+        val size = ((if (big) 42 else 46) * dp).toInt()
+        box.addView(bubble, android.widget.LinearLayout.LayoutParams(size, size))
+        val t = TextView(this).apply {
+            text = title
+            textSize = if (big) 15f else 13f
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_primary))
+            typeface = androidx.core.content.res.ResourcesCompat.getFont(this@MainActivity, R.font.archivo_medium)
+            gravity = if (big) android.view.Gravity.START else android.view.Gravity.CENTER
+            maxLines = 2
+            setPadding(0, (8 * dp).toInt(), 0, 0)
+        }
+        box.addView(t)
+        val st = TextView(this).apply {
+            text = sub
+            textSize = 11f
+            setTextColor(ContextCompat.getColor(this@MainActivity, R.color.text_secondary))
+            gravity = t.gravity
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+            visibility = if (sub.isBlank()) View.GONE else View.VISIBLE
+        }
+        box.addView(st)
+        tiles[id] = Tile(st, t)
+    }
+
+    private fun setTileSub(id: Int, sub: String?) {
+        val tile = tiles[id] ?: return
+        tile.sub.text = sub.orEmpty()
+        tile.sub.visibility = if (sub.isNullOrBlank()) View.GONE else View.VISIBLE
+    }
+
+    private fun setupHomeTiles() {
+        buildTile(R.id.btn_trips_list, "🏍️", 0xFF5B8DEF.toInt(), getString(R.string.home_tile_trips))
+        buildTile(R.id.btn_fuel, "⛽", 0xFFE5774E.toInt(), getString(R.string.home_tile_fuel), getString(R.string.home_tile_fuel_sub))
+        buildTile(R.id.btn_maint, "🔧", 0xFF4FB6A6.toInt(), getString(R.string.home_tile_maint))
+        buildTile(R.id.btn_traffic_lights, "🚦", 0xFFE05A5A.toInt(), getString(R.string.home_tile_tl))
+        buildTile(R.id.btn_live, "📍", 0xFF5FD07A.toInt(), getString(R.string.home_tile_live))
+        buildTile(R.id.btn_help, "❓", 0xFFA98BE0.toInt(), getString(R.string.home_tile_help), getString(R.string.home_tile_help_sub))
+        buildTile(R.id.btn_park_photo, "📸", 0xFFD1A955.toInt(), getString(R.string.home_big_park), getString(R.string.home_big_park_sub), big = true)
+        buildTile(R.id.btn_controls, "🎮", 0xFF5B8DEF.toInt(), getString(R.string.controls_controls), getString(R.string.home_big_controls_sub), big = true)
+        buildTile(R.id.btn_hud_view, "🖥️", 0xFF4FB6A6.toInt(), getString(R.string.hud_dash_view), getString(R.string.home_big_hud_sub), big = true)
+        buildTile(R.id.btn_trip, "⏱️", 0xFF5FD07A.toInt(), getString(R.string.home_big_trip), getString(R.string.home_big_trip_sub), big = true)
+        findViewById<View>(R.id.btn_traffic_lights)?.setOnClickListener { startActivity(Intent(this, TrafficLightsActivity::class.java)) }
+        findViewById<View>(R.id.parked_walk)?.setOnClickListener {
+            val spot = Parking.get(this) ?: return@setOnClickListener
+            try { startActivity(Parking.walkIntent(spot)) } catch (_: Exception) {
+                Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+        findViewById<View>(R.id.parked_view_photo)?.setOnClickListener {
+            if (Parking.hasPhoto(this)) ParkingPhotoActivity.start(this) else takeParkingPhoto(thenStop = false)
+        }
+    }
+
+    /** Extra entries for ❓ Help: the bits that used to sit at the bottom of the home screen. */
+    private fun helpExtras(): List<Pair<String, () -> Unit>> = buildList {
+        add(getString(if (logPanel.visibility == View.VISIBLE) R.string.main_hide_logs else R.string.help_view_logs) to { toggleLogBtn.performClick(); Unit })
+        add(getString(R.string.help_about) to { AboutActivity.start(this@MainActivity); Unit })
+        if (BuildConfig.SELF_UPDATE) add(getString(R.string.help_check_update) to { checkUpdateManual(); Unit })
+        add(getString(R.string.help_support) to { Support.open(this@MainActivity); Unit })
+    }
+
+    /**
+     * Parked vs connected: the hero shrinks and the riding shortcuts (park with photo, controls, dash
+     * view, current trip, destination search) appear; the parking card only shows when parked.
+     */
+    private fun renderHomeMode(phase: Phase) {
+        val live = sessionAlive(phase)
+        findViewById<View?>(R.id.live_section)?.visibility = if (live) View.VISIBLE else View.GONE
+        findViewById<View?>(R.id.hero_card)?.let { hero ->
+            val h = ((if (live) 190 else 280) * resources.displayMetrics.density).toInt()
+            if (hero.layoutParams.height != h) { hero.layoutParams.height = h; hero.requestLayout() }
+        }
+        findViewById<TextView?>(R.id.hero_name)?.textSize = if (live) 34f else 46f
+        renderParked()
+    }
+
     private fun renderMaint() {
-        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_maint) ?: return
-        btn.setOnClickListener { MaintenanceActivity.start(this) }
+        findViewById<View?>(R.id.btn_maint)?.setOnClickListener { MaintenanceActivity.start(this) }
         val s = try { Maintenance.mostUrgent(this) } catch (_: Exception) { null }
-        btn.text = if (s == null) getString(R.string.maint_pill_default)
-            else "🔧 ${s.task.name} · ${Maintenance.statusText(this, s)}"
+        setTileSub(R.id.btn_maint, s?.let { "${it.task.name}: ${Maintenance.statusText(this, it)}" })
+        val trips = try { TripStore.summaries(this).count { android.text.format.DateUtils.isToday(it.start) } } catch (_: Exception) { 0 }
+        setTileSub(R.id.btn_trips_list, if (trips > 0) resources.getQuantityString(R.plurals.home_tile_trips_today, trips, trips) else null)
     }
 
     private fun renderLive() {
-        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_live) ?: return
+        val box = findViewById<View?>(R.id.btn_live) ?: return
         if (!LiveShare.available) {
-            btn.visibility = View.GONE
+            box.alpha = 0.4f
+            box.setOnClickListener(null)
+            setTileSub(R.id.btn_live, null)
             return
         }
-        btn.visibility = View.VISIBLE
+        box.alpha = 1f
         if (LiveShare.active) {
-            btn.setText(R.string.live_pill_active)
-            btn.setOnClickListener {
+            setTileSub(R.id.btn_live, getString(R.string.home_tile_live_on))
+            box.setOnClickListener {
                 LiveShare.stop()
                 Toast.makeText(this, R.string.live_stopped, Toast.LENGTH_SHORT).show()
                 renderLive()
             }
-            btn.setOnLongClickListener { LiveShare.shareLink(this); true }
+            box.setOnLongClickListener { LiveShare.shareLink(this); true }
         } else {
-            btn.setText(R.string.live_pill_start)
-            btn.setOnClickListener { LiveShare.begin(this) }
-            btn.setOnLongClickListener(null)
+            setTileSub(R.id.btn_live, null)
+            box.setOnClickListener { LiveShare.begin(this) }
+            box.setOnLongClickListener(null)
         }
     }
 
     private fun renderParked() {
-        val btn = findViewById<com.google.android.material.button.MaterialButton?>(R.id.btn_parked) ?: return
+        val card = findViewById<View?>(R.id.btn_parked) ?: return
         val spot = Parking.get(this)
-        if (spot == null || ConnectionState.phase == Phase.STREAMING) {
-            btn.visibility = View.GONE
+        if (spot == null || sessionAlive(ConnectionState.phase)) {
+            card.visibility = View.GONE
             return
         }
         val ago = android.text.format.DateUtils.getRelativeTimeSpanString(
             spot.time, System.currentTimeMillis(), android.text.format.DateUtils.MINUTE_IN_MILLIS,
         )
         val dist = Parking.distanceFromHere(this, spot)
-        btn.text = if (dist != null) getString(R.string.parked_pill_dist, Parking.distanceText(dist), ago)
-            else getString(R.string.parked_pill, ago)
-        if (Parking.hasPhoto(this)) btn.text = "${btn.text} · 📷"
-        btn.visibility = View.VISIBLE
-        btn.setOnClickListener { showParkedOptions(spot) }
-        btn.setOnLongClickListener {
+        findViewById<TextView>(R.id.parked_title).text =
+            if (dist != null) getString(R.string.home_parked_title_dist, Parking.distanceText(dist)) else getString(R.string.home_parked_title)
+        findViewById<TextView>(R.id.parked_sub).text = getString(R.string.home_parked_sub, ago)
+        val hasPhoto = Parking.hasPhoto(this)
+        val thumb = findViewById<android.widget.ImageView>(R.id.parked_thumb)
+        val file = Parking.photoFile(this)
+        if (hasPhoto && thumb.tag != file.lastModified()) {
+            thumb.tag = file.lastModified()
+            val bmp = runCatching {
+                val o = android.graphics.BitmapFactory.Options().apply { inSampleSize = 16 }
+                android.graphics.BitmapFactory.decodeFile(file.absolutePath, o)?.let { raw ->
+                    val deg = when (android.media.ExifInterface(file.absolutePath).getAttributeInt(
+                        android.media.ExifInterface.TAG_ORIENTATION, android.media.ExifInterface.ORIENTATION_NORMAL)) {
+                        android.media.ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                        android.media.ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                        android.media.ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                        else -> 0f
+                    }
+                    if (deg == 0f) raw else android.graphics.Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height,
+                        android.graphics.Matrix().apply { postRotate(deg) }, true)
+                }
+            }.getOrNull()
+            thumb.setImageBitmap(bmp)
+        } else if (!hasPhoto) {
+            thumb.tag = null
+            thumb.setImageResource(R.drawable.ic_place)
+            thumb.scaleType = android.widget.ImageView.ScaleType.CENTER
+        }
+        if (hasPhoto) thumb.scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+        thumb.clipToOutline = true
+        thumb.outlineProvider = object : android.view.ViewOutlineProvider() {
+            override fun getOutline(v: View, o: android.graphics.Outline) {
+                o.setRoundRect(0, 0, v.width, v.height, 16 * resources.displayMetrics.density)
+            }
+        }
+        (findViewById<View>(R.id.parked_view_photo) as? MaterialButton)?.setText(
+            if (hasPhoto) R.string.home_view_photo else R.string.parked_add_photo,
+        )
+        card.visibility = View.VISIBLE
+        card.setOnClickListener { showParkedOptions(spot) }
+        card.setOnLongClickListener {
             Parking.clear(this)
             Toast.makeText(this, R.string.parked_cleared, Toast.LENGTH_SHORT).show()
             renderParked()
@@ -1313,7 +1416,7 @@ class MainActivity : AppCompatActivity() {
         setEnabled(R.id.btn_mirror_start, !busy || live)
         setEnabled(R.id.btn_gpx, !busy || live)
         setEnabled(R.id.btn_aa_stop, busy || live)
-        findViewById<View>(R.id.btn_park_photo)?.visibility = if (sessionAlive(phase)) View.VISIBLE else View.GONE
+        renderHomeMode(phase)
     }
 
     private fun setEnabled(id: Int, enabled: Boolean) {
