@@ -1,6 +1,6 @@
 name: Pages (guide + fuel prices)
 # Publishes site/ (install guide) plus fresh SP95 prices per area (scripts/fuel_tiles.py) to
-# https://mgb1982.github.io/open-cfmoto/ — hourly, so the app's "Gasolineras cerca" stays current.
+# https://mgb1982.github.io/ridescreen-aa/ — hourly, so the app's "Gasolineras cerca" stays current.
 # Needs Settings → Pages → Source: GitHub Actions.
 on:
   schedule:

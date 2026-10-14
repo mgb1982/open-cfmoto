@@ -19,7 +19,7 @@ object UpdateChecker {
      * RideScreen AA: releases are published as vN on this repo and signed with the fork's key, so an
      * upstream (zanderp) APK can't install over it — never offer one. See [isNewerFork].
      */
-    const val REPO = "mgb1982/open-cfmoto"
+    const val REPO = "mgb1982/ridescreen-aa"
 
     private const val API = "https://api.github.com/repos/$REPO/releases/latest"
     private const val PREF = "updates"

@@ -171,7 +171,7 @@ overlay dimming/seamless-resume simply stays off unless granted.
 
 ## Contact
 
-RideScreen AA questions: open an issue at <https://github.com/mgb1982/open-cfmoto/issues>.
+RideScreen AA questions: open an issue at <https://github.com/mgb1982/ridescreen-aa/issues>.
 OpenCfMoto (the original project) is an independent, unofficial project by
 Alexandru: <https://alexandru.rocks>.
 

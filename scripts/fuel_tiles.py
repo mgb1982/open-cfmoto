@@ -24,7 +24,7 @@ def fetch():
     last = None
     for attempt in range(4):
         try:
-            req = urllib.request.Request(URL, headers={"Accept": "application/json", "User-Agent": "RideScreenAA-fuel/1.0 (+https://github.com/mgb1982/open-cfmoto)"})
+            req = urllib.request.Request(URL, headers={"Accept": "application/json", "User-Agent": "RideScreenAA-fuel/1.0 (+https://github.com/mgb1982/ridescreen-aa)"})
             with urllib.request.urlopen(req, timeout=120) as r:
                 return json.load(r)
         except Exception as e:

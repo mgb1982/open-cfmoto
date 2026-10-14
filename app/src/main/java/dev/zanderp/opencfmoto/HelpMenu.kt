@@ -11,7 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 /** ❓ Help pill on the main screen: install guide, share logs, what's new, report a problem. */
 object HelpMenu {
-    const val GUIDE_URL = "https://mgb1982.github.io/open-cfmoto/guia/"
+    const val GUIDE_URL = "https://mgb1982.github.io/ridescreen-aa/guia/"
 
     fun show(activity: Activity, shareLogs: () -> Unit, reportProblem: () -> Unit, extras: List<Pair<String, () -> Unit>> = emptyList()) {
         val items = listOf(

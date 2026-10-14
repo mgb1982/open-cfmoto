@@ -66,13 +66,13 @@ class AboutActivity : AppCompatActivity() {
     companion object {
         private const val URL_WEBSITE = "https://alexandru.rocks"
         // RideScreen AA (this fork) and the original OpenCfMoto it's based on.
-        private const val URL_GITHUB = "https://github.com/mgb1982/open-cfmoto"
-        private const val URL_ISSUES = "https://github.com/mgb1982/open-cfmoto/issues"
+        private const val URL_GITHUB = "https://github.com/mgb1982/ridescreen-aa"
+        private const val URL_ISSUES = "https://github.com/mgb1982/ridescreen-aa/issues"
         private const val URL_UPSTREAM = "https://github.com/zanderp/open-cfmoto"
         private const val URL_DISCORD = "https://discord.gg/KNTjJhmFZ6"
         const val URL_KOFI = "https://ko-fi.com/alexandrupopa"
         private const val URL_NOTICE =
-            "https://github.com/mgb1982/open-cfmoto/blob/main/NOTICE"
+            "https://github.com/mgb1982/ridescreen-aa/blob/main/NOTICE"
 
         fun start(ctx: Context) {
             ctx.startActivity(Intent(ctx, AboutActivity::class.java))

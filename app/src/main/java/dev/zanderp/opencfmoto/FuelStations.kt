@@ -16,7 +16,7 @@ import kotlin.math.floor
  * around it instead of the 10 MB national list.
  */
 object FuelStations {
-    const val BASE = "https://mgb1982.github.io/open-cfmoto/fuel/"
+    const val BASE = "https://mgb1982.github.io/ridescreen-aa/fuel/"
     private const val CACHE_MS = 30 * 60_000L
 
     data class Station(

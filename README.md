@@ -6,11 +6,11 @@
 
 *Wireless Android Auto on your motorbike's dash, with extras built for the Zontes 125X / 125V — [English summary below](#-in-english)*
 
-[![Descargas](https://img.shields.io/github/downloads/mgb1982/open-cfmoto/total?style=for-the-badge&label=Descargas&color=D1A955)](https://github.com/mgb1982/open-cfmoto/releases/latest)
-[![Última versión](https://img.shields.io/github/v/release/mgb1982/open-cfmoto?style=for-the-badge&label=Versi%C3%B3n&color=243028)](https://github.com/mgb1982/open-cfmoto/releases/latest)
+[![Descargas](https://img.shields.io/github/downloads/mgb1982/ridescreen-aa/total?style=for-the-badge&label=Descargas&color=D1A955)](https://github.com/mgb1982/ridescreen-aa/releases/latest)
+[![Última versión](https://img.shields.io/github/v/release/mgb1982/ridescreen-aa?style=for-the-badge&label=Versi%C3%B3n&color=243028)](https://github.com/mgb1982/ridescreen-aa/releases/latest)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Inv%C3%ADtame%20a%20un%20caf%C3%A9-ff5e5b?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/mgb1982)
 
-**[⬇️ Descargar](https://github.com/mgb1982/open-cfmoto/releases/latest)** · **[📖 Guía de instalación](https://mgb1982.github.io/open-cfmoto/guia/)** · **[📸 Todas las capturas](docs/CAPTURAS.md)**
+**[⬇️ Descargar](https://github.com/mgb1982/ridescreen-aa/releases/latest)** · **[📖 Guía de instalación](https://mgb1982.github.io/ridescreen-aa/guia/)** · **[📸 Todas las capturas](docs/CAPTURAS.md)**
 
 <br/>
 
@@ -30,9 +30,9 @@ Está basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto), de Alexand
 
 ## Instalación
 
-1. Descarga **`RideScreen-AA-….apk`** de la [última versión](https://github.com/mgb1982/open-cfmoto/releases/latest) (en *Assets*).
+1. Descarga **`RideScreen-AA-….apk`** de la [última versión](https://github.com/mgb1982/ridescreen-aa/releases/latest) (en *Assets*).
 2. Si Android avisa de **Play Protect**, es porque la app aún no está en Play Store: **Más detalles → Instalar de todas formas**.
-3. Sigue la **[guía paso a paso](https://mgb1982.github.io/open-cfmoto/guia/)**: permisos, el servidor de unidad principal de Android Auto y el QR del cuadro (interfaz 3).
+3. Sigue la **[guía paso a paso](https://mgb1982.github.io/ridescreen-aa/guia/)**: permisos, el servidor de unidad principal de Android Auto y el QR del cuadro (interfaz 3).
 4. Las siguientes versiones te las ofrece la propia app.
 
 <p align="center">
@@ -116,7 +116,7 @@ RideScreen AA es gratis y sin anuncios. Si te resulta útil, puedes [invitarme a
 - **Crash detection** (experimental, opt‑in): alarm on phone and watch, then an SMS with your location to up to 3 contacts. Not a certified safety device.
 - **Wear OS app**: next turn, compass to your parked bike, D‑pad for Android Auto, crash alarm.
 
-The app is in Spanish, Catalan and English. Download the APK from **[Releases](https://github.com/mgb1982/open-cfmoto/releases/latest)**. The original OpenCfMoto documentation (supported bikes, handlebar buttons, protocol notes) is kept in **[docs/OPENCFMOTO-README.md](docs/OPENCFMOTO-README.md)**.
+The app is in Spanish, Catalan and English. Download the APK from **[Releases](https://github.com/mgb1982/ridescreen-aa/releases/latest)**. The original OpenCfMoto documentation (supported bikes, handlebar buttons, protocol notes) is kept in **[docs/OPENCFMOTO-README.md](docs/OPENCFMOTO-README.md)**.
 
 ## Licencia · License
 AGPL‑3.0‑or‑later. Ver [LICENSE](LICENSE) y [NOTICE](NOTICE). Not affiliated with Zontes, CFMoto or Google. Android Auto is a trademark of Google LLC.
