@@ -12,10 +12,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 /** ❓ Help pill on the main screen: install guide, share logs, what's new, report a problem. */
 object HelpMenu {
     const val GUIDE_URL = "https://mgb1982.github.io/ridescreen-aa/guia/"
+    const val WATCH_GUIDE_URL = "https://mgb1982.github.io/ridescreen-aa/reloj/"
 
     fun show(activity: Activity, shareLogs: () -> Unit, reportProblem: () -> Unit, extras: List<Pair<String, () -> Unit>> = emptyList()) {
         val items = listOf(
             activity.getString(R.string.help_guide) to { openGuide(activity) },
+            activity.getString(R.string.help_watch_guide) to { openUrl(activity, WATCH_GUIDE_URL) },
             activity.getString(R.string.help_share_logs) to shareLogs,
             activity.getString(R.string.help_whats_new) to { WhatsNew.show(activity) },
             activity.getString(R.string.help_report) to reportProblem,
@@ -26,9 +28,11 @@ object HelpMenu {
             .show()
     }
 
-    fun openGuide(ctx: Context) {
+    fun openGuide(ctx: Context) = openUrl(ctx, GUIDE_URL)
+
+    fun openUrl(ctx: Context, url: String) {
         try {
-            ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GUIDE_URL)))
+            ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         } catch (_: Exception) {
             Toast.makeText(ctx, R.string.open_failed, Toast.LENGTH_SHORT).show()
         }

@@ -145,4 +145,5 @@
     <string name="wear_update_not_apk">That file isn\'t an app (APK)</string>
     <string name="wear_update_progress_title">Sending the update to %1$s</string>
     <string name="wear_update_progress_body">%1$d%% · it takes a couple of minutes, keep the watch close</string>
+    <string name="help_watch_guide">⌚ Watch guide</string>
 </resources>

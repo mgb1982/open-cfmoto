@@ -151,4 +151,5 @@
     <string name="wear_update_not_apk">Ese archivo no es una app (APK)</string>
     <string name="wear_update_progress_title">Enviando la actualización a %1$s</string>
     <string name="wear_update_progress_body">%1$d %% · tarda un par de minutos, mantén el reloj cerca</string>
+    <string name="help_watch_guide">⌚ Guía del reloj</string>
 </resources>

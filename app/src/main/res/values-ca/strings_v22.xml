@@ -145,4 +145,5 @@
     <string name="wear_update_not_apk">Aquest fitxer no és una app (APK)</string>
     <string name="wear_update_progress_title">Enviant l\'actualització a %1$s</string>
     <string name="wear_update_progress_body">%1$d %% · triga un parell de minuts, mantén el rellotge a prop</string>
+    <string name="help_watch_guide">⌚ Guia del rellotge</string>
 </resources>
