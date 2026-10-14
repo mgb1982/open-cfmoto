@@ -65,6 +65,7 @@ class BikeWatchService : Service() {
         instance = this
         LogBus.log("[WATCH] waiting for '$ssid' in low-power mode ($mode)")
         h.removeCallbacksAndMessages(null)
+        if (mode == Mode.SHORT) startProbe()
         h.post(check)
         return START_NOT_STICKY
     }
@@ -104,10 +105,63 @@ class BikeWatchService : Service() {
         }
     }
 
-    fun pokeNow() { h.removeCallbacks(check); h.post(check) }
+    fun pokeNow() { h.removeCallbacks(check); h.post(check); if (mode == Mode.SHORT) startProbe() }
+
+    // ---- Background join (SHORT mode only)
+    // Polling scan results doesn't work with the screen off: Android barely scans then, and the bike's
+    // network isn't a saved one. OpenCfMoto connects with the phone locked because it keeps a Wi-Fi
+    // request open, and *that* makes Android look for the network by itself. We do the same, but only
+    // for the few minutes after the dash's Bluetooth connects (the bike is probably being started), so
+    // it doesn't cost battery the rest of the day. Needs the bike network approved once before (every
+    // rider who has connected has), otherwise Android would show its picker.
+    private var probeCb: android.net.ConnectivityManager.NetworkCallback? = null
+
+    private fun startProbe() {
+        if (probeCb != null) return
+        if (BikeMemory.winningTransport(this, ssid) == "P2P") return
+        val psk = BikeMemory.lastQr(this)?.pwd
+        if (psk.isNullOrBlank()) return
+        val cm = getSystemService(android.net.ConnectivityManager::class.java) ?: return
+        val req = android.net.NetworkRequest.Builder()
+            .addTransportType(android.net.NetworkCapabilities.TRANSPORT_WIFI)
+            .removeCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .setNetworkSpecifier(android.net.wifi.WifiNetworkSpecifier.Builder().setSsid(ssid).setWpa2Passphrase(psk).build())
+            .build()
+        val cb = object : android.net.ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: android.net.Network) {
+                h.post {
+                    if (!running) return@post
+                    LogBus.log("[WATCH] joined '$ssid' in the background (phone can stay locked) — starting Connect")
+                    try { CrashGuard.persistSessionAsync(applicationContext) } catch (_: Exception) {}
+                    running = false
+                    // Keep our request a little longer so the link stays up while Connect asks for it.
+                    h.postDelayed({ stopProbe() }, 20_000L)
+                    BtConnectTrigger.launchConnect(this@BikeWatchService, "bike Wi-Fi joined") { h.postDelayed({ stopNow("bike found") }, 21_000L) }
+                }
+            }
+            override fun onUnavailable() {
+                h.post { probeCb = null; LogBus.log("[WATCH] background join: '$ssid' didn't appear") }
+            }
+        }
+        val left = (until - SystemClock.elapsedRealtime()).coerceIn(10_000L, SHORT_MAX_MS).toInt()
+        try {
+            cm.requestNetwork(req, cb, left)
+            probeCb = cb
+            LogBus.log("[WATCH] asked Android to join '$ssid' as soon as it appears (${left / 1000}s)")
+        } catch (e: Exception) {
+            LogBus.log("[WATCH] background join request failed: $e")
+        }
+    }
+
+    private fun stopProbe() {
+        val cb = probeCb ?: return
+        probeCb = null
+        try { getSystemService(android.net.ConnectivityManager::class.java)?.unregisterNetworkCallback(cb) } catch (_: Exception) {}
+    }
 
     private fun stopNow(why: String) {
         running = false
+        stopProbe()
         h.removeCallbacksAndMessages(null)
         LogBus.log("[WATCH] stopped ($why)")
         if (instance === this) instance = null
@@ -117,6 +171,7 @@ class BikeWatchService : Service() {
 
     override fun onDestroy() {
         running = false
+        stopProbe()
         h.removeCallbacksAndMessages(null)
         if (instance === this) instance = null
         super.onDestroy()
