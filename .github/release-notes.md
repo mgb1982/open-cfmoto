@@ -2,6 +2,10 @@
 
 Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zanderp). No es una app oficial de Zontes ni de CFMoto. Código fuente en este repositorio, licencia AGPL-3.0.
 
+> ⚠️ **¿La probaste alguna vez y no te funcionó? Dale otra oportunidad.** Esta versión es mucho más intuitiva y soluciona la mayoría de los problemas de las anteriores, sobre todo en la primera conexión.
+>
+> 📱 [Guía del móvil](https://mgb1982.github.io/ridescreen-aa/guia/) · ⌚ [Guía del reloj](https://mgb1982.github.io/ridescreen-aa/reloj/)
+
 ### Novedades de la v2.2
 **🏠 Pantalla principal nueva**
 - Estado y números del día en una sola tarjeta. Con la moto aparcada, la tarjeta **🅿️ Tu moto** muestra la foto del sitio, la distancia y los botones **«Cómo llegar»** y **«Ver foto»** (la foto se ve dentro de la app, con zoom).
@@ -27,6 +31,7 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 - **🎬 Vídeo del viaje**: junta los clips que grabaste durante un viaje (Ray-Ban Meta importados con la app Meta AI, cámara de acción, móvil…) con la ruta, la velocidad y la hora encima. Velocidad normal o rápido ×4.
 
 **Reloj**
+- **⌚ Se actualiza desde el móvil**: a partir de esta versión, **❓ Ayuda → ⌚ Actualizar la app del reloj** descarga la app del reloj y se la envía por Bluetooth, con barra de progreso (tarda un par de minutos). Se acabó la depuración inalámbrica para cada versión.
 - **⌚ Relojes sin bisel**: ▲ y ▼ de la cruceta ya recorren los menús de Android Auto (mantén pulsado para la flecha de antes).
 
 **Y además**: si Android Auto no arranca en el cuadro, el error trae el acceso directo para reiniciar su servidor de unidad principal; viajes fantasma corregidos (posiciones GPS malas) sin perder los túneles; botón **❓ Ayuda** (guía, registros, novedades, problemas), pantalla de **novedades**, aviso si tienes el registro de viajes desactivado, «Más fluido» pasa a llamarse **«Ahorro de datos (menos nitidez)»**, y correcciones de estabilidad.
@@ -40,11 +45,14 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 4. Las próximas versiones te las ofrecerá la propia app.
 
 ### Instalación en el reloj (opcional, Wear OS)
-El reloj no instala APK directamente: se hace por depuración inalámbrica, una sola vez.
+El reloj no instala APK directamente: esta vez se hace por depuración inalámbrica, **por última vez**. Las siguientes versiones se instalan desde el móvil. Paso a paso, con imágenes: [guía del reloj](https://mgb1982.github.io/ridescreen-aa/reloj/).
 1. En el reloj: Ajustes → Acerca del reloj → Información de software → toca **Versión de software** 5 veces (activa las opciones de desarrollador).
 2. Ajustes → Conexiones → **Wi-Fi en "Activado"** (no Automático), en la misma red que el móvil. Si no te muestra IP, desactiva un momento el Bluetooth del móvil.
 3. Opciones de desarrollador → **Depuración ADB** y **Depuración inalámbrica**. Sube el tiempo de pantalla para que no se apague mientras emparejas.
 4. Desde el móvil, con **Wear Installer 2** o **Bugjaeger** (Play Store): empareja con el código de "Emparejar nuevo dispositivo" y luego instala **`RideScreen-AA-v2.2-WearOS-reloj.apk`**. Ojo: el puerto para emparejar y el de conectar son distintos.
 
 ### Si algo falla
-Desde la app, **Compartir registros** y pásalo por el grupo contando qué ha pasado. Los registros ya ocultan números de serie y contraseñas.
+Mira la [guía del móvil](https://mgb1982.github.io/ridescreen-aa/guia/) (tiene los mensajes de error más habituales y qué hacer). Si sigue, en la app **❓ Ayuda → Compartir registros** y pásalo por el grupo contando qué ha pasado. Los registros ocultan números de serie y contraseñas.
+
+
+☕ RideScreen AA es gratis y sin anuncios. Si te resulta útil y quieres que siga creciendo (Play Store, más motos, más funciones), puedes [invitarme a un café en Ko-fi](https://ko-fi.com/mgb1982).
