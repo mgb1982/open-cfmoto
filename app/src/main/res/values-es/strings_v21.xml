@@ -5,11 +5,11 @@
     <string name="trips_logging_enabled">Registro de viajes activado: tu próximo viaje se guardará</string>
     <string name="conn_detail_need_nearby">Permite «Dispositivos cercanos»: Android Auto lo necesita para arrancar en el cuadro</string>
     <string name="conn_detail_need_bt_on">Activa el Bluetooth: Android Auto lo necesita para arrancar en el cuadro</string>
-    <string name="conn_detail_wifi_off">La Wi‑Fi del móvil está apagada: actívala para conectar</string>
-    <string name="conn_detail_bike_wifi_not_found">No encuentro la Wi‑Fi de la moto: enciéndela, pon el cuadro en la interfaz 3 y vuelve a Conectar</string>
-    <string name="wifi_picker_hint">Si Android pregunta si conectar a %1$s, pulsa Conectar: es la Wi‑Fi de tu moto</string>
-    <string name="wifi_off_title">Activa la Wi‑Fi</string>
-    <string name="wifi_off_message">RideScreen AA se conecta a la moto por Wi‑Fi y la del móvil está apagada. Actívala (no hace falta conectarse a ninguna red) y la conexión seguirá sola.</string>
+    <string name="conn_detail_wifi_off">El Wi‑Fi del móvil está apagado: actívalo para conectar</string>
+    <string name="conn_detail_bike_wifi_not_found">No encuentro el Wi‑Fi de la moto: enciéndela, pon el cuadro en la interfaz 3 y vuelve a Conectar</string>
+    <string name="wifi_picker_hint">Si Android pregunta si conectar a %1$s, pulsa Conectar: es el Wi‑Fi de tu moto</string>
+    <string name="wifi_off_title">Activa el Wi‑Fi</string>
+    <string name="wifi_off_message">RideScreen AA se conecta a la moto por Wi‑Fi y el del móvil está apagado. Actívalo (no hace falta conectarse a ninguna red) y la conexión seguirá sola.</string>
     <string name="wifi_off_turn_on">Activar Wi‑Fi</string>
     <string name="fuel_title">Gasolineras cerca</string>
     <string name="fuel_pill">⛽ Gasolineras cerca (precio SP95)</string>
@@ -40,7 +40,7 @@
     <string name="parked_delete">🗑️ Olvidar este sitio</string>
     <string name="whats_new_title">Novedades de la v2.2</string>
     <string name="whats_new_ok">Entendido</string>
-    <string name="whats_new_body">🏠 Pantalla principal nueva: tu moto aparcada con su foto, accesos con color y, al conectar, lo que usas en marcha.\n\n🆘 Detector de caídas (opcional): si vas en moto y hay un golpe fuerte seguido de quietud, suena una alarma de 60 s en el móvil y el reloj; si nadie pulsa «Estoy bien», se envía un SMS con tu ubicación a hasta 3 contactos.\n\n🔌 Vuelve a conectar sola al encender la moto: pasados 20 minutos sigue esperando la Wi‑Fi de la moto en modo ahorro.\n\n⛽ Gasolineras cerca con el precio de la Gasolina 95. Toca una y Maps te lleva en el cuadro.\n\n📸 Aparcar con foto: botón opcional mientras estás conectado.\n\n🚦 Tus semáforos: dónde más paras, cuánto esperas y cuál de tus caminos es de verdad más rápido.\n\n🎬 Vídeo del viaje: tus clips (Ray-Ban Meta, cámara de acción…) juntos con la ruta, la velocidad y la hora encima.\n\n🎯 Ajusta la pantalla al cuadro con flechas, viéndolo en directo en la moto.\n\n🎙️ «Ok Google» y los botones de voz vuelven a funcionar (la app ahora pide el micrófono).\n\n⌚ Relojes sin bisel: ▲▼ ya recorren los menús.\n\n❓ Botón Ayuda, primera conexión más fácil y correcciones de estabilidad.</string>
+    <string name="whats_new_body">🏠 Pantalla principal nueva: tu moto aparcada con su foto, accesos con color y, al conectar, lo que usas en marcha.\n\n🆘 Detector de caídas (opcional): si vas en moto y hay un golpe fuerte seguido de quietud, suena una alarma de 60 s en el móvil y el reloj; si nadie pulsa «Estoy bien», se envía un SMS con tu ubicación a hasta 3 contactos.\n\n🔌 Vuelve a conectar sola al encender la moto: pasados 20 minutos sigue esperando el Wi‑Fi de la moto en modo ahorro.\n\n⛽ Gasolineras cerca con el precio de la Gasolina 95. Toca una y Maps te lleva en el cuadro.\n\n📸 Aparcar con foto: botón opcional mientras estás conectado.\n\n🚦 Tus semáforos: dónde más paras, cuánto esperas y cuál de tus caminos es de verdad más rápido.\n\n🎬 Vídeo del viaje: tus clips (Ray-Ban Meta, cámara de acción…) juntos con la ruta, la velocidad y la hora encima.\n\n🎯 Ajusta la pantalla al cuadro con flechas, viéndolo en directo en la moto.\n\n🎙️ «Ok Google» y los botones de voz vuelven a funcionar (la app ahora pide el micrófono).\n\n⌚ Relojes sin bisel: ▲▼ ya recorren los menús.\n\n❓ Botón Ayuda, primera conexión más fácil y correcciones de estabilidad.</string>
     <string name="park_photo_need_camera">Permite la cámara para hacer la foto del aparcamiento</string>
     <string name="fit_open">🎯 Ajustar la pantalla al cuadro (en directo)</string>
     <string name="fit_open_hint">Flechas en el móvil y resultado en directo en la moto. Conecta primero para verlo en el cuadro.</string>
