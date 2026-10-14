@@ -18,7 +18,7 @@
     <string name="crash_sms_body">🆘 RideScreen AA: %1$s puede haber sufrido una caída en moto y no responde desde hace %2$d s. Ubicación: %3$s (%4$s). Mensaje automático.</string>
     <string name="crash_sms_followup">🆘 RideScreen AA, actualización: %1$s sigue sin responder (primer aviso tras %2$d s). Ubicación ahora: %3$s (%4$s). Mensaje automático.</string>
     <string name="crash_sms_test_prefix">[PRUEBA, ignóralo]</string>
-    <string name="crash_title">Detector de caídas</string>
+    <string name="crash_title">Detector de caídas (experimental)</string>
     <string name="crash_how">Mientras vas en moto, el móvil vigila si hay un golpe fuerte y después la moto y el móvil se quedan quietos. Entonces suena una alarma de 60 s en el móvil y en el reloj. Si nadie pulsa «Estoy bien», envía un SMS a hasta 3 contactos con un enlace al mapa de dónde estás, y otro 5 minutos después. Nunca llama a emergencias por su cuenta.</string>
     <string name="crash_enable">Detector de caídas activado</string>
     <string name="crash_name_title">Tu nombre (para el mensaje)</string>
