@@ -329,6 +329,11 @@ class MainActivity : AppCompatActivity() {
         get() = parkPrefs.getBoolean("then_stop", false)
         set(v) { parkPrefs.edit().putBoolean("then_stop", v).apply() }
 
+    /** ⌚ Watch updater: an APK file the rider already has on the phone. */
+    private val wearApkLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) WearUpdater.sendFromUri(this, uri)
+    }
+
     private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         val thenStop = photoThenStop
         photoThenStop = false
@@ -1240,6 +1245,12 @@ class MainActivity : AppCompatActivity() {
         add(getString(if (logPanel.visibility == View.VISIBLE) R.string.main_hide_logs else R.string.help_view_logs) to { toggleLogBtn.performClick(); Unit })
         add(getString(R.string.help_about) to { AboutActivity.start(this@MainActivity); Unit })
         if (BuildConfig.SELF_UPDATE) add(getString(R.string.help_check_update) to { checkUpdateManual(); Unit })
+        if (BuildConfig.SELF_UPDATE) add(getString(R.string.help_update_watch) to {
+            WearUpdater.showDialog(this@MainActivity) {
+                try { wearApkLauncher.launch(arrayOf("application/vnd.android.package-archive", "application/octet-stream", "*/*")) }
+                catch (_: Exception) { Toast.makeText(this@MainActivity, R.string.open_failed, Toast.LENGTH_SHORT).show() }
+            }; Unit
+        })
         add(getString(R.string.help_support) to { Support.open(this@MainActivity); Unit })
     }
 

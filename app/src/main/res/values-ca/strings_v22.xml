@@ -129,4 +129,18 @@
     </plurals>
     <string name="bt_trigger_wifi_off_title">%1$s engegada, però la Wi‑Fi del mòbil està apagada</string>
     <string name="bt_trigger_wifi_off_text">Toca per activar la Wi‑Fi: RideScreen AA connectarà sola.</string>
+    <string name="help_update_watch">⌚ Actualitza l\'app del rellotge</string>
+    <string name="wear_update_title">Actualitza l\'app del rellotge</string>
+    <string name="wear_update_body">El mòbil envia l\'app nova al rellotge per Bluetooth i tu confirmes la instal·lació al rellotge. El rellotge ha d\'estar connectat i tenir RideScreen AA 2.2 o posterior (les versions anteriors s\'han d\'instal·lar a mà una última vegada).</string>
+    <string name="wear_update_latest">Última versió</string>
+    <string name="wear_update_pick">Tria l\'APK…</string>
+    <string name="wear_update_downloading">Baixant l\'app del rellotge…</string>
+    <string name="wear_update_sending">Enviant a %1$s… mantén el rellotge a prop</string>
+    <string name="wear_update_sent">Enviada a %1$s: confirma la instal·lació al rellotge</string>
+    <string name="wear_update_send_failed">No s\'ha pogut enviar al rellotge. Està connectat? Torna-ho a provar</string>
+    <string name="wear_update_no_watch">No hi ha cap rellotge connectat. Obre l\'app Galaxy Wearable / Wear OS i comprova que el rellotge està connectat</string>
+    <string name="wear_update_old_watch_app">L\'app del rellotge és massa antiga per actualitzar-se sola: instal·la aquesta versió a mà una vegada (guia) i d\'ara endavant s\'actualitzarà des del mòbil</string>
+    <string name="wear_update_no_asset">L\'última versió no inclou l\'app del rellotge</string>
+    <string name="wear_update_download_failed">No s\'ha pogut baixar l\'app del rellotge. Comprova la connexió a internet</string>
+    <string name="wear_update_not_apk">Aquest fitxer no és una app (APK)</string>
 </resources>

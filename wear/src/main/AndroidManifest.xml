@@ -67,11 +67,26 @@
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/crash" />
             </intent-filter>
             <intent-filter>
+                <action android:name="com.google.android.gms.wearable.CHANNEL_EVENT" />
+                <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/wearapk" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="com.google.android.gms.wearable.DATA_CHANGED" />
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/tripmap" />
                 <data android:scheme="wear" android:host="*" android:pathPrefix="/ocm/bikephoto" />
             </intent-filter>
         </service>
+
+        <!-- ⌚ Self-update (v2.2): install screen + PackageInstaller result. -->
+        <activity
+            android:name=".WearUpdateActivity"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.DeviceDefault" />
+
+        <receiver
+            android:name=".InstallResultReceiver"
+            android:exported="false" />
 
         <service
             android:name=".RideTileService"

@@ -135,4 +135,18 @@
     </plurals>
     <string name="bt_trigger_wifi_off_title">%1$s encendida, pero el Wi‑Fi del móvil está apagado</string>
     <string name="bt_trigger_wifi_off_text">Toca para activar el Wi‑Fi: RideScreen AA conectará sola.</string>
+    <string name="help_update_watch">⌚ Actualizar la app del reloj</string>
+    <string name="wear_update_title">Actualizar la app del reloj</string>
+    <string name="wear_update_body">El móvil envía la app nueva al reloj por Bluetooth y tú confirmas la instalación en el reloj. El reloj tiene que estar conectado y tener RideScreen AA 2.2 o posterior (las versiones anteriores hay que instalarlas a mano una última vez).</string>
+    <string name="wear_update_latest">Última versión</string>
+    <string name="wear_update_pick">Elegir APK…</string>
+    <string name="wear_update_downloading">Descargando la app del reloj…</string>
+    <string name="wear_update_sending">Enviando a %1$s… mantén el reloj cerca</string>
+    <string name="wear_update_sent">Enviada a %1$s: confirma la instalación en el reloj</string>
+    <string name="wear_update_send_failed">No se ha podido enviar al reloj. ¿Está conectado? Vuelve a intentarlo</string>
+    <string name="wear_update_no_watch">No hay ningún reloj conectado. Abre la app Galaxy Wearable / Wear OS y comprueba que el reloj está conectado</string>
+    <string name="wear_update_old_watch_app">La app del reloj es demasiado antigua para actualizarse sola: instala esta versión a mano una vez (guía) y a partir de entonces se actualizará desde el móvil</string>
+    <string name="wear_update_no_asset">La última versión no incluye la app del reloj</string>
+    <string name="wear_update_download_failed">No se ha podido descargar la app del reloj. Comprueba la conexión a internet</string>
+    <string name="wear_update_not_apk">Ese archivo no es una app (APK)</string>
 </resources>

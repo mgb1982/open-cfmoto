@@ -4,4 +4,16 @@
     <string name="crash_im_ok">ESTOY BIEN</string>
     <string name="crash_sent">Aviso enviado a tus contactos</string>
     <string name="crash_close">Cerrar</string>
+    <string name="wupd_title">Actualizar RideScreen AA</string>
+    <string name="wupd_ready">Versión nueva recibida del móvil · toca para instalar</string>
+    <string name="wupd_install">Instalar</string>
+    <string name="wupd_versions">Instalada: %1$s
+Nueva: %2$s</string>
+    <string name="wupd_nothing">No hay ninguna actualización pendiente. Envíala desde el móvil: ❓ Ayuda → ⌚ Actualizar la app del reloj</string>
+    <string name="wupd_installing">Instalando… confirma si el reloj te lo pide</string>
+    <string name="wupd_allow_unknown">Permite a RideScreen AA instalar apps y vuelve aquí</string>
+    <string name="wupd_no_unknown_setting">Este reloj no deja que las apps instalen actualizaciones. Instálala desde el ordenador, como la primera vez</string>
+    <string name="wupd_failed_signature">Esta versión está firmada de forma distinta a la instalada. Desinstala la app del reloj y vuelve a instalarla desde el ordenador</string>
+    <string name="wupd_cancelled">Instalación cancelada</string>
+    <string name="wupd_failed">No se ha podido instalar (%1$s)</string>
 </resources>

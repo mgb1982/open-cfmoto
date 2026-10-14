@@ -4,4 +4,16 @@
     <string name="crash_im_ok">I\'M OK</string>
     <string name="crash_sent">Alert sent to your contacts</string>
     <string name="crash_close">Close</string>
+    <string name="wupd_title">Update RideScreen AA</string>
+    <string name="wupd_ready">New version received from the phone · tap to install</string>
+    <string name="wupd_install">Install</string>
+    <string name="wupd_versions">Installed: %1$s
+New: %2$s</string>
+    <string name="wupd_nothing">No update waiting. Send it from the phone: ❓ Help → ⌚ Update the watch app</string>
+    <string name="wupd_installing">Installing… confirm if the watch asks</string>
+    <string name="wupd_allow_unknown">Allow RideScreen AA to install apps, then come back here</string>
+    <string name="wupd_no_unknown_setting">This watch doesn\'t let apps install updates. Install it from a computer, as the first time</string>
+    <string name="wupd_failed_signature">This version is signed differently from the one installed. Uninstall the watch app and install it again from a computer</string>
+    <string name="wupd_cancelled">Install cancelled</string>
+    <string name="wupd_failed">Couldn\'t install it (%1$s)</string>
 </resources>

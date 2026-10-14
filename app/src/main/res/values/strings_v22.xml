@@ -129,4 +129,18 @@
     </plurals>
     <string name="bt_trigger_wifi_off_title">%1$s is on, but your phone\'s Wi‑Fi is off</string>
     <string name="bt_trigger_wifi_off_text">Tap to switch Wi‑Fi on: RideScreen AA will connect by itself.</string>
+    <string name="help_update_watch">⌚ Update the watch app</string>
+    <string name="wear_update_title">Update the watch app</string>
+    <string name="wear_update_body">The phone sends the new watch app over Bluetooth, and you confirm the install on the watch. The watch must be connected and have RideScreen AA 2.2 or newer (older versions still need to be installed by hand once).</string>
+    <string name="wear_update_latest">Latest version</string>
+    <string name="wear_update_pick">Pick APK…</string>
+    <string name="wear_update_downloading">Downloading the watch app…</string>
+    <string name="wear_update_sending">Sending to %1$s… keep the watch close</string>
+    <string name="wear_update_sent">Sent to %1$s: confirm the install on the watch</string>
+    <string name="wear_update_send_failed">Couldn\'t send it to the watch. Is it connected? Try again</string>
+    <string name="wear_update_no_watch">No watch connected. Open the Galaxy Wearable / Wear OS app and check the watch is connected</string>
+    <string name="wear_update_old_watch_app">The watch app is too old to update itself: install this version by hand once (guide), after that it updates from the phone</string>
+    <string name="wear_update_no_asset">The latest version has no watch app</string>
+    <string name="wear_update_download_failed">Couldn\'t download the watch app. Check your internet connection</string>
+    <string name="wear_update_not_apk">That file isn\'t an app (APK)</string>
 </resources>

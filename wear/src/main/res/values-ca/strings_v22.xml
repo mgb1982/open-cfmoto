@@ -4,4 +4,16 @@
     <string name="crash_im_ok">ESTIC BÉ</string>
     <string name="crash_sent">Avís enviat als teus contactes</string>
     <string name="crash_close">Tanca</string>
+    <string name="wupd_title">Actualitza RideScreen AA</string>
+    <string name="wupd_ready">Versió nova rebuda del mòbil · toca per instal·lar</string>
+    <string name="wupd_install">Instal·la</string>
+    <string name="wupd_versions">Instal·lada: %1$s
+Nova: %2$s</string>
+    <string name="wupd_nothing">No hi ha cap actualització pendent. Envia-la des del mòbil: ❓ Ajuda → ⌚ Actualitza l\'app del rellotge</string>
+    <string name="wupd_installing">Instal·lant… confirma-ho si el rellotge t\'ho demana</string>
+    <string name="wupd_allow_unknown">Permet a RideScreen AA instal·lar apps i torna aquí</string>
+    <string name="wupd_no_unknown_setting">Aquest rellotge no deixa que les apps instal·lin actualitzacions. Instal·la-la des de l\'ordinador, com la primera vegada</string>
+    <string name="wupd_failed_signature">Aquesta versió està signada de manera diferent de la instal·lada. Desinstal·la l\'app del rellotge i torna-la a instal·lar des de l\'ordinador</string>
+    <string name="wupd_cancelled">Instal·lació cancel·lada</string>
+    <string name="wupd_failed">No s\'ha pogut instal·lar (%1$s)</string>
 </resources>

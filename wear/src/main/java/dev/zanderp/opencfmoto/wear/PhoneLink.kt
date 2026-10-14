@@ -292,6 +292,17 @@ data class RideStats(
  * trip overview maps the phone pre-renders when the trips list opens (so the first tap is instant).
  */
 class SessionListenerService : WearableListenerService() {
+    // ⌚ Watch app update streamed from the phone (WearUpdate).
+    override fun onChannelOpened(channel: com.google.android.gms.wearable.ChannelClient.Channel) {
+        if (channel.path.startsWith(WearUpdate.PATH_APK)) WearUpdate.receive(this, channel)
+    }
+
+    override fun onInputClosed(channel: com.google.android.gms.wearable.ChannelClient.Channel, closeReason: Int, appSpecificErrorCode: Int) {
+        if (channel.path.startsWith(WearUpdate.PATH_APK)) {
+            WearUpdate.onReceived(this, closeReason == com.google.android.gms.wearable.ChannelClient.ChannelCallback.CLOSE_REASON_NORMAL)
+        }
+    }
+
     override fun onDataChanged(events: com.google.android.gms.wearable.DataEventBuffer) {
         for (ev in events) {
             if (ev.type != com.google.android.gms.wearable.DataEvent.TYPE_CHANGED) continue
