@@ -175,6 +175,45 @@ class BtConnectTrigger : BroadcastReceiver() {
         private const val CHANNEL = "bike_detected"
         const val NOTIF_ID = 4310
 
+        private const val NOTIF_WIFI_OFF = 4311
+
+        /** The dash's Bluetooth is up but the phone's Wi-Fi is off: we can't reach the bike by ourselves. */
+        fun notifyWifiOff(ctx: Context) {
+            LogBus.log("[BT-TRIG] phone Wi-Fi is off — asking the rider to switch it on")
+            try {
+                val nm = ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                if (Build.VERSION.SDK_INT >= 26) {
+                    nm.createNotificationChannel(
+                        NotificationChannel(CHANNEL, ctx.getString(R.string.bt_trigger_channel), NotificationManager.IMPORTANCE_HIGH),
+                    )
+                }
+                val panel = if (Build.VERSION.SDK_INT >= 29) Intent(android.provider.Settings.Panel.ACTION_WIFI)
+                    else Intent(android.provider.Settings.ACTION_WIFI_SETTINGS)
+                val pi = PendingIntent.getActivity(
+                    ctx, NOTIF_WIFI_OFF, panel.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+                val n = NotificationCompat.Builder(ctx, CHANNEL)
+                    .setSmallIcon(R.drawable.ic_wifi)
+                    .setContentTitle(ctx.getString(R.string.bt_trigger_wifi_off_title, BikeMemory.lastBikeName(ctx) ?: ""))
+                    .setContentText(ctx.getString(R.string.bt_trigger_wifi_off_text))
+                    .setContentIntent(pi)
+                    .setAutoCancel(true)
+                    .setTimeoutAfter(5 * 60_000L)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .build()
+                nm.notify(NOTIF_WIFI_OFF, n)
+            } catch (e: Exception) {
+                LogBus.log("Wi-Fi off notification failed: $e")
+            }
+        }
+
+        fun clearWifiOffNotification(ctx: Context) {
+            try {
+                (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(NOTIF_WIFI_OFF)
+            } catch (_: Exception) {}
+        }
+
         /** Connect started / live: the "tap to connect" fallback is no longer needed. */
         fun clearNotification(ctx: Context) {
             try {

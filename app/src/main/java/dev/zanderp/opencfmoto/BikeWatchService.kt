@@ -37,6 +37,7 @@ class BikeWatchService : Service() {
     private var until = 0L
     private var ssid = ""
     private var checks = 0
+    private var wifiOffNotified = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -76,7 +77,24 @@ class BikeWatchService : Service() {
             if (mode == Mode.SHORT) {
                 try { (applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager).startScan() } catch (_: Exception) {}
             }
-            if (BikeWifi.isSsidInRange(this@BikeWatchService, ssid) == true) {
+            val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+            val wifiOn = wm?.isWifiEnabled == true
+            val seen = BikeWifi.isSsidInRange(this@BikeWatchService, ssid)
+            // v2.2 field test: logs showed "waiting…" and then nothing, so we couldn't tell "bike off"
+            // from "phone Wi-Fi off" from "the process died". Log every check (SHORT) / every 10th
+            // (LONG) and flush the log to disk so it survives the process being killed.
+            if (mode == Mode.SHORT || checks % 10 == 1) {
+                LogBus.log("[WATCH] check $checks: phone Wi-Fi ${if (wifiOn) "on" else "OFF"} · '$ssid' ${when (seen) { true -> "seen"; false -> "not seen"; null -> "unknown (no fresh scan)" }}")
+                try { CrashGuard.persistSessionAsync(applicationContext) } catch (_: Exception) {}
+            }
+            // With the phone's Wi-Fi off we can never see (or join) the bike. Android doesn't let apps
+            // switch it on, so tell the rider once, with a one-tap shortcut to the Wi-Fi panel.
+            if (!wifiOn && !wifiOffNotified) {
+                wifiOffNotified = true
+                BtConnectTrigger.notifyWifiOff(applicationContext)
+            }
+            if (wifiOn && wifiOffNotified) { wifiOffNotified = false; BtConnectTrigger.clearWifiOffNotification(applicationContext) }
+            if (seen == true) {
                 LogBus.log("[WATCH] '$ssid' is up after $checks check(s) — starting Connect")
                 running = false
                 BtConnectTrigger.launchConnect(this@BikeWatchService, "bike Wi-Fi seen") { stopNow("bike found") }

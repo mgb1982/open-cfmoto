@@ -127,4 +127,6 @@
         <item quantity="one">%1$d avui</item>
         <item quantity="other">%1$d avui</item>
     </plurals>
+    <string name="bt_trigger_wifi_off_title">%1$s engegada, però la Wi‑Fi del mòbil està apagada</string>
+    <string name="bt_trigger_wifi_off_text">Toca per activar la Wi‑Fi: RideScreen AA connectarà sola.</string>
 </resources>

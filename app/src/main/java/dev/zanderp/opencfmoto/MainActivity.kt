@@ -1255,7 +1255,38 @@ class MainActivity : AppCompatActivity() {
             if (hero.layoutParams.height != h) { hero.layoutParams.height = h; hero.requestLayout() }
         }
         findViewById<TextView?>(R.id.hero_name)?.textSize = if (live) 34f else 46f
+        placeLiveShare(big = live)
         renderParked()
+    }
+
+    /**
+     * Manel (14 oct): while connected, "Ruta en directo" belongs among the big riding tiles and
+     * "Controles" can drop into the grid. Swap the two views (and their layout params) in place.
+     */
+    private fun placeLiveShare(big: Boolean) {
+        val liveTile = findViewById<android.widget.LinearLayout?>(R.id.btn_live) ?: return
+        val controls = findViewById<android.widget.LinearLayout?>(R.id.btn_controls) ?: return
+        val liveIsBig = liveTile.parent === (findViewById<View>(R.id.btn_park_photo)?.parent)
+        if (liveIsBig == big) return
+        val pa = liveTile.parent as? android.view.ViewGroup ?: return
+        val pb = controls.parent as? android.view.ViewGroup ?: return
+        val ia = pa.indexOfChild(liveTile); val ib = pb.indexOfChild(controls)
+        val la = liveTile.layoutParams; val lb = controls.layoutParams
+        pa.removeView(liveTile); pb.removeView(controls)
+        pb.addView(liveTile, ib, lb); pa.addView(controls, ia, la)
+        val dp = resources.displayMetrics.density
+        fun style(v: android.widget.LinearLayout, asBig: Boolean) {
+            v.gravity = if (asBig) (android.view.Gravity.CENTER_VERTICAL or android.view.Gravity.START) else android.view.Gravity.CENTER
+            v.minimumHeight = ((if (asBig) 112 else 108) * dp).toInt()
+            if (asBig) v.setPadding((16 * dp).toInt(), (14 * dp).toInt(), (10 * dp).toInt(), (12 * dp).toInt())
+            else v.setPadding((6 * dp).toInt(), (14 * dp).toInt(), (6 * dp).toInt(), (12 * dp).toInt())
+        }
+        style(liveTile, big); style(controls, !big)
+        buildTile(R.id.btn_live, "📍", 0xFF5FD07A.toInt(), getString(R.string.home_tile_live), big = big)
+        buildTile(R.id.btn_controls, "🎮", 0xFF5B8DEF.toInt(), getString(R.string.controls_controls),
+            getString(R.string.home_big_controls_sub), big = !big)
+        controls.setOnClickListener { startActivity(Intent(this, ControlsActivity::class.java)) }
+        renderLive()
     }
 
     private fun renderMaint() {

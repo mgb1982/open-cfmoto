@@ -127,4 +127,6 @@
         <item quantity="one">%1$d today</item>
         <item quantity="other">%1$d today</item>
     </plurals>
+    <string name="bt_trigger_wifi_off_title">%1$s is on, but your phone\'s Wi‑Fi is off</string>
+    <string name="bt_trigger_wifi_off_text">Tap to switch Wi‑Fi on: RideScreen AA will connect by itself.</string>
 </resources>
