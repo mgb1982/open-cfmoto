@@ -110,8 +110,10 @@ class FuelActivity : AppCompatActivity() {
     }
 
     private fun fetch(here: Location) {
+        // The location answer can arrive after the screen was closed (io already shut down).
+        if (isFinishing || isDestroyed || io.isShutdown) return
         sub.setText(R.string.fuel_loading)
-        io.execute {
+        try { io.execute {
             val r = try { FuelStations.near(here) } catch (e: Exception) { null }
             runOnUiThread {
                 if (isFinishing || isDestroyed) return@runOnUiThread
@@ -120,7 +122,7 @@ class FuelActivity : AppCompatActivity() {
                 LogBus.log("[FUEL] ${r.stations.size} stations within ${r.radiusKm} km (source ${r.sourceTime})")
                 render()
             }
-        }
+        } } catch (_: java.util.concurrent.RejectedExecutionException) {}
     }
 
     private fun fail(msg: String) {
