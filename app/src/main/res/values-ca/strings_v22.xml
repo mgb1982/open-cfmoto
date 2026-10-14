@@ -18,7 +18,7 @@
     <string name="crash_sms_body">🆘 RideScreen AA: %1$s pot haver patit una caiguda amb moto i no respon des de fa %2$d s. Ubicació: %3$s (%4$s). Missatge automàtic.</string>
     <string name="crash_sms_followup">🆘 RideScreen AA, actualització: %1$s encara no respon (primer avís després de %2$d s). Ubicació ara: %3$s (%4$s). Missatge automàtic.</string>
     <string name="crash_sms_test_prefix">[PROVA, ignora-ho]</string>
-    <string name="crash_title">Detector de caigudes</string>
+    <string name="crash_title">Detector de caigudes (experimental)</string>
     <string name="crash_how">Mentre vas amb moto, el mòbil vigila si hi ha un cop fort i després la moto i el mòbil es queden quiets. Llavors sona una alarma de 60 s al mòbil i al rellotge. Si ningú prem «Estic bé», envia un SMS a fins a 3 contactes amb un enllaç al mapa d\'on ets, i un altre 5 minuts després. Mai no truca a emergències pel seu compte.</string>
     <string name="crash_enable">Detector de caigudes activat</string>
     <string name="crash_name_title">El teu nom (per al missatge)</string>

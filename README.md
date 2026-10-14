@@ -77,7 +77,7 @@ Está basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto), de Alexand
 <img src="docs/screenshots/ridescreen/imagenes/03_fotograma_video_recreacion.png" width="560" alt="Fotograma de un vídeo del viaje con mapa, velocidad y hora"/>
 </p>
 
-### 🆘 Detector de caídas (opcional)
+### 🆘 Detector de caídas (experimental, opcional)
 Si vas en moto y hay un golpe fuerte, el móvil se queda quieto y acaba tumbado, suena una **alarma de 60 s** en el móvil y en el reloj. Si nadie pulsa **«Estoy bien»**, envía un **SMS con tu ubicación** a hasta 3 contactos, y otro a los 5 minutos. Se puede simular y mandar un SMS de prueba. Nunca llama a emergencias por su cuenta y **no es un dispositivo de seguridad certificado**.
 
 <p align="center">
@@ -113,7 +113,7 @@ RideScreen AA es gratis y sin anuncios. Si te resulta útil, puedes [invitarme a
 - **Auto‑connect** when the bike starts (dash Bluetooth or Wi‑Fi in low‑power mode); **live screen fit** with arrows; voice assistant.
 - **Parking spot** with photo and walking directions; **cheapest petrol nearby** (Spain); **maintenance log** and real fuel consumption.
 - **Ride log** coloured by speed, heat map, records, trophies, year in review; **traffic‑light analysis**; **ride video** with map/speed overlay; **live location sharing**.
-- **Crash detection** (opt‑in): alarm on phone and watch, then an SMS with your location to up to 3 contacts. Not a certified safety device.
+- **Crash detection** (experimental, opt‑in): alarm on phone and watch, then an SMS with your location to up to 3 contacts. Not a certified safety device.
 - **Wear OS app**: next turn, compass to your parked bike, D‑pad for Android Auto, crash alarm.
 
 The app is in Spanish, Catalan and English. Download the APK from **[Releases](https://github.com/mgb1982/open-cfmoto/releases/latest)**. The original OpenCfMoto documentation (supported bikes, handlebar buttons, protocol notes) is kept in **[docs/OPENCFMOTO-README.md](docs/OPENCFMOTO-README.md)**.

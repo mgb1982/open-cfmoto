@@ -18,7 +18,7 @@
     <string name="crash_sms_body">🆘 RideScreen AA: %1$s may have crashed their motorbike and hasn\'t answered for %2$d s. Location: %3$s (%4$s). Automatic message.</string>
     <string name="crash_sms_followup">🆘 RideScreen AA, update: %1$s still hasn\'t answered (first alert after %2$d s). Location now: %3$s (%4$s). Automatic message.</string>
     <string name="crash_sms_test_prefix">[TEST, ignore]</string>
-    <string name="crash_title">Crash detection</string>
+    <string name="crash_title">Crash detection (experimental)</string>
     <string name="crash_how">While you ride, the phone watches for a hard impact followed by the bike and the phone staying still. Then it sounds an alarm for 60 s on the phone and the watch. If nobody taps \"I\'m OK\", it texts up to 3 contacts with a map link to where you are, and again 5 minutes later. It never calls emergency services by itself.</string>
     <string name="crash_enable">Crash detection on</string>
     <string name="crash_name_title">Your name (for the message)</string>
