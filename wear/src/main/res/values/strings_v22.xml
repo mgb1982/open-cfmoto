@@ -16,4 +16,5 @@ New: %2$s</string>
     <string name="wupd_failed_signature">This version is signed differently from the one installed. Uninstall the watch app and install it again from a computer</string>
     <string name="wupd_cancelled">Install cancelled</string>
     <string name="wupd_failed">Couldn\'t install it (%1$s)</string>
+    <string name="wupd_receiving">Receiving the update from the phone…</string>
 </resources>

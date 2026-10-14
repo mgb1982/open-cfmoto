@@ -138,22 +138,62 @@ object WearUpdater {
                 fail(ctx, if (any) R.string.wear_update_old_watch_app else R.string.wear_update_no_watch); return
             }
             val client = Wearable.getChannelClient(ctx)
-            val channel = Tasks.await(client.openChannel(node.id, PATH_APK), 15, TimeUnit.SECONDS)
-            client.registerChannelCallback(channel, object : ChannelClient.ChannelCallback() {
-                override fun onOutputClosed(c: ChannelClient.Channel, closeReason: Int, appSpecificErrorCode: Int) {
-                    LogBus.log("[WEAR-UPD] transfer to ${node.displayName} closed reason=$closeReason")
-                    if (closeReason == ChannelClient.ChannelCallback.CLOSE_REASON_NORMAL) toast(ctx, ctx.getString(R.string.wear_update_sent, node.displayName))
-                    else toast(ctx, ctx.getString(R.string.wear_update_send_failed))
-                    client.unregisterChannelCallback(c, this)
-                }
-            })
-            LogBus.log("[WEAR-UPD] sending ${file.length() / 1024} KB to ${node.displayName}")
+            val total = file.length()
+            // The size rides in the path so the watch can show its own progress ("/ocm/wearapk/<bytes>").
+            val channel = Tasks.await(client.openChannel(node.id, "$PATH_APK/$total"), 15, TimeUnit.SECONDS)
+            LogBus.log("[WEAR-UPD] sending ${total / 1024} KB to ${node.displayName}")
             toast(ctx, ctx.getString(R.string.wear_update_sending, node.displayName))
-            Tasks.await(client.sendFile(channel, Uri.fromFile(file)), 30, TimeUnit.SECONDS)
+            progress(ctx, node.displayName, 0)
+            val started = android.os.SystemClock.elapsedRealtime()
+            var sent = 0L
+            var lastPct = -1
+            // Written by hand (not sendFile) so we can count bytes and show a progress bar.
+            Tasks.await(client.getOutputStream(channel), 15, TimeUnit.SECONDS).use { out ->
+                file.inputStream().use { input ->
+                    val buf = ByteArray(16 * 1024)
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n < 0) break
+                        out.write(buf, 0, n)
+                        sent += n
+                        val pct = if (total > 0) (sent * 100 / total).toInt() else 0
+                        if (pct != lastPct) { lastPct = pct; progress(ctx, node.displayName, pct) }
+                    }
+                    out.flush()
+                }
+            }
+            val secs = (android.os.SystemClock.elapsedRealtime() - started) / 1000
+            LogBus.log("[WEAR-UPD] sent ${sent / 1024} KB to ${node.displayName} in ${secs}s")
+            done(ctx, ctx.getString(R.string.wear_update_sent, node.displayName))
         } catch (e: Exception) {
             LogBus.log("[WEAR-UPD] send failed: $e")
-            fail(ctx, R.string.wear_update_send_failed)
+            done(ctx, ctx.getString(R.string.wear_update_send_failed))
         }
+    }
+
+    private const val NOTIF_CHANNEL = "wear_update"
+    private const val NOTIF_ID = 4312
+
+    /** Progress notification on the phone while the APK travels over Bluetooth (it takes minutes). */
+    private fun progress(ctx: Context, watch: String, pct: Int) {
+        val nm = ctx.getSystemService(android.app.NotificationManager::class.java) ?: return
+        try {
+            nm.createNotificationChannel(android.app.NotificationChannel(NOTIF_CHANNEL,
+                ctx.getString(R.string.wear_update_title), android.app.NotificationManager.IMPORTANCE_LOW))
+            nm.notify(NOTIF_ID, androidx.core.app.NotificationCompat.Builder(ctx, NOTIF_CHANNEL)
+                .setSmallIcon(R.drawable.ic_launcher_monochrome)
+                .setContentTitle(ctx.getString(R.string.wear_update_progress_title, watch))
+                .setContentText(ctx.getString(R.string.wear_update_progress_body, pct))
+                .setProgress(100, pct, false)
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .build())
+        } catch (_: Exception) {}
+    }
+
+    private fun done(ctx: Context, text: String) {
+        try { ctx.getSystemService(android.app.NotificationManager::class.java)?.cancel(NOTIF_ID) } catch (_: Exception) {}
+        toast(ctx, text)
     }
 
     /** Declared by watch builds that can receive an update (wear/res/values/wear.xml). */

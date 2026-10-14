@@ -135,7 +135,7 @@
     <string name="wear_update_latest">Latest version</string>
     <string name="wear_update_pick">Pick APK…</string>
     <string name="wear_update_downloading">Downloading the watch app…</string>
-    <string name="wear_update_sending">Sending to %1$s… keep the watch close</string>
+    <string name="wear_update_sending">Sending to %1$s… it takes a couple of minutes, keep the watch close</string>
     <string name="wear_update_sent">Sent to %1$s: confirm the install on the watch</string>
     <string name="wear_update_send_failed">Couldn\'t send it to the watch. Is it connected? Try again</string>
     <string name="wear_update_no_watch">No watch connected. Open the Galaxy Wearable / Wear OS app and check the watch is connected</string>
@@ -143,4 +143,6 @@
     <string name="wear_update_no_asset">The latest version has no watch app</string>
     <string name="wear_update_download_failed">Couldn\'t download the watch app. Check your internet connection</string>
     <string name="wear_update_not_apk">That file isn\'t an app (APK)</string>
+    <string name="wear_update_progress_title">Sending the update to %1$s</string>
+    <string name="wear_update_progress_body">%1$d%% · it takes a couple of minutes, keep the watch close</string>
 </resources>

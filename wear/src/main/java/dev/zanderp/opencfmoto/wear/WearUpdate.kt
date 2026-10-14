@@ -45,12 +45,43 @@ object WearUpdate {
     fun receive(ctx: Context, channel: ChannelClient.Channel) {
         val f = file(ctx)
         f.delete()
-        Log.i(TAG, "receiving update from ${channel.nodeId}")
+        Log.i(TAG, "receiving update from ${channel.nodeId} (${channel.path})")
         Wearable.getChannelClient(ctx).receiveFile(channel, Uri.fromFile(f), false)
+        // Phones from 2.2 on put the size in the path ("/ocm/wearapk/<bytes>"): show a progress bar,
+        // the transfer over Bluetooth takes a couple of minutes.
+        val total = channel.path.substringAfterLast('/').toLongOrNull() ?: return
+        receiving = true
+        val app = ctx.applicationContext
+        Thread {
+            val started = System.currentTimeMillis()
+            var last = -1
+            while (receiving && System.currentTimeMillis() - started < 15 * 60_000L) {
+                val pct = (f.length() * 100 / total).toInt().coerceIn(0, 100)
+                if (pct != last) { last = pct; if (receiving) progress(app, pct) }
+                try { Thread.sleep(1000) } catch (_: InterruptedException) { break }
+            }
+        }.start()
+    }
+
+    @Volatile private var receiving = false
+
+    private fun progress(ctx: Context, pct: Int) {
+        val nm = ctx.getSystemService(NotificationManager::class.java) ?: return
+        nm.createNotificationChannel(NotificationChannel("update_progress", ctx.getString(R.string.wupd_receiving), NotificationManager.IMPORTANCE_LOW))
+        nm.notify(NOTIF_ID, NotificationCompat.Builder(ctx, "update_progress")
+            .setSmallIcon(R.drawable.ic_moto)
+            .setContentTitle(ctx.getString(R.string.wupd_receiving))
+            .setContentText("$pct %")
+            .setProgress(100, pct, false)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .build())
     }
 
     /** Transfer finished (or failed): tell the rider and open the install screen. */
     fun onReceived(ctx: Context, ok: Boolean) {
+        receiving = false
+        clearNotification(ctx)
         val f = file(ctx)
         val valid = ok && f.length() > 0 &&
             ctx.packageManager.getPackageArchiveInfo(f.absolutePath, 0)?.packageName == ctx.packageName

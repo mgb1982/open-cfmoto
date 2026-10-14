@@ -16,4 +16,5 @@ Nova: %2$s</string>
     <string name="wupd_failed_signature">Aquesta versió està signada de manera diferent de la instal·lada. Desinstal·la l\'app del rellotge i torna-la a instal·lar des de l\'ordinador</string>
     <string name="wupd_cancelled">Instal·lació cancel·lada</string>
     <string name="wupd_failed">No s\'ha pogut instal·lar (%1$s)</string>
+    <string name="wupd_receiving">Rebent l\'actualització del mòbil…</string>
 </resources>

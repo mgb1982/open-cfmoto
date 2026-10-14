@@ -16,4 +16,5 @@ Nueva: %2$s</string>
     <string name="wupd_failed_signature">Esta versión está firmada de forma distinta a la instalada. Desinstala la app del reloj y vuelve a instalarla desde el ordenador</string>
     <string name="wupd_cancelled">Instalación cancelada</string>
     <string name="wupd_failed">No se ha podido instalar (%1$s)</string>
+    <string name="wupd_receiving">Recibiendo la actualización del móvil…</string>
 </resources>
