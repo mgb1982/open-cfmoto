@@ -41,7 +41,7 @@ Basada en [OpenCfMoto](https://github.com/zanderp/open-cfmoto) de Alexandru (zan
 
 ### Instalación en el reloj (opcional, Wear OS)
 El reloj no instala APK directamente: se hace por depuración inalámbrica, una sola vez.
-1. En el reloj: Ajustes → Información del reloj → Software → toca **Versión de software** 5 veces (activa las opciones de desarrollador).
+1. En el reloj: Ajustes → Acerca del reloj → Información de software → toca **Versión de software** 5 veces (activa las opciones de desarrollador).
 2. Ajustes → Conexiones → **Wi-Fi en "Activado"** (no Automático), en la misma red que el móvil. Si no te muestra IP, desactiva un momento el Bluetooth del móvil.
 3. Opciones de desarrollador → **Depuración ADB** y **Depuración inalámbrica**. Sube el tiempo de pantalla para que no se apague mientras emparejas.
 4. Desde el móvil, con **Wear Installer 2** o **Bugjaeger** (Play Store): empareja con el código de "Emparejar nuevo dispositivo" y luego instala **`RideScreen-AA-v2.2-WearOS-reloj.apk`**. Ojo: el puerto para emparejar y el de conectar son distintos.
