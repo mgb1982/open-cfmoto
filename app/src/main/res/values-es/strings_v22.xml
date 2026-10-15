@@ -159,4 +159,6 @@
     <string name="dest_set_title">Elegir %1$s</string>
     <string name="dest_save">Guardar</string>
     <string name="dest_clear">Quitar</string>
+    <string name="nav_app_title">Navegar con</string>
+    <string name="nav_app_remember">Recordar mi elección</string>
 </resources>

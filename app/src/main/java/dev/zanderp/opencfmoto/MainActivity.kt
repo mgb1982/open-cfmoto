@@ -1953,7 +1953,8 @@ class MainActivity : AppCompatActivity() {
         //    crashes or won't let the rider pick a route on newer Maps / AA).
         if (aaLive && !GpxSession.active) {
             field.setText("")
-            sendDestinationToAndroidAuto(dest)
+            // v2.3: Google Maps or Waze — asked the first time, optionally remembered.
+            NavApps.ensureChosen(this) { sendDestinationToAndroidAuto(dest) }
             return
         }
         // Stale DashRemote with no map session: ignore and fall through.

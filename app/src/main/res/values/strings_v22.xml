@@ -153,4 +153,6 @@
     <string name="dest_set_title">Set %1$s</string>
     <string name="dest_save">Save</string>
     <string name="dest_clear">Remove</string>
+    <string name="nav_app_title">Navigate with</string>
+    <string name="nav_app_remember">Remember my choice</string>
 </resources>

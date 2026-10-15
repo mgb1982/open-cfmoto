@@ -89,6 +89,8 @@ object QuickDestinations {
                 chip("$label +", { editPlace(activity, slot, nameRes) { render(activity, row, navigate, askCalendar) } })
             }
         }
+        // Which app opens the route; tap to change it.
+        chip("🧭 " + NavApps.label(activity), { NavApps.choose(activity) { render(activity, row, navigate, askCalendar) } })
         if (!hasCalendar(activity)) {
             chip("📅 " + activity.getString(R.string.dest_calendar), askCalendar)
         } else {

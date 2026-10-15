@@ -153,4 +153,6 @@
     <string name="dest_set_title">Tria %1$s</string>
     <string name="dest_save">Desa</string>
     <string name="dest_clear">Treu</string>
+    <string name="nav_app_title">Navega amb</string>
+    <string name="nav_app_remember">Recorda la meva elecció</string>
 </resources>

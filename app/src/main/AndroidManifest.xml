@@ -66,6 +66,9 @@
         <package android:name="com.google.android.gms" />
         <!-- So we can detect + best-effort close the official CFMoto app when it grabs the link ports. -->
         <package android:name="com.cfmoto.cfmotointernational" />
+        <!-- v2.3: navigation app choice (Google Maps / Waze). -->
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.waze" />
     </queries>
 
     <application

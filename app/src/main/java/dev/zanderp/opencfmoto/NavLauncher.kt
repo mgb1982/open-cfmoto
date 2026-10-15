@@ -44,6 +44,14 @@ object NavLauncher {
             log("[NAV] warning: \"Display over other apps\" is off — Android may block this launch")
         }
         val enc = Uri.encode(dest)
+        if (NavApps.current(context) == NavApps.WAZE) {
+            val waze = listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?q=$enc&navigate=yes")).setPackage(NavApps.WAZE_PKG),
+                Intent(Intent.ACTION_VIEW, Uri.parse("waze://?q=$enc&navigate=yes")),
+            )
+            if (startFirst(context, waze, "$dest (Waze)", log)) return true
+            log("[NAV] Waze not available — falling back to Google Maps")
+        }
         val intents = listOf(
             // Phone + AA: directions UI on the phone, navigate action also feeds Android Auto.
             Intent(
@@ -77,6 +85,14 @@ object NavLauncher {
             Uri.encode("$coord (${label.trim()})")
         } else {
             Uri.encode(coord)
+        }
+        if (NavApps.current(context) == NavApps.WAZE) {
+            val waze = listOf(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://waze.com/ul?ll=$coord&navigate=yes")).setPackage(NavApps.WAZE_PKG),
+                Intent(Intent.ACTION_VIEW, Uri.parse("waze://?ll=$coord&navigate=yes")),
+            )
+            if (startFirst(context, waze, "${label ?: coord} (Waze)", log)) return true
+            log("[NAV] Waze not available — falling back to Google Maps")
         }
         val intents = listOf(
             Intent(
