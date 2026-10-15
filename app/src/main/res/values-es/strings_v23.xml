@@ -90,4 +90,12 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="arrive_via_sms_short">SMS</string>
     <string name="sound_setting">🔔 Sonido al conectar</string>
     <string name="sound_setting_desc">Un sonido corto que sube cuando el cuadro empieza a mostrar Android Auto, y otro que baja si se pierde la conexión (suena en el casco si lo tienes conectado).</string>
+    <string name="sound_style_button">Sonido: %1$s ›</string>
+    <string name="sound_style_title">Elige el sonido (toca para escucharlo)</string>
+    <string name="sound_chime">Campanilla (dos notas)</string>
+    <string name="sound_arpeggio">Arpegio (tres notas)</string>
+    <string name="sound_fob">Mando de la moto (bip bip)</string>
+    <string name="sound_swell">Subida suave</string>
+    <string name="sound_retro">Retro (videojuego)</string>
+    <string name="sound_system">El sonido de notificación del móvil</string>
 </resources>

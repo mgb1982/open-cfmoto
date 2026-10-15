@@ -42,7 +42,7 @@ object ConnectSound {
             val ctx = app ?: return@post
             if (live(p)) {
                 main.removeCallbacks(lostCheck)
-                if (!wasLive) { wasLive = true; if (enabled(ctx)) play(UP) }
+                if (!wasLive) { wasLive = true; if (enabled(ctx)) play(up = true) }
             } else if (wasLive) {
                 if (p == Phase.STOPPED || p == Phase.IDLE) { wasLive = false; main.removeCallbacks(lostCheck) }   // the rider stopped it
                 else { main.removeCallbacks(lostCheck); main.postDelayed(lostCheck, LOST_GRACE_MS) }
@@ -54,31 +54,56 @@ object ConnectSound {
         val ctx = app ?: return@Runnable
         if (wasLive && !live(ConnectionState.phase)) {
             wasLive = false
-            if (enabled(ctx)) play(DOWN)
+            if (enabled(ctx)) play(up = false)
         }
     }
 
-    // Two notes each: E5 → A5 (connected) and A5 → E5 (lost).
-    private val UP = doubleArrayOf(659.25, 880.0)
-    private val DOWN = doubleArrayOf(880.0, 659.25)
+    /** One tone: frequency glides from [f0] to [f1]; [square] gives the 8-bit flavour. */
+    class Seg(val f0: Double, val f1: Double, val ms: Int, val gapMs: Int = 40, val square: Boolean = false)
 
-    fun preview(ctx: Context) { init(ctx); play(UP) }
+    /** The chimes to choose from. Lost = the connected one played backwards (pitch falls). */
+    enum class Style(val labelRes: Int, val up: List<Seg>) {
+        CHIME(R.string.sound_chime, listOf(Seg(659.25, 659.25, 140), Seg(880.0, 880.0, 160))),
+        ARPEGGIO(R.string.sound_arpeggio, listOf(Seg(523.25, 523.25, 100, 25), Seg(659.25, 659.25, 100, 25), Seg(783.99, 783.99, 170))),
+        FOB(R.string.sound_fob, listOf(Seg(1318.5, 1318.5, 70, 70), Seg(1318.5, 1318.5, 70))),
+        SWELL(R.string.sound_swell, listOf(Seg(330.0, 660.0, 380, 0))),
+        RETRO(R.string.sound_retro, listOf(Seg(392.0, 392.0, 60, 10, true), Seg(523.25, 523.25, 60, 10, true), Seg(659.25, 659.25, 60, 10, true), Seg(1046.5, 1046.5, 130, 0, true))),
+        SYSTEM(R.string.sound_system, emptyList());
 
-    private fun play(notes: DoubleArray) {
+        val down: List<Seg> get() = up.reversed().map { Seg(it.f1, it.f0, it.ms, it.gapMs, it.square) }
+    }
+
+    fun style(ctx: Context): Style = try {
+        Style.valueOf(ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("style", Style.CHIME.name)!!)
+    } catch (_: Exception) { Style.CHIME }
+
+    fun setStyle(ctx: Context, s: Style) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("style", s.name).apply()
+
+    fun preview(ctx: Context, s: Style = style(ctx)) { init(ctx); play(s, up = true) }
+
+    private fun play(up: Boolean) { app?.let { play(style(it), up) } }
+
+    private fun play(style: Style, up: Boolean) {
+        if (style == Style.SYSTEM) { playSystem(); return }
+        val segs = if (up) style.up else style.down
         Thread {
             try {
-                val noteMs = 140; val gapMs = 40
-                val per = RATE * noteMs / 1000; val gap = RATE * gapMs / 1000
-                val pcm = ShortArray(notes.size * (per + gap))
+                val total = segs.sumOf { RATE * (it.ms + it.gapMs) / 1000 }
+                val pcm = ShortArray(total)
                 var i = 0
-                for (f in notes) {
+                for (sg in segs) {
+                    val per = RATE * sg.ms / 1000
+                    var phase = 0.0
                     for (n in 0 until per) {
+                        val f = sg.f0 + (sg.f1 - sg.f0) * n / per
+                        phase += 2 * PI * f / RATE
                         // Soft attack and decay so it chimes instead of clicking.
                         val env = min(1.0, n / (RATE * 0.008)) * (1.0 - n.toDouble() / per)
-                        val v = sin(2 * PI * f * n / RATE) * 0.6 + sin(4 * PI * f * n / RATE) * 0.15
+                        val v = if (sg.square) (if (sin(phase) >= 0) 0.35 else -0.35)
+                            else sin(phase) * 0.6 + sin(2 * phase) * 0.15
                         pcm[i++] = (v * env * 0.5 * Short.MAX_VALUE).toInt().toShort()
                     }
-                    i += gap
+                    i += RATE * sg.gapMs / 1000
                 }
                 val track = AudioTrack.Builder()
                     .setAudioAttributes(AudioAttributes.Builder()
@@ -91,11 +116,23 @@ object ConnectSound {
                     .build()
                 track.write(pcm, 0, pcm.size)
                 track.play()
-                Thread.sleep((notes.size * (noteMs + gapMs) + 150).toLong())
+                Thread.sleep(total * 1000L / RATE + 150)
                 track.release()
             } catch (e: Exception) {
                 LogBus.log("[SOUND] chime failed: $e")
             }
         }.start()
+    }
+
+    /** The phone's own notification sound (same for connected and lost). */
+    private fun playSystem() {
+        val ctx = app ?: return
+        try {
+            val r = android.media.RingtoneManager.getRingtone(ctx,
+                android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)) ?: return
+            r.audioAttributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+            r.play()
+        } catch (e: Exception) { LogBus.log("[SOUND] system sound failed: $e") }
     }
 }

@@ -90,4 +90,12 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="arrive_via_sms_short">SMS</string>
     <string name="sound_setting">🔔 So en connectar</string>
     <string name="sound_setting_desc">Un so curt que puja quan el quadre comença a mostrar Android Auto, i un altre que baixa si es perd la connexió (sona al casc si el tens connectat).</string>
+    <string name="sound_style_button">So: %1$s ›</string>
+    <string name="sound_style_title">Tria el so (toca per escoltar-lo)</string>
+    <string name="sound_chime">Campaneta (dues notes)</string>
+    <string name="sound_arpeggio">Arpegi (tres notes)</string>
+    <string name="sound_fob">Comandament de la moto (bip bip)</string>
+    <string name="sound_swell">Pujada suau</string>
+    <string name="sound_retro">Retro (videojoc)</string>
+    <string name="sound_system">El so de notificació del mòbil</string>
 </resources>

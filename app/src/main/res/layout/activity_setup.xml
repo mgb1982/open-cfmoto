@@ -1325,6 +1325,14 @@
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_connect_sound_style"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:textAllCaps="false" />
+
                 <!-- Auto-recovery -->
                 <TextView
                     android:layout_width="match_parent"
