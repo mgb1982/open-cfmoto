@@ -143,6 +143,12 @@ class CrashSettingsActivity : AppCompatActivity() {
             }
         })
 
+        // v2.3 · 🎥 Black box: the minute before and the 30 s after each impact the detector saw.
+        root.addView(header(getString(R.string.bb_title)))
+        root.addView(body(getString(R.string.bb_settings_hint)))
+        blackBoxButton = button(blackBoxLabel()) { BlackBoxActivity.start(this) }
+        root.addView(blackBoxButton)
+
         root.addView(header(getString(R.string.crash_test_title)))
         root.addView(button(getString(R.string.crash_simulate)) {
             MaterialAlertDialogBuilder(this)
@@ -178,8 +184,12 @@ class CrashSettingsActivity : AppCompatActivity() {
         }
     }
 
+    private var blackBoxButton: android.widget.Button? = null
+    private fun blackBoxLabel() = getString(R.string.bb_open, BlackBox.list(this).size)
+
     override fun onResume() {
         super.onResume()
+        blackBoxButton?.text = blackBoxLabel()
         refresh()
     }
 

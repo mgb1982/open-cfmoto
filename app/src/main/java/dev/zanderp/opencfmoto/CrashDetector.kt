@@ -80,6 +80,8 @@ object CrashDetector : SensorEventListener {
     private var disarmAt = 0L
     private var lastFastAt = 0L
     private var impactAt = 0L
+    /** Speed when the last real impact was detected; added to the SMS (v2.3). */
+    @Volatile private var lastImpactKmh: Float? = null
     private var stillSince = 0L
     private val grav = FloatArray(3)
     private var gravReady = false
@@ -143,6 +145,7 @@ object CrashDetector : SensorEventListener {
         val acc = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) ?: return
         sensorOn = sm.registerListener(this, acc, SensorManager.SENSOR_DELAY_GAME, main)
         impactAt = 0L; stillSince = 0L; gravReady = false; ridingGravReady = false
+        BlackBox.reset()
         LogBus.log("[CRASH] detector armed (${contacts(app).size} contact(s), sms=${canSms(app)})")
     }
 
@@ -170,6 +173,9 @@ object CrashDetector : SensorEventListener {
         val mag = sqrt(e.values[0] * e.values[0] + e.values[1] * e.values[1] + e.values[2] * e.values[2])
         if (!gravReady) { e.values.copyInto(grav, endIndex = 3); gravReady = true }
         else for (i in 0..2) grav[i] = GRAV_ALPHA * grav[i] + (1 - GRAV_ALPHA) * e.values[i]
+        // 🎥 Black box (v2.3): rolling 60 s of g-force, lean and GPS, only kept in memory.
+        BlackBox.onAccel(System.currentTimeMillis(), mag / SensorManager.GRAVITY_EARTH,
+            if (ridingGravReady) angleDeg(ridingGrav, grav).toFloat() else null)
 
         if (impactAt == 0L) {
             // Remember which way "down" is while riding normally; frozen once an impact is being watched.
@@ -177,12 +183,15 @@ object CrashDetector : SensorEventListener {
             if (mag >= IMPACT_G * SensorManager.GRAVITY_EARTH && now - lastFastAt <= ARM_WINDOW_MS) {
                 impactAt = now
                 stillSince = 0L
+                lastImpactKmh = v
+                BlackBox.onImpact(app, mag / SensorManager.GRAVITY_EARTH, v)
                 LogBus.log("[CRASH] impact ${"%.1f".format(mag / SensorManager.GRAVITY_EARTH)} g at ${v?.toInt() ?: "?"} km/h — watching for stillness")
             }
             return
         }
         if (now - impactAt > CONFIRM_WINDOW_MS) {
             LogBus.log("[CRASH] impact not confirmed (rider moving again) — ignored")
+            BlackBox.onOutcome("moving")
             impactAt = 0L
             return
         }
@@ -195,9 +204,11 @@ object CrashDetector : SensorEventListener {
             val tilt = if (ridingGravReady) angleDeg(ridingGrav, grav) else null
             if (tilt != null && tilt < MIN_TILT_DEG) {
                 LogBus.log("[CRASH] impact + still + stopped, but upright (tilt ${tilt.toInt()}°) — red light, not a crash")
+                BlackBox.onOutcome("upright")
                 return
             }
             LogBus.log("[CRASH] impact + ${STILL_MS / 1000}s still + stopped + tilt ${tilt?.toInt() ?: "?"}° → alarm")
+            BlackBox.onOutcome("alarm")
             startAlarm(app, test = false)
         }
     }
@@ -366,7 +377,8 @@ object CrashDetector : SensorEventListener {
         val body = ctx.getString(
             if (followUp) R.string.crash_sms_followup else R.string.crash_sms_body, name, COUNTDOWN_S, where, time,
         )
-        return if (test) ctx.getString(R.string.crash_sms_test_prefix) + " " + body else body
+        val speed = lastImpactKmh?.takeIf { !test && !followUp }?.let { " " + ctx.getString(R.string.crash_sms_speed, it.toInt()) } ?: ""
+        return if (test) ctx.getString(R.string.crash_sms_test_prefix) + " " + body else body + speed
     }
 
     private fun currentLocation(): Location? = RideExtras.lastLocation(app, 10 * 60_000L)

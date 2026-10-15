@@ -159,6 +159,9 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".BlackBoxActivity"
+            android:exported="false" />
+        <activity
             android:name=".CrashAlertActivity"
             android:exported="false"
             android:excludeFromRecents="true"
