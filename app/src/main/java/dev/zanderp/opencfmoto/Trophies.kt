@@ -196,4 +196,17 @@ object Trophies {
         } catch (_: SecurityException) {
         }
     }
+
+    /**
+     * v2.3 · Days in a row with at least one ride, counting back from today. A streak whose last ride
+     * was yesterday is still alive (today isn't over). 0 if the last ride is older.
+     */
+    fun currentStreak(trips: List<Trip>, now: Long = System.currentTimeMillis()): Int {
+        val days = trips.map { Records.dayKey(it.start) }.toHashSet()
+        val today = Records.dayKey(now)
+        var d = if (today in days) today else today - 1
+        var n = 0
+        while (d in days) { n++; d-- }
+        return n
+    }
 }

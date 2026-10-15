@@ -66,7 +66,11 @@ object QuickDestinations {
      * Rebuild the chip row. [navigate] starts the route (same path as the search box); [askCalendar]
      * requests READ_CALENDAR and calls [render] again when granted.
      */
-    fun render(activity: AppCompatActivity, row: LinearLayout, navigate: (String) -> Unit, askCalendar: () -> Unit) {
+    fun render(
+        activity: AppCompatActivity, row: LinearLayout, navigate: (String) -> Unit, askCalendar: () -> Unit,
+        pickContact: ((ArrivalNotice.Contact) -> Unit) -> Unit = {},
+    ) {
+        fun again() = render(activity, row, navigate, askCalendar, pickContact)
         row.removeAllViews()
         fun chip(label: String, onClick: () -> Unit, onLong: (() -> Unit)? = null) {
             val b = MaterialButton(activity, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
@@ -82,15 +86,20 @@ object QuickDestinations {
         for ((slot, emoji, nameRes) in listOf(Triple(SLOT_HOME, "🏠", R.string.dest_home), Triple(SLOT_WORK, "💼", R.string.dest_work))) {
             val label = "$emoji ${activity.getString(nameRes)}"
             if (SavedPlaces.isSet(activity, slot)) {
-                chip(label, { navigate(SavedPlaces.query(activity, slot)) }, {
-                    editPlace(activity, slot, nameRes) { render(activity, row, navigate, askCalendar) }
+                // 📨 marks a place that tells someone you're on your way.
+                val tag = if (ArrivalNotice.contact(activity, slot) != null) " 📨" else ""
+                chip(label + tag, {
+                    ArrivalNotice.onDepart(activity, slot)
+                    navigate(SavedPlaces.query(activity, slot))
+                }, {
+                    editPlace(activity, slot, nameRes, pickContact) { again() }
                 })
             } else {
-                chip("$label +", { editPlace(activity, slot, nameRes) { render(activity, row, navigate, askCalendar) } })
+                chip("$label +", { editPlace(activity, slot, nameRes, pickContact) { again() } })
             }
         }
         // Which app opens the route; tap to change it.
-        chip("🧭 " + NavApps.label(activity), { NavApps.choose(activity) { render(activity, row, navigate, askCalendar) } })
+        chip("🧭 " + NavApps.label(activity), { NavApps.choose(activity) { again() } })
         if (!hasCalendar(activity)) {
             chip("📅 " + activity.getString(R.string.dest_calendar), askCalendar)
         } else {
@@ -102,23 +111,52 @@ object QuickDestinations {
         }
     }
 
-    /** Set or change Home / Work: an address or place name, whatever Maps understands. */
-    private fun editPlace(activity: AppCompatActivity, slot: Int, nameRes: Int, done: () -> Unit) {
+    /** Set or change Home / Work (an address or place name, whatever Maps understands) and who to tell. */
+    private fun editPlace(
+        activity: AppCompatActivity, slot: Int, nameRes: Int,
+        pickContact: ((ArrivalNotice.Contact) -> Unit) -> Unit, done: () -> Unit,
+    ) {
         val input = EditText(activity).apply {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS
             hint = activity.getString(R.string.dest_address_hint)
             setText(SavedPlaces.query(activity, slot))
         }
         val pad = (20 * activity.resources.displayMetrics.density).toInt()
-        val box = LinearLayout(activity).apply { setPadding(pad, pad / 2, pad, 0); addView(input) }
+        var contact = ArrivalNotice.contact(activity, slot)
+        val who = MaterialButton(activity, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply { isAllCaps = false }
+        fun label() {
+            who.text = contact?.let { activity.getString(R.string.arrive_who, it.name.ifBlank { it.number }) }
+                ?: activity.getString(R.string.arrive_none)
+        }
+        label()
+        who.setOnClickListener {
+            if (contact == null) pickContact { c -> contact = c; label() }
+            else MaterialAlertDialogBuilder(activity)
+                .setItems(arrayOf(activity.getString(R.string.arrive_change), activity.getString(R.string.arrive_stop))) { _, i ->
+                    if (i == 0) pickContact { c -> contact = c; label() } else { contact = null; label() }
+                }.show()
+        }
+        val hint = android.widget.TextView(activity).apply {
+            text = activity.getString(R.string.arrive_hint)
+            textSize = 12f
+            setTextColor(ContextCompat.getColor(activity, R.color.text_secondary))
+        }
+        val box = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, pad / 2, pad, 0)
+            addView(input); addView(who); addView(hint)
+        }
         MaterialAlertDialogBuilder(activity)
             .setTitle(activity.getString(R.string.dest_set_title, activity.getString(nameRes)))
             .setView(box)
             .setPositiveButton(R.string.dest_save) { _, _ ->
                 SavedPlaces.set(activity, slot, activity.getString(nameRes), input.text.toString())
+                ArrivalNotice.setContact(activity, slot, contact)
                 done()
             }
-            .setNeutralButton(R.string.dest_clear) { _, _ -> SavedPlaces.set(activity, slot, "", ""); done() }
+            .setNeutralButton(R.string.dest_clear) { _, _ ->
+                SavedPlaces.set(activity, slot, "", ""); ArrivalNotice.setContact(activity, slot, null); done()
+            }
             .setNegativeButton(android.R.string.cancel, null)
             .show()
     }

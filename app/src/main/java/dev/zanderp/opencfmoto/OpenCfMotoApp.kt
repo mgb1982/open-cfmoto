@@ -28,6 +28,7 @@ class OpenCfMotoApp : Application() {
         // After hydrate so Share Logs still show prior crash, then stamp this process build.
         LogBus.logSessionBanner()
         AppHttp.init(this)
+        try { WeeklySummary.ensureScheduled(this) } catch (_: Exception) {}
         try {
             AnonymousTelemetry.onAppStart(this)
         } catch (_: Exception) {

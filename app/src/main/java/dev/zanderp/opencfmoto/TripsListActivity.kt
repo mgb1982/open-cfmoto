@@ -73,6 +73,15 @@ class TripsListActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.trips_all_map).setOnClickListener { TripMapActivity.startAll(this) }
         findViewById<MaterialButton>(R.id.trips_year).setOnClickListener { YearInReviewActivity.start(this) }
         findViewById<MaterialButton>(R.id.trips_traffic_lights).setOnClickListener { TrafficLightsActivity.start(this) }
+        // v2.3 · 📊 this week so far (the same text as Sunday's notification).
+        findViewById<MaterialButton>(R.id.trips_week).setOnClickListener {
+            val w = WeeklySummary.compute(this)
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.week_title_sofar)
+                .setMessage(if (w.rides == 0) getString(R.string.week_none) else WeeklySummary.text(this, w) + "\n\n" + getString(R.string.week_hint))
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
+        }
         findViewById<MaterialButton>(R.id.trips_logging_enable).setOnClickListener {
             AppSettings.setLogTrips(this, true)
             LogBus.log("[trip] logging turned on from the Trips screen")

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_streak">🔥 %1$d days in a row</string>
+    <string name="cmp_title">🆚 Compared with your usual ride</string>
+    <string name="cmp_line_same">🆚 About as usual (%1$d similar rides)</string>
+    <string name="cmp_line_slower">🆚 %1$d min slower than usual</string>
+    <string name="cmp_line_faster">🆚 %1$d min faster than usual</string>
+    <string name="cmp_why_still">mostly stopped (lights, traffic)</string>
+    <string name="cmp_why_still_less">fewer stops</string>
+    <string name="cmp_why_pace">slower while moving</string>
+    <string name="cmp_why_pace_more">quicker while moving</string>
+    <string name="cmp_why_route">a longer way</string>
+    <string name="cmp_why_route_less">a shorter way</string>
+    <string name="cmp_detail_head">Same start and end as %1$d other rides.
+Today: %2$d min door to door · usual: %3$d min.</string>
+    <string name="cmp_detail_still">Stopped: %1$d min in %2$d stops (usual %3$d min, %4$d stops)</string>
+    <string name="cmp_detail_pace">Average while moving: %1$d km/h (usual %2$d)</string>
+    <string name="cmp_detail_km">Distance: %1$s km (usual %2$s)</string>
+    <string name="cmp_detail_main">Main reason: %1$s.</string>
+    <string name="cmp_detail_mixed">No single reason: a bit of everything.</string>
+    <string name="week_channel">Weekly summary</string>
+    <string name="week_title">📊 Your week on the bike</string>
+    <string name="week_title_sofar">📊 This week so far</string>
+    <string name="week_button">📊 This week</string>
+    <string name="week_none">No rides yet this week.</string>
+    <string name="week_hint">Every Sunday at 20:00 you get this as a notification.</string>
+    <string name="week_line_main">%1$s km in %2$d rides · %3$s riding</string>
+    <string name="week_line_more">%1$d %% more than last week</string>
+    <string name="week_line_less">%1$d %% less than last week</string>
+    <string name="week_line_longest">Longest ride: %1$s km</string>
+    <string name="week_line_fuel_eur">Fuel: about %1$s € (%2$s L)</string>
+    <string name="week_line_fuel_l">Fuel: about %1$s L</string>
+    <string name="week_line_streak">🔥 Streak: %1$d days in a row</string>
+    <string name="arrive_sms_home">On my way home, I\'ll be there around %1$s (about %2$d min). — automatic message from RideScreen AA</string>
+    <string name="arrive_sms_work">On my way to work, I\'ll be there around %1$s (about %2$d min). — automatic message from RideScreen AA</string>
+    <string name="arrive_sent">📨 %1$s knows you\'ll arrive around %2$s</string>
+    <string name="arrive_who">📨 Tell when I set off: %1$s</string>
+    <string name="arrive_none">📨 Tell someone when I set off…</string>
+    <string name="arrive_hint">When you tap this place while connected, they get a text with your arrival time.</string>
+    <string name="arrive_change">Choose someone else</string>
+    <string name="arrive_stop">Don\'t tell anyone</string>
+    <string name="arrive_no_sms">Without SMS permission the messages app will open with the text ready to send.</string>
+</resources>

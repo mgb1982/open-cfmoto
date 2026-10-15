@@ -341,7 +341,34 @@ class MainActivity : AppCompatActivity() {
             navigateToTyped()
         }, askCalendar = {
             try { calendarPermLauncher.launch(android.Manifest.permission.READ_CALENDAR) } catch (_: Exception) {}
+        }, pickContact = { then ->
+            onContactPicked = then
+            try {
+                arrivalContactLauncher.launch(Intent(Intent.ACTION_PICK, android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI))
+            } catch (_: Exception) { Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show() }
         })
+    }
+
+    /** v2.3 · 📨 contact for "on my way" texts (Home / Work). */
+    private var onContactPicked: ((ArrivalNotice.Contact) -> Unit)? = null
+    private val arrivalContactLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+        val uri = res.data?.data ?: return@registerForActivityResult
+        try {
+            contentResolver.query(uri, arrayOf(android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER), null, null, null)?.use { c ->
+                if (c.moveToFirst() && !c.getString(1).isNullOrBlank()) {
+                    onContactPicked?.invoke(ArrivalNotice.Contact(c.getString(0).orEmpty(), c.getString(1)))
+                    // GitHub build: ask for SMS now so the text can go out by itself while riding.
+                    if (CrashDetector.smsSupported && !CrashDetector.canSms(this)) {
+                        try { smsPermLauncher.launch(android.Manifest.permission.SEND_SMS) } catch (_: Exception) {}
+                    }
+                }
+            }
+        } catch (_: Exception) { Toast.makeText(this, R.string.open_failed, Toast.LENGTH_SHORT).show() }
+        onContactPicked = null
+    }
+    private val smsPermLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        if (!ok) Toast.makeText(this, R.string.arrive_no_sms, Toast.LENGTH_LONG).show()
     }
 
     /** ⌚ Watch updater: an APK file the rider already has on the phone. */
@@ -1320,8 +1347,15 @@ class MainActivity : AppCompatActivity() {
         findViewById<View?>(R.id.btn_maint)?.setOnClickListener { MaintenanceActivity.start(this) }
         val s = try { Maintenance.mostUrgent(this) } catch (_: Exception) { null }
         setTileSub(R.id.btn_maint, s?.let { "${it.task.name}: ${Maintenance.statusText(this, it)}" })
-        val trips = try { TripStore.summaries(this).count { android.text.format.DateUtils.isToday(it.start) } } catch (_: Exception) { 0 }
-        setTileSub(R.id.btn_trips_list, if (trips > 0) resources.getQuantityString(R.plurals.home_tile_trips_today, trips, trips) else null)
+        val all = try { TripStore.summaries(this) } catch (_: Exception) { emptyList() }
+        val trips = all.count { android.text.format.DateUtils.isToday(it.start) }
+        // v2.3 · current streak (🔥 N days in a row), from 2 days on.
+        val streak = Trophies.currentStreak(all)
+        val parts = listOfNotNull(
+            if (streak >= 2) getString(R.string.home_streak, streak) else null,
+            if (trips > 0) resources.getQuantityString(R.plurals.home_tile_trips_today, trips, trips) else null,
+        )
+        setTileSub(R.id.btn_trips_list, parts.joinToString(" · ").ifBlank { null })
     }
 
     private fun renderLive() {

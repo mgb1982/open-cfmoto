@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_streak">🔥 %1$d dies seguits</string>
+    <string name="cmp_title">🆚 Comparat amb el teu viatge habitual</string>
+    <string name="cmp_line_same">🆚 Com sempre (%1$d viatges iguals)</string>
+    <string name="cmp_line_slower">🆚 %1$d min més que l\'habitual</string>
+    <string name="cmp_line_faster">🆚 %1$d min menys que l\'habitual</string>
+    <string name="cmp_why_still">sobretot aturat (semàfors, trànsit)</string>
+    <string name="cmp_why_still_less">menys parades</string>
+    <string name="cmp_why_pace">més lent en marxa</string>
+    <string name="cmp_why_pace_more">més ràpid en marxa</string>
+    <string name="cmp_why_route">un camí més llarg</string>
+    <string name="cmp_why_route_less">un camí més curt</string>
+    <string name="cmp_detail_head">Mateix inici i final que altres %1$d viatges.
+Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
+    <string name="cmp_detail_still">Aturat: %1$d min en %2$d parades (habitual %3$d min, %4$d parades)</string>
+    <string name="cmp_detail_pace">Mitjana en marxa: %1$d km/h (habitual %2$d)</string>
+    <string name="cmp_detail_km">Distància: %1$s km (habitual %2$s)</string>
+    <string name="cmp_detail_main">Motiu principal: %1$s.</string>
+    <string name="cmp_detail_mixed">No hi ha un motiu clar: una mica de tot.</string>
+    <string name="week_channel">Resum setmanal</string>
+    <string name="week_title">📊 La teva setmana en moto</string>
+    <string name="week_title_sofar">📊 Aquesta setmana, fins ara</string>
+    <string name="week_button">📊 Aquesta setmana</string>
+    <string name="week_none">Aquesta setmana encara no has agafat la moto.</string>
+    <string name="week_hint">Cada diumenge a les 20:00 et arriba com a notificació.</string>
+    <string name="week_line_main">%1$s km en %2$d viatges · %3$s rodant</string>
+    <string name="week_line_more">Un %1$d %% més que la setmana passada</string>
+    <string name="week_line_less">Un %1$d %% menys que la setmana passada</string>
+    <string name="week_line_longest">Viatge més llarg: %1$s km</string>
+    <string name="week_line_fuel_eur">Benzina: uns %1$s € (%2$s L)</string>
+    <string name="week_line_fuel_l">Benzina: uns %1$s L</string>
+    <string name="week_line_streak">🔥 Ratxa: %1$d dies seguits</string>
+    <string name="arrive_sms_home">Vaig cap a casa, arribaré cap a les %1$s (uns %2$d min). — Missatge automàtic de RideScreen AA</string>
+    <string name="arrive_sms_work">Vaig cap a la feina, arribaré cap a les %1$s (uns %2$d min). — Missatge automàtic de RideScreen AA</string>
+    <string name="arrive_sent">📨 %1$s ja sap que arribes cap a les %2$s</string>
+    <string name="arrive_who">📨 Avisar en sortir: %1$s</string>
+    <string name="arrive_none">📨 Avisar algú en sortir…</string>
+    <string name="arrive_hint">En tocar aquesta destinació estant connectat, li arriba un SMS amb la teva hora d\'arribada.</string>
+    <string name="arrive_change">Triar una altra persona</string>
+    <string name="arrive_stop">No avisar ningú</string>
+    <string name="arrive_no_sms">Sense permís d\'SMS s\'obrirà l\'app de missatges amb el text a punt per enviar.</string>
+</resources>
