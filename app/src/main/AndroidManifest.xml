@@ -30,6 +30,8 @@
         android:usesPermissionFlags="neverForLocation" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- v2.3 passenger mode (Nearby Connections between two RideScreen phones). -->
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <!-- Streams the phone/helmet mic to Android Auto so the Assistant can hear you (voice
          destination entry). Optional: only used when you tap the Voice control. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -70,6 +72,9 @@
         <!-- v2.3: navigation app choice (Google Maps / Waze). -->
         <package android:name="com.google.android.apps.maps" />
         <package android:name="com.waze" />
+        <!-- v2.3: "on my way" by WhatsApp (text ready). -->
+        <package android:name="com.whatsapp" />
+        <package android:name="com.whatsapp.w4b" />
     </queries>
 
     <application
@@ -157,6 +162,10 @@
             android:exported="false" />
         <activity
             android:name=".CrashSettingsActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".CompanionActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity

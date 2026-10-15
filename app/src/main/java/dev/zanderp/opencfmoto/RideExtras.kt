@@ -38,6 +38,7 @@ object RideExtras {
         val app = ctx.applicationContext
         LiveShare.onSession(active)
         try { CrashDetector.onSession(app, active) } catch (_: Exception) {}
+        try { PaxLink.onSession(app, active) } catch (_: Exception) {}
         if (active) {
             try { Maintenance.checkDue(app) } catch (_: Exception) {}
             Parking.clear(app)

@@ -29,19 +29,27 @@ object ArrivalNotice {
     private const val FALLBACK_KMH = 25.0
     private const val ROAD_FACTOR = 1.3
 
-    data class Contact(val name: String, val number: String)
+    const val VIA_SMS = "sms"
+    const val VIA_WHATSAPP = "wa"
+
+    data class Contact(val name: String, val number: String, val via: String = VIA_SMS)
+
+    fun whatsAppInstalled(ctx: Context) = listOf("com.whatsapp", "com.whatsapp.w4b").any {
+        try { ctx.packageManager.getPackageInfo(it, 0); true } catch (_: Exception) { false }
+    }
 
     private fun prefs(ctx: Context) = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     fun contact(ctx: Context, slot: Int): Contact? {
         val p = prefs(ctx)
         val n = p.getString("num$slot", null)?.takeIf { it.isNotBlank() } ?: return null
-        return Contact(p.getString("name$slot", "").orEmpty(), n)
+        return Contact(p.getString("name$slot", "").orEmpty(), n, p.getString("via$slot", VIA_SMS) ?: VIA_SMS)
     }
 
     fun setContact(ctx: Context, slot: Int, c: Contact?) {
         prefs(ctx).edit().apply {
-            if (c == null) { remove("num$slot"); remove("name$slot") } else { putString("num$slot", c.number); putString("name$slot", c.name) }
+            if (c == null) { remove("num$slot"); remove("name$slot"); remove("via$slot") }
+            else { putString("num$slot", c.number); putString("name$slot", c.name); putString("via$slot", c.via) }
         }.apply()
     }
 
@@ -76,7 +84,8 @@ object ArrivalNotice {
 
     private fun send(activity: Activity, c: Contact, text: String, at: String) {
         val who = c.name.ifBlank { c.number }
-        if (CrashDetector.canSms(activity)) {
+        if (c.via == VIA_WHATSAPP && openWhatsApp(activity, c, text)) return
+        if (c.via == VIA_SMS && CrashDetector.canSms(activity)) {
             try {
                 val sms: SmsManager = if (Build.VERSION.SDK_INT >= 31) activity.getSystemService(SmsManager::class.java)
                     else @Suppress("DEPRECATION") SmsManager.getDefault()
@@ -93,6 +102,30 @@ object ArrivalNotice {
         } catch (_: Exception) {
             Toast.makeText(activity, R.string.open_failed, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    /**
+     * WhatsApp can't be sent by another app: open the chat with the text written, one tap on Send.
+     * wa.me needs the international number, so local numbers get the SIM's country code.
+     */
+    private fun openWhatsApp(activity: Activity, c: Contact, text: String): Boolean {
+        val country = try {
+            (activity.getSystemService(Context.TELEPHONY_SERVICE) as? android.telephony.TelephonyManager)
+                ?.let { it.simCountryIso.ifBlank { it.networkCountryIso } }?.uppercase()
+        } catch (_: Exception) { null }?.ifBlank { null } ?: java.util.Locale.getDefault().country.ifBlank { "ES" }
+        val e164 = android.telephony.PhoneNumberUtils.formatNumberToE164(c.number, country)
+            ?: c.number.filter { it.isDigit() || it == '+' }
+        val digits = e164.filter { it.isDigit() }
+        val uri = Uri.parse("https://wa.me/$digits?text=" + Uri.encode(text))
+        for (pkg in listOf("com.whatsapp", "com.whatsapp.w4b", null)) {
+            try {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, uri).apply { if (pkg != null) setPackage(pkg) })
+                LogBus.log("[ARRIVE] WhatsApp opened with the text")
+                return true
+            } catch (_: Exception) {}
+        }
+        LogBus.log("[ARRIVE] WhatsApp not available, falling back to SMS")
+        return false
     }
 
     /** Coordinates of Home / Work, geocoded once per address and remembered. */

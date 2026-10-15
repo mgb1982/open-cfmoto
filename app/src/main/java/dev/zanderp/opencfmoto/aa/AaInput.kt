@@ -50,10 +50,15 @@ class AaInput(
         /** KEYCODE_SEARCH — what a head unit sends for its "voice / Assistant" button. */
         const val KEY_ASSISTANT = 84
 
+        /** v2.3 media keys (passenger mode): KEYCODE_MEDIA_PLAY_PAUSE / NEXT / PREVIOUS. */
+        const val KEY_PLAY_PAUSE = 85
+        const val KEY_NEXT = 87
+        const val KEY_PREVIOUS = 88
+
         /** All keycodes we advertise — declared to AA so it enables rotary/focus navigation. */
         val SUPPORTED_KEYCODES = intArrayOf(
             KEY_SCROLL_WHEEL, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER, KEY_BACK, KEY_HOME,
-            KEY_ASSISTANT,
+            KEY_ASSISTANT, KEY_PLAY_PAUSE, KEY_NEXT, KEY_PREVIOUS,
         )
     }
 

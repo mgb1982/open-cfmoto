@@ -125,15 +125,32 @@ object QuickDestinations {
         var contact = ArrivalNotice.contact(activity, slot)
         val who = MaterialButton(activity, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply { isAllCaps = false }
         fun label() {
-            who.text = contact?.let { activity.getString(R.string.arrive_who, it.name.ifBlank { it.number }) }
-                ?: activity.getString(R.string.arrive_none)
+            who.text = contact?.let {
+                activity.getString(R.string.arrive_who, it.name.ifBlank { it.number }) + " · " +
+                    activity.getString(if (it.via == ArrivalNotice.VIA_WHATSAPP) R.string.arrive_via_wa_short else R.string.arrive_via_sms_short)
+            } ?: activity.getString(R.string.arrive_none)
         }
         label()
+        // After choosing the person: how to tell them (SMS on its own, or WhatsApp with the text ready).
+        fun chooseVia(c: ArrivalNotice.Contact) {
+            val sms = activity.getString(if (CrashDetector.smsSupported) R.string.arrive_via_sms_auto else R.string.arrive_via_sms_ready)
+            if (!ArrivalNotice.whatsAppInstalled(activity)) { contact = c; label(); return }
+            MaterialAlertDialogBuilder(activity)
+                .setTitle(R.string.arrive_via_title)
+                .setItems(arrayOf(sms, activity.getString(R.string.arrive_via_wa))) { _, i ->
+                    contact = c.copy(via = if (i == 1) ArrivalNotice.VIA_WHATSAPP else ArrivalNotice.VIA_SMS); label()
+                }.show()
+        }
         who.setOnClickListener {
-            if (contact == null) pickContact { c -> contact = c; label() }
+            if (contact == null) pickContact { c -> chooseVia(c) }
             else MaterialAlertDialogBuilder(activity)
-                .setItems(arrayOf(activity.getString(R.string.arrive_change), activity.getString(R.string.arrive_stop))) { _, i ->
-                    if (i == 0) pickContact { c -> contact = c; label() } else { contact = null; label() }
+                .setItems(arrayOf(activity.getString(R.string.arrive_change), activity.getString(R.string.arrive_via_change),
+                    activity.getString(R.string.arrive_stop))) { _, i ->
+                    when (i) {
+                        0 -> pickContact { c -> chooseVia(c) }
+                        1 -> contact?.let { chooseVia(it) }
+                        else -> { contact = null; label() }
+                    }
                 }.show()
         }
         val hint = android.widget.TextView(activity).apply {

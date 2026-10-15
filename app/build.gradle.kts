@@ -143,6 +143,8 @@ dependencies {
     implementation(libs.play.services.wearable)
     // Compile-time OkHttp for MapLibre cellular pin (MapLibre brings it as runtime only).
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // v2.3 passenger mode: phone-to-phone over Bluetooth (PaxLink).
+    implementation("com.google.android.gms:play-services-nearby:19.3.0")
     // Donations in the Play build (Google Play Billing; Play requires Billing Library 8+).
     "playImplementation"("com.android.billingclient:billing:8.0.0")
     testImplementation(libs.junit)
