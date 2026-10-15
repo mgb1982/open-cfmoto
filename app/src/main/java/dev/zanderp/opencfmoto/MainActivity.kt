@@ -2119,9 +2119,14 @@ class MainActivity : AppCompatActivity() {
                 putExtra(Intent.EXTRA_SUBJECT, "opencfmoto log $stamp")
                 if (uris.size > 1) putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 else putExtra(Intent.EXTRA_STREAM, uris[0])
+                // Some apps (Claude among them) only read the shared file through ClipData; without it
+                // they open with nothing attached. ClipData also carries the read grant.
+                clipData = android.content.ClipData.newRawUri(file.name, uris[0]).also { c ->
+                    uris.drop(1).forEach { c.addItem(android.content.ClipData.Item(it)) }
+                }
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            startActivity(Intent.createChooser(send, "Share log"))
+            startActivity(Intent.createChooser(send, "Share log").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
             log("log saved: ${file.absolutePath} (${file.length()} bytes)")
         } catch (e: Exception) {
             log("share failed: $e")

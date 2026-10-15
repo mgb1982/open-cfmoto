@@ -31,6 +31,8 @@ object BikeLink {
     // serve, so streaming correctness is unchanged. Lives here so a MainActivity recreation
     // mid-startup doesn't lose the pending gate.
     @Volatile private var aaVideoSteady = false
+    /** When this connect began: a Wi‑Fi blip in the first seconds is not an Android Auto failure. */
+    @Volatile private var connectStartedAt = 0L
     @Volatile private var bikeNetwork: Network? = null
     @Volatile private var networkReady = false
     @Volatile private var proberStarted = false
@@ -44,6 +46,7 @@ object BikeLink {
     fun beginHandoff(context: Context? = null) {
         if (context != null) appContext = context.applicationContext
         aaVideoSteady = false
+        connectStartedAt = android.os.SystemClock.elapsedRealtime()
         bikeNetwork = null
         networkReady = false
         proberStarted = false
@@ -135,7 +138,15 @@ object BikeLink {
             bikeNetwork = network
             networkReady = true
             proberStarted = false
-            ConnectionState.set(Phase.ERROR, "Android Auto isn't sending video — tap Connect")
+            // Right after Connect, Android often swaps the bike network once (e.g. the watch-mode
+            // request hands over to ours) before Android Auto has had time to start: that is not an
+            // error, keep waiting. Only a later drop without video is worth telling the rider.
+            val sinceStart = android.os.SystemClock.elapsedRealtime() - connectStartedAt
+            if (connectStartedAt > 0 && sinceStart < 45_000L) {
+                ConnectionState.set(Phase.STARTING_AA, "waiting for Android Auto video")
+            } else {
+                ConnectionState.set(Phase.ERROR, "Android Auto isn't sending video — tap Connect")
+            }
             return
         }
         LogBus.log("→ restarting bike link on re-acquired Wi-Fi")
