@@ -146,4 +146,11 @@
     <string name="wear_update_progress_title">Sending the update to %1$s</string>
     <string name="wear_update_progress_body">%1$d%% · it takes a couple of minutes, keep the watch close</string>
     <string name="help_watch_guide">⌚ Watch guide</string>
+    <string name="dest_home">Home</string>
+    <string name="dest_work">Work</string>
+    <string name="dest_calendar">Calendar</string>
+    <string name="dest_address_hint">Address or place (as you would type it in Maps)</string>
+    <string name="dest_set_title">Set %1$s</string>
+    <string name="dest_save">Save</string>
+    <string name="dest_clear">Remove</string>
 </resources>

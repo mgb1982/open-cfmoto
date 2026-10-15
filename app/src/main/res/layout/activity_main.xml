@@ -377,6 +377,20 @@
                             android:layout_marginStart="8dp"
                             android:text="@string/main_go" />
                     </LinearLayout>
+
+                    <!-- v2.3: one-tap destinations (home, work, upcoming calendar events with a place). -->
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/quick_dest"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
                 </LinearLayout>
 
                 <!-- Parked: where the bike is, with the photo (RideScreen AA v2.2 card). -->

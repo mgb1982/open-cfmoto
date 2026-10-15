@@ -329,6 +329,21 @@ class MainActivity : AppCompatActivity() {
         get() = parkPrefs.getBoolean("then_stop", false)
         set(v) { parkPrefs.edit().putBoolean("then_stop", v).apply() }
 
+    /** v2.3 quick destinations: calendar permission asked from the 📅 chip. */
+    private val calendarPermLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+        renderQuickDestinations()
+    }
+
+    private fun renderQuickDestinations() {
+        val row = findViewById<android.widget.LinearLayout>(R.id.quick_dest) ?: return
+        QuickDestinations.render(this, row, navigate = { dest ->
+            findViewById<android.widget.EditText>(R.id.et_destination)?.setText(dest)
+            navigateToTyped()
+        }, askCalendar = {
+            try { calendarPermLauncher.launch(android.Manifest.permission.READ_CALENDAR) } catch (_: Exception) {}
+        })
+    }
+
     /** ⌚ Watch updater: an APK file the rider already has on the phone. */
     private val wearApkLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) WearUpdater.sendFromUri(this, uri)
@@ -878,6 +893,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Support.onResume(this)
+        renderQuickDestinations()
         // Back from the app's permission page / Bluetooth / Wi‑Fi settings: carry on with Connect.
         if (pendingAaQr != null && dev.zanderp.opencfmoto.aa.AaSelfMode.canAttemptHur(this) &&
             WifiGate.isWifiEnabled(this)

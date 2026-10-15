@@ -146,4 +146,11 @@
     <string name="wear_update_progress_title">Enviant l\'actualització a %1$s</string>
     <string name="wear_update_progress_body">%1$d %% · triga un parell de minuts, mantén el rellotge a prop</string>
     <string name="help_watch_guide">⌚ Guia del rellotge</string>
+    <string name="dest_home">Casa</string>
+    <string name="dest_work">Feina</string>
+    <string name="dest_calendar">Cites</string>
+    <string name="dest_address_hint">Adreça o lloc (com el buscaries a Maps)</string>
+    <string name="dest_set_title">Tria %1$s</string>
+    <string name="dest_save">Desa</string>
+    <string name="dest_clear">Treu</string>
 </resources>
