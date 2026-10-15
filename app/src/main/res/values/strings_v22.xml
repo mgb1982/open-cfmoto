@@ -172,7 +172,7 @@
     <string name="bb_tilt_after">Lean after 15 s</string>
     <string name="bb_heading">Heading</string>
     <string name="bb_place">Place</string>
-    <string name="bb_disclaimer">Experimental: figures from the phone's GPS and sensors, approximate and not certified.</string>
+    <string name="bb_disclaimer">Experimental: figures from the phone\'s GPS and sensors, approximate and not certified.</string>
     <string name="bb_share">Share report</string>
     <string name="bb_map">View on map</string>
     <string name="bb_delete">Delete</string>
