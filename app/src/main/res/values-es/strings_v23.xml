@@ -88,4 +88,6 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="arrive_via_change">Cambiar cómo</string>
     <string name="arrive_via_wa_short">WhatsApp</string>
     <string name="arrive_via_sms_short">SMS</string>
+    <string name="sound_setting">🔔 Sonido al conectar</string>
+    <string name="sound_setting_desc">Un sonido corto que sube cuando el cuadro empieza a mostrar Android Auto, y otro que baja si se pierde la conexión (suena en el casco si lo tienes conectado).</string>
 </resources>

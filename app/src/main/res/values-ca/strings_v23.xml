@@ -88,4 +88,6 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="arrive_via_change">Canviar com</string>
     <string name="arrive_via_wa_short">WhatsApp</string>
     <string name="arrive_via_sms_short">SMS</string>
+    <string name="sound_setting">🔔 So en connectar</string>
+    <string name="sound_setting_desc">Un so curt que puja quan el quadre comença a mostrar Android Auto, i un altre que baixa si es perd la connexió (sona al casc si el tens connectat).</string>
 </resources>

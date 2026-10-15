@@ -29,6 +29,7 @@ class OpenCfMotoApp : Application() {
         LogBus.logSessionBanner()
         AppHttp.init(this)
         try { WeeklySummary.ensureScheduled(this) } catch (_: Exception) {}
+        ConnectSound.init(this)
         try {
             AnonymousTelemetry.onAppStart(this)
         } catch (_: Exception) {

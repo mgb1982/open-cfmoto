@@ -133,6 +133,13 @@ class SetupActivity : AppCompatActivity() {
                 if (!on) BikeWatchService.stop(this@SetupActivity)
             }
         }
+        findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switch_connect_sound).apply {
+            isChecked = ConnectSound.enabled(this@SetupActivity)
+            setOnCheckedChangeListener { _, on ->
+                ConnectSound.setEnabled(this@SetupActivity, on)
+                if (on) ConnectSound.preview(this@SetupActivity)
+            }
+        }
         findViewById<MaterialButton>(R.id.theme_auto).setOnClickListener { setMapTheme(MapTheme.AUTO) }
         findViewById<MaterialButton>(R.id.theme_day).setOnClickListener { setMapTheme(MapTheme.DAY) }
         findViewById<MaterialButton>(R.id.theme_night).setOnClickListener { setMapTheme(MapTheme.NIGHT) }

@@ -88,4 +88,6 @@ Today: %2$d min door to door · usual: %3$d min.</string>
     <string name="arrive_via_change">Change how</string>
     <string name="arrive_via_wa_short">WhatsApp</string>
     <string name="arrive_via_sms_short">SMS</string>
+    <string name="sound_setting">🔔 Chime on connect</string>
+    <string name="sound_setting_desc">A short rising chime when the dash starts showing Android Auto and a falling one if the link is lost (it plays through your helmet if it\'s connected).</string>
 </resources>

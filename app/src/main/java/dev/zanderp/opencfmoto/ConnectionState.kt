@@ -62,6 +62,7 @@ object ConnectionState {
         val d = detail
         val text = if (d.isBlank()) newPhase.logLabel else "${newPhase.logLabel} — $d"
         LogBus.log("[state] $text")
+        try { ConnectSound.onPhase(newPhase) } catch (_: Exception) {}
         try {
             listener?.invoke(newPhase, d)
         } catch (_: Exception) {
