@@ -95,6 +95,8 @@ class VideoPipeline(
     // them fast enough). A rising count is the downstream-congestion signal the adaptive controller
     // uses to back the bitrate off. See [droppedFramesTotal] and [AdaptiveVideoController].
     @Volatile private var droppedFrames = 0L
+    private var backlogDrops = 0
+    private var lastBacklogLog = 0L
 
     private val frameQueue = LinkedBlockingDeque<ByteArray>(8)
     @Volatile private var codecConfig: ByteArray? = null   // SPS/PPS
@@ -569,13 +571,32 @@ class VideoPipeline(
                         if (isKey) awaitKeyframe = false
                         val out = if (isKey && codecConfig != null) codecConfig!! + bytes else bytes
                         writeDump(out)
-                        // Keep the queue fresh: if full, drop oldest so we never lag far behind. A
-                        // sustained drop rate means the bike can't pull as fast as we encode
-                        // (downstream/Wi-Fi congestion) — counted for the adaptive controller.
+                        // The bike fell behind (Wi‑Fi hiccup) and the queue is full. Dropping just the
+                        // oldest frame (as before) breaks the H.264 reference chain: every later
+                        // P-frame points at a picture the dash never got, and its decoder paints grey
+                        // until a keyframe happens to get through (Francis, 15 Oct: seconds of grey on
+                        // the map). Instead: drop the whole backlog, keep the dash on its last good
+                        // picture and restart from a fresh keyframe right away.
                         if (!frameQueue.offerLast(out)) {
-                            frameQueue.pollFirst()
-                            frameQueue.offerLast(out)
-                            droppedFrames++
+                            val lost = frameQueue.size + 1
+                            frameQueue.clear()
+                            droppedFrames += lost
+                            if (isKey) {
+                                frameQueue.offerLast(out)      // a keyframe is a clean restart by itself
+                            } else {
+                                awaitKeyframe = true
+                                try {
+                                    codec.setParameters(android.os.Bundle().apply {
+                                        putInt(MediaCodec.PARAMETER_KEY_REQUEST_SYNC_FRAME, 0)
+                                    })
+                                } catch (_: Exception) {}
+                            }
+                            val now = System.currentTimeMillis()
+                            backlogDrops++
+                            if (now - lastBacklogLog > 5_000) {
+                                log("[VIDEO] dash fell behind — dropped $lost queued frames, restarting on a keyframe (${backlogDrops}× so far)")
+                                lastBacklogLog = now
+                            }
                         }
                     }
                 }
