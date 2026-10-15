@@ -187,4 +187,13 @@
     <string name="bb_outcome_upright">Moto en pie después</string>
     <string name="bb_outcome_moving">Siguió circulando</string>
     <string name="bb_outcome_other">Sin conclusión</string>
+    <string name="gw_title">🌊 Ola verde · observación</string>
+    <string name="gw_intro">Solo aprende: aún no se muestra nada en el cuadro. En cada semáforo, cada pasada se predice usando solo tus pasadas anteriores y se compara con lo que pasó de verdad: si tuviste que parar y cuándo arrancaste. Los avisos en el cuadro solo se activarán en los semáforos que superen la prueba.</string>
+    <string name="gw_empty">Aún no hay datos suficientes: hace falta que pares al menos 6 veces en el mismo semáforo y sentido (en el que más, llevas %1$d). Sigue rodando con los viajes activados.</string>
+    <string name="gw_hits">¿Llegas en verde?: %1$d de %2$d aciertos (%3$d %%) · %4$d dudosos</string>
+    <string name="gw_no_arrivals">¿Llegas en verde?: aún sin predicciones</string>
+    <string name="gw_soon">Verde pronto: error típico de ±%1$d s (%2$d paradas)</string>
+    <string name="gw_cycle">Ciclo estimado: %1$d s</string>
+    <string name="gw_ready">✅ Suficiente para avisar en el cuadro</string>
+    <string name="gw_learning">Aprendiendo: necesita %1$d predicciones y un %2$d %% de aciertos</string>
 </resources>

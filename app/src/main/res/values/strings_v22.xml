@@ -181,4 +181,13 @@
     <string name="bb_outcome_upright">Bike upright afterwards</string>
     <string name="bb_outcome_moving">Rider moved on</string>
     <string name="bb_outcome_other">No conclusion</string>
+    <string name="gw_title">🌊 Green wave · observation</string>
+    <string name="gw_intro">Learning only, nothing is shown on the dash yet. For each light, every ride is predicted using only your earlier rides, then checked against what really happened: did you have to stop, and when did you move off. Dash hints will only be switched on for lights that pass the test.</string>
+    <string name="gw_empty">Not enough data yet: an approach needs at least 6 stops at the same light (your most-stopped one has %1$d). Keep riding with trips on.</string>
+    <string name="gw_hits">Make-the-green: %1$d of %2$d right (%3$d %%) · %4$d too close to call</string>
+    <string name="gw_no_arrivals">Make-the-green: no predictions yet</string>
+    <string name="gw_soon">Green soon: typically off by ±%1$d s (%2$d stops)</string>
+    <string name="gw_cycle">Estimated cycle: %1$d s</string>
+    <string name="gw_ready">✅ Good enough for dash hints</string>
+    <string name="gw_learning">Learning: needs %1$d predictions and %2$d %% right</string>
 </resources>

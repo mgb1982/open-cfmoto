@@ -181,4 +181,13 @@
     <string name="bb_outcome_upright">Moto dreta després</string>
     <string name="bb_outcome_moving">Ha continuat circulant</string>
     <string name="bb_outcome_other">Sense conclusió</string>
+    <string name="gw_title">🌊 Onada verda · observació</string>
+    <string name="gw_intro">Només aprèn: encara no es mostra res al quadre. A cada semàfor, cada passada es prediu fent servir només les teves passades anteriors i es compara amb el que va passar de debò: si vas haver de parar i quan vas arrencar. Els avisos al quadre només s\'activaran als semàfors que superin la prova.</string>
+    <string name="gw_empty">Encara no hi ha prou dades: cal que paris almenys 6 vegades al mateix semàfor i sentit (al que més, en portes %1$d). Continua rodant amb els viatges activats.</string>
+    <string name="gw_hits">Hi arribes en verd?: %1$d de %2$d encerts (%3$d %%) · %4$d dubtosos</string>
+    <string name="gw_no_arrivals">Hi arribes en verd?: encara sense prediccions</string>
+    <string name="gw_soon">Verd aviat: error típic de ±%1$d s (%2$d parades)</string>
+    <string name="gw_cycle">Cicle estimat: %1$d s</string>
+    <string name="gw_ready">✅ Suficient per avisar al quadre</string>
+    <string name="gw_learning">Aprenent: necessita %1$d prediccions i un %2$d %% d\'encerts</string>
 </resources>

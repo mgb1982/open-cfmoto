@@ -38,6 +38,7 @@ class TrafficLightsActivity : AppCompatActivity() {
     private lateinit var info: TextView
     private lateinit var lights: LinearLayout
     private lateinit var routes: LinearLayout
+    private lateinit var wave: LinearLayout
     private val io = Executors.newSingleThreadExecutor()
     private var result: TrafficLights.Result? = null
 
@@ -80,6 +81,10 @@ class TrafficLightsActivity : AppCompatActivity() {
         root.addView(header(getString(R.string.tl_worst_title)))
         lights = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(lights)
+        root.addView(header(getString(R.string.gw_title)))
+        root.addView(body(getString(R.string.gw_intro)))
+        wave = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        root.addView(wave)
         root.addView(header(getString(R.string.tl_routes_title)))
         routes = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         root.addView(routes)
@@ -118,7 +123,7 @@ class TrafficLightsActivity : AppCompatActivity() {
                 if (Thread.currentThread().isInterrupted) return@execute
                 if (TrafficLights.cachedName(this, j.junction) == null) { TrafficLights.fetchName(this, j.junction); fetched = true }
             }
-            if (fetched) runOnUiThread { if (!isFinishing && !isDestroyed) renderLights() }
+            if (fetched) runOnUiThread { if (!isFinishing && !isDestroyed) { renderLights(); renderWave() } }
         }
     }
 
@@ -140,7 +145,43 @@ class TrafficLightsActivity : AppCompatActivity() {
         }
         map.invalidate()
         renderLights()
+        renderWave()
         renderRoutes(r)
+    }
+
+    /** v2.3 · 🌊 How well each approach's light could be predicted (observation only, nothing on the dash). */
+    private fun renderWave() {
+        val r = result ?: return
+        wave.removeAllViews()
+        val dirs = resources.getStringArray(R.array.tl_dirs)
+        val items = r.junctions.flatMap { j -> j.approaches.mapNotNull { a -> a.wave?.let { Triple(j, a, it) } } }
+            .filter { it.third.predicted > 0 || it.third.soonErrorsS.isNotEmpty() }
+            .sortedWith(compareByDescending<Triple<TrafficLights.JunctionStats, TrafficLights.Approach, GreenWave.Score>> { it.third.ready }
+                .thenByDescending { it.third.predicted })
+        if (items.isEmpty()) {
+            val learning = r.junctions.flatMap { it.approaches }.maxOfOrNull { it.stops } ?: 0
+            wave.addView(body(getString(R.string.gw_empty, learning)))
+            return
+        }
+        for ((j, a, sc) in items.take(12)) {
+            var text = if (sc.predicted > 0)
+                getString(R.string.gw_hits, sc.correct, sc.predicted, (sc.accuracy * 100).roundToInt(), sc.unsure)
+            else getString(R.string.gw_no_arrivals)
+            sc.soonMedianS?.let { text += "\n" + getString(R.string.gw_soon, it, sc.soonErrorsS.size) }
+            a.cycleS?.let { text += "\n" + getString(R.string.gw_cycle, it) }
+            text += "\n" + if (sc.ready) getString(R.string.gw_ready)
+                else getString(R.string.gw_learning, GreenWave.READY_PREDICTIONS, (GreenWave.READY_ACCURACY * 100).roundToInt())
+            val title = "${junctionLabel(j)} · ${dirs[a.dir]}"
+            val accent = when {
+                sc.ready -> Color.rgb(67, 160, 71)
+                sc.predicted >= 3 && sc.accuracy < 0.6f -> Color.rgb(229, 57, 53)
+                else -> Color.rgb(251, 192, 45)
+            }
+            wave.addView(card(title, text, accent) {
+                map.controller.animateTo(GeoPoint(j.junction.lat, j.junction.lon), 17.0, 600L)
+                info.text = "$title\n$text"
+            })
+        }
     }
 
     private fun junctionLabel(j: TrafficLights.JunctionStats): String =

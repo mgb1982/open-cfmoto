@@ -48,6 +48,9 @@ object TrafficLights {
         val avgWaitS: Int get() = if (stops == 0) 0 else waitS / stops
         var cycleS: Int? = null
         var cycleConfidence = 0f
+        /** v2.3 · every pass, for the green-wave observation ([GreenWave]). */
+        val log = ArrayList<GreenWave.Pass>()
+        var wave: GreenWave.Score? = null
     }
 
     class JunctionStats(val junction: Junction, val approaches: List<Approach>) {
@@ -202,17 +205,31 @@ object TrafficLights {
                 if (dir >= 0 && runS <= MAX_STOP_S) {
                     val a = approaches.getOrPut(j.id.toLong() * 8 + dir) { Approach(j, dir) }
                     a.passes++
+                    // Where the bike was ~300 m before (for "will you make the green?").
+                    var k = i - 1
+                    while (k > 0 && metres(pts[k].lat, pts[k].lon, j.lat, j.lon) < GreenWave.APPROACH_M &&
+                        pts[i].time - pts[k].time < 90_000L) k--
+                    val dApp = if (k >= 0 && k < i) metres(pts[k].lat, pts[k].lon, j.lat, j.lon) else 0.0
+                    val app = if (dApp >= 200.0) pts[k] else null
+                    var closest = i
+                    for (q in i..end) if (metres(pts[q].lat, pts[q].lon, j.lat, j.lon) < metres(pts[closest].lat, pts[closest].lon, j.lat, j.lon)) closest = q
                     if (runS >= MIN_STOP_S) {
                         a.stops++; a.waitS += runS; tripStops++
                         val off = bestRunEnd + 1
-                        if (off < pts.size && off <= end + 5) a.greenStarts += pts[off].time
+                        if (off < pts.size && off <= end + 5) {
+                            a.greenStarts += pts[off].time
+                            a.log += GreenWave.Pass(pts[off].time, true, pts[bestRunEnd - bestRun + 1].time, pts[off].time,
+                                app?.time ?: 0L, dApp, app?.speedMs ?: 0f)
+                        }
+                    } else {
+                        a.log += GreenWave.Pass(pts[closest].time, false, 0L, 0L, app?.time ?: 0L, dApp, app?.speedMs ?: 0f)
                     }
                 }
                 i = end + 1
             }
             stopsPerTrip[t.id] = tripStops
         }
-        approaches.values.forEach { estimateCycle(it) }
+        approaches.values.forEach { estimateCycle(it); if (it.stops >= 6) it.wave = GreenWave.evaluate(it.log) }
         val byJunction = approaches.values.groupBy { it.junction.id }
             .map { (_, list) -> JunctionStats(list.first().junction, list) }
             .filter { it.passes >= MIN_PASSES_SHOWN }
