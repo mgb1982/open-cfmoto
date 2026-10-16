@@ -1673,6 +1673,21 @@ class MainActivity : AppCompatActivity() {
                 "assist dialog (app cannot create AP; set dash SSID/pwd in system hotspot)",
         )
         ConnectionState.set(Phase.JOINING_WIFI, getString(R.string.main_phone_hotspot_status))
+        // v2.3: do what Carbit Ride does — our own hotspot + its details to the dash over Bluetooth.
+        if (CarbitBtNet.findDash(this, qr.mac) != null) {
+            Thread({
+                val ok = CarbitBtNet.run(applicationContext, qr.mac)
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    if (ok) startPhoneHotspotScan(gateOnAaSteady) else showHotspotAssist(qr, gateOnAaSteady)
+                }
+            }, "carbit-btnet").start()
+            return
+        }
+        showHotspotAssist(qr, gateOnAaSteady)
+    }
+
+    private fun showHotspotAssist(qr: QrData, gateOnAaSteady: Boolean) {
         PhoneHotspotAssist.showSetupDialog(
             activity = this,
             qr = qr,
