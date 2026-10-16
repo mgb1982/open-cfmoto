@@ -94,7 +94,7 @@ object UpdateChecker {
     internal fun isNewerFork(latestTag: String, currentVersion: String, manual: Boolean): Boolean? {
         val latest = Regex("^v(\\d+(?:\\.\\d+)*)$", RegexOption.IGNORE_CASE).find(latestTag.trim())
             ?.groupValues?.get(1) ?: return null
-        if (currentVersion.endsWith("-dev", ignoreCase = true)) return manual
+        if (currentVersion.contains("-dev", ignoreCase = true)) return manual   // "1-dev" or "1-dev.161"
         if (currentVersion.contains("zontes", ignoreCase = true)) return true
         return isNewer(latest, currentVersion)
     }
