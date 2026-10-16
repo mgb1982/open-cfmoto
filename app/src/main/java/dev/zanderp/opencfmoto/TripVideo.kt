@@ -77,6 +77,9 @@ object TripVideo {
                 while (c.moveToNext()) {
                     val uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, c.getLong(0))
                     val name = c.getString(1).orEmpty()
+                    // Our own finished videos ("RideScreen_20261015_1410.mp4", or a copy saved back
+                    // from WhatsApp as "… (1).mp4") are not raw clips: never feed them back in.
+                    if (name.startsWith("RideScreen_", ignoreCase = true) || name.startsWith("ridescreen-trip", ignoreCase = true)) continue
                     val taken = c.getLong(2)
                     val dur = c.getLong(4)
                     val meta = metadata(ctx, uri)
@@ -151,7 +154,11 @@ object TripVideo {
                 .build()
         }
         @Suppress("DEPRECATION")
-        return Composition.Builder(EditedMediaItemSequence(items)).build()
+        // Phones often record HDR (HLG/HDR10) while glasses and action cams record SDR; one
+        // sequence mixing both fails with VIDEO_FRAME_PROCESSING_FAILED. Bring everything to SDR.
+        return Composition.Builder(EditedMediaItemSequence(items))
+            .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
+            .build()
     }
 
     fun outputFile(ctx: Context) = File(File(ctx.cacheDir, "share").apply { mkdirs() }, "ridescreen-trip.mp4")
