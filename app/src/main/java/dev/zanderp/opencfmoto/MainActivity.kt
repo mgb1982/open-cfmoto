@@ -2092,7 +2092,8 @@ class MainActivity : AppCompatActivity() {
             CrashGuard.persistSession(this)
             val dir = File(cacheDir, "logs").apply { mkdirs() }
             val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
-            val file = File(dir, "opencfmoto-$stamp.log")
+            // .txt, not .log: some apps (Claude among them) only accept known document extensions.
+            val file = File(dir, "ridescreen-log-$stamp.txt")
             // ONE text file: this session first (what we almost always need), then the crash report
             // and earlier sessions below clear separators. Separate attachments confused which one
             // was "the" log (field feedback, 8 Oct 2026).
