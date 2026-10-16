@@ -64,6 +64,7 @@ object ConnectionState {
         LogBus.log("[state] $text")
         try { ConnectSound.onPhase(newPhase) } catch (_: Exception) {}
         if (newPhase == Phase.STOPPED) try { CarbitBtNet.release() } catch (_: Exception) {}
+        if (newPhase == Phase.STOPPED) try { AppHttp.releaseCellularUplink("stopped") } catch (_: Exception) {}
         try {
             listener?.invoke(newPhase, d)
         } catch (_: Exception) {

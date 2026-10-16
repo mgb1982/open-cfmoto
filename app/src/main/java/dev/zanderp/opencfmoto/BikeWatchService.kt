@@ -80,11 +80,13 @@ class BikeWatchService : Service() {
             }
             val wm = applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
             val wifiOn = wm?.isWifiEnabled == true
-            val seen = BikeWifi.isSsidInRange(this@BikeWatchService, ssid)
+            // LONG (hours): only read the results of the scans Android does anyway (screen on etc.).
+            // Asking for a Wi-Fi scan every minute for 14 h cost real battery.
+            val seen = BikeWifi.isSsidInRange(this@BikeWatchService, ssid, refresh = mode == Mode.SHORT)
             // v2.2 field test: logs showed "waiting…" and then nothing, so we couldn't tell "bike off"
             // from "phone Wi-Fi off" from "the process died". Log every check (SHORT) / every 10th
             // (LONG) and flush the log to disk so it survives the process being killed.
-            if (mode == Mode.SHORT || checks % 10 == 1) {
+            if (mode == Mode.SHORT || checks % 30 == 1) {
                 LogBus.log("[WATCH] check $checks: phone Wi-Fi ${if (wifiOn) "on" else "OFF"} · '$ssid' ${when (seen) { true -> "seen"; false -> "not seen"; null -> "unknown (no fresh scan)" }}")
                 try { CrashGuard.persistSessionAsync(applicationContext) } catch (_: Exception) {}
             }
