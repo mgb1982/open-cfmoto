@@ -1778,6 +1778,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 if (subnets.isEmpty()) {
+                    // What the phone does have, so a log tells "hotspot off" from "hotspot not recognised".
+                    LogBus.log("[HOTSPOT] interfaces: " + PhoneHotspotScan.snapshotInterfaces()
+                        .filter { it.isUp && !it.isLoopback }
+                        .joinToString(" · ") { i -> i.name + " " + i.addresses.filter { it.first is java.net.Inet4Address }.joinToString(",") { "${it.first.hostAddress}/${it.second}" } })
                     LogBus.log(
                         "[HOTSPOT] no tether interface after wait — open hotspot settings " +
                             "and set the dash SSID/password, then Connect again",

@@ -94,7 +94,7 @@
     <string name="tv_button_clips">🎬 Vídeo · %1$d clip(s)</string>
     <string name="park_cam_hint">Haz una foto de dónde dejas la moto (planta, número de plaza…)</string>
     <string name="park_photo_failed">No se ha podido hacer la foto. Vuelve a intentarlo.</string>
-    <string name="tv_sync">Sincronía %1$s s</string>
+    <string name="tv_sync">Desfase: %1$s s</string>
     <string name="qr_camera_failed">La cámara no arranca en este móvil. Usa «Importar QR desde una foto» con una captura o foto del QR de la pantalla.</string>
     <!-- Was only in English (and Catalan) since v2: Spanish users saw "Connect when a Bluetooth device joins". -->
     <string name="setup_bt_trigger">Conectar cuando se conecte un dispositivo Bluetooth</string>

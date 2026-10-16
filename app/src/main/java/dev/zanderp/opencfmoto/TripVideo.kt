@@ -141,25 +141,76 @@ object TripVideo {
         return null
     }
 
-    /** The edit: clips in order, overlay on each, optionally ×[speed] with no sound. */
-    fun composition(ctx: Context, trip: Trip, clips: List<Clip>, speed: Float, offsetMs: Long = 0L): Composition {
+    /** How the video should look (v2.3). */
+    data class Look(val style: VideoStyle, val map: VideoMap, val cards: Boolean, val watermark: Boolean)
+
+    /** Size of the first clip as it plays (rotation applied). */
+    fun frameSize(clip: Clip): Pair<Int, Int> {
+        val rotated = clip.rotation == 90 || clip.rotation == 270
+        val cw = if (clip.width > 0) clip.width else 1280
+        val ch = if (clip.height > 0) clip.height else 720
+        return if (rotated) ch to cw else cw to ch
+    }
+
+    /** A still from the middle of [clip], scaled to fit [maxSide] (for the preview and the cards). */
+    fun stillOf(ctx: Context, clip: Clip, atMs: Long = clip.durationMs / 2, maxSide: Int = 1080): Bitmap? = try {
+        val r = MediaMetadataRetriever()
+        try {
+            r.setDataSource(ctx, clip.uri)
+            val (w, h) = frameSize(clip)
+            val s = minOf(1f, maxSide.toFloat() / maxOf(w, h))
+            r.getScaledFrameAtTime(atMs * 1000, MediaMetadataRetriever.OPTION_CLOSEST_SYNC, (w * s).toInt(), (h * s).toInt())
+        } finally { r.release() }
+    } catch (e: Exception) { LogBus.log("[VIDEO] still failed: $e"); null }
+
+    /** Opening / closing card as a PNG of the video's size. */
+    private fun card(ctx: Context, look: TripLook, w: Int, h: Int, frame: Bitmap?, outro: Boolean, watermark: Boolean): File {
+        val b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(b)
+        if (outro) look.drawOutro(c, w, h, frame, watermark) else look.drawIntro(c, w, h, frame)
+        val f = File(File(ctx.cacheDir, "share").apply { mkdirs() }, if (outro) "card-outro.png" else "card-intro.png")
+        f.outputStream().use { b.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        b.recycle()
+        return f
+    }
+
+    /** The edit: [intro card] + clips in order with the overlay (optionally ×[speed], no sound) + [closing card]. */
+    fun composition(
+        ctx: Context, trip: Trip, clips: List<Clip>, speed: Float, offsetMs: Long, look: Look, streets: StreetTiles?, withCards: Boolean = look.cards,
+    ): Composition {
         val title = TripNames.title(ctx, trip)
-        val items = clips.map { clip ->
+        val (w, h) = frameSize(clips.first())
+        val items = ArrayList<EditedMediaItem>()
+        val firstStill = if (withCards) stillOf(ctx, clips.first(), 0L) else null
+        val lastStill = if (withCards) stillOf(ctx, clips.last(), clips.last().durationMs - 500) else null
+        val cardLook = TripLook(ctx, trip, title, look.style, look.map, streets)
+        if (withCards) items += imageItem(card(ctx, cardLook, w, h, firstStill, outro = false, watermark = false), 2500)
+        for (clip in clips) {
             val effects = ArrayList<androidx.media3.common.Effect>()
-            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(trip, clip.copy(startMs = clip.startMs + offsetMs), title)))
+            val overlayLook = TripLook(ctx, trip, title, look.style, look.map, streets)
+            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(overlayLook, clip.copy(startMs = clip.startMs + offsetMs))))
             if (speed > 1f) effects += SpeedChangeEffect(speed)
-            EditedMediaItem.Builder(MediaItem.fromUri(clip.uri))
+            items += EditedMediaItem.Builder(MediaItem.fromUri(clip.uri))
                 .setRemoveAudio(speed > 1f)
                 .setEffects(Effects(ImmutableList.of<androidx.media3.common.audio.AudioProcessor>(), ImmutableList.copyOf(effects)))
                 .build()
         }
-        @Suppress("DEPRECATION")
+        if (withCards) items += imageItem(card(ctx, cardLook, w, h, lastStill, outro = true, watermark = look.watermark), 3500)
+        firstStill?.recycle(); lastStill?.recycle()
         // Phones often record HDR (HLG/HDR10) while glasses and action cams record SDR; one
         // sequence mixing both fails with VIDEO_FRAME_PROCESSING_FAILED. Bring everything to SDR.
+        @Suppress("DEPRECATION")
         return Composition.Builder(EditedMediaItemSequence(items))
             .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
+            .experimentalSetForceAudioTrack(withCards && speed <= 1f)
             .build()
     }
+
+    private fun imageItem(f: File, durationMs: Long): EditedMediaItem =
+        EditedMediaItem.Builder(
+            MediaItem.Builder().setUri(Uri.fromFile(f)).setMimeType(androidx.media3.common.MimeTypes.IMAGE_PNG)
+                .setImageDurationMs(durationMs).build()
+        ).setFrameRate(30).build()
 
     fun outputFile(ctx: Context) = File(File(ctx.cacheDir, "share").apply { mkdirs() }, "ridescreen-trip.mp4")
 
@@ -183,31 +234,15 @@ object TripVideo {
         null
     }
 
-    /**
-     * Full-frame transparent overlay, redrawn every ~0.5 s of video: name + clock top-left, mini-map
-     * top-right, big speed bottom-left. Frame size comes from the clip (rotation-aware).
-     */
-    private class TripOverlay(private val trip: Trip, private val clip: Clip, private val title: String) : BitmapOverlay() {
+    /** Full-frame transparent overlay drawn by [TripLook], redrawn every ~0.5 s of video. */
+    private class TripOverlay(private val look: TripLook, private val clip: Clip) : BitmapOverlay() {
         private val w: Int
         private val h: Int
         private var bmp: Bitmap? = null
         private var lastBucket = -1L
         private var baseUs = -1L
-        private val pts = trip.points
-        private val minLat = pts.minOf { it.lat }; private val maxLat = pts.maxOf { it.lat }
-        private val minLon = pts.minOf { it.lon }; private val maxLon = pts.maxOf { it.lon }
-        private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; setShadowLayer(6f, 0f, 2f, Color.BLACK) }
-        private val route = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; color = Color.rgb(255, 193, 7); strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
-        private val dot = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.rgb(229, 57, 53) }
-        private val panel = Paint().apply { color = Color.argb(110, 0, 0, 0) }
 
-        init {
-            val rotated = clip.rotation == 90 || clip.rotation == 270
-            val cw = if (clip.width > 0) clip.width else 1280
-            val ch = if (clip.height > 0) clip.height else 720
-            w = if (rotated) ch else cw
-            h = if (rotated) cw else ch
-        }
+        init { val (a, b) = frameSize(clip); w = a; h = b }
 
         override fun getBitmap(presentationTimeUs: Long): Bitmap {
             if (baseUs < 0) baseUs = presentationTimeUs
@@ -217,47 +252,8 @@ object TripVideo {
             lastBucket = bucket
             val b = bmp ?: Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888).also { bmp = it }
             b.eraseColor(Color.TRANSPARENT)
-            draw(Canvas(b), tMs)
+            look.drawFrame(Canvas(b), w, h, tMs)
             return b
-        }
-
-        private fun draw(c: Canvas, tMs: Long) {
-            val u = minOf(w, h) / 100f
-            // Where we are at tMs (nearest point).
-            var idx = pts.binarySearchBy(tMs) { it.time }
-            if (idx < 0) idx = (-idx - 1).coerceIn(0, pts.lastIndex)
-            val p = pts[idx]
-            // Top-left: name + clock.
-            text.textSize = 4.2f * u
-            text.isFakeBoldText = true
-            c.drawText(title, 3 * u, 7 * u, text)
-            text.isFakeBoldText = false
-            text.textSize = 3.4f * u
-            c.drawText(SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(tMs)), 3 * u, 12 * u, text)
-            // Bottom-left: speed.
-            val kmh = (p.speedMs * 3.6f).toInt().coerceAtLeast(0)
-            text.textSize = 12 * u
-            text.isFakeBoldText = true
-            c.drawText("$kmh", 3 * u, h - 6 * u, text)
-            val numW = text.measureText("$kmh")
-            text.textSize = 4 * u
-            text.isFakeBoldText = false
-            c.drawText("km/h", 4.5f * u + numW, h - 6 * u, text)
-            // Top-right: mini-map.
-            val size = 30 * u
-            val box = RectF(w - size - 3 * u, 3 * u, w - 3 * u, 3 * u + size)
-            c.drawRoundRect(box, 2 * u, 2 * u, panel)
-            val spanLat = (maxLat - minLat).coerceAtLeast(1e-4)
-            val spanLon = (maxLon - minLon).coerceAtLeast(1e-4) * kotlin.math.cos(Math.toRadians(minLat))
-            val scale = (size - 4 * u) / maxOf(spanLat, spanLon)
-            fun x(lon: Double) = (box.centerX() + ((lon - (minLon + maxLon) / 2) * kotlin.math.cos(Math.toRadians(minLat)) * scale)).toFloat()
-            fun y(lat: Double) = (box.centerY() - ((lat - (minLat + maxLat) / 2) * scale)).toFloat()
-            val path = Path()
-            val step = (pts.size / 400).coerceAtLeast(1)
-            for (i in pts.indices step step) { val q = pts[i]; if (i == 0) path.moveTo(x(q.lon), y(q.lat)) else path.lineTo(x(q.lon), y(q.lat)) }
-            route.strokeWidth = 0.7f * u
-            c.drawPath(path, route)
-            c.drawCircle(x(p.lon), y(p.lat), 1.4f * u, dot)
         }
     }
 }

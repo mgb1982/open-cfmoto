@@ -53,6 +53,17 @@ class TripVideoActivity : AppCompatActivity() {
     private var speed = 1f
     private var offsetS = 0
     private lateinit var offsetLabel: TextView
+    // v2.3 look
+    private var style = VideoStyle.CLASSIC
+    private var mapKind = VideoMap.LINE
+    private var cards = true
+    private var watermark = true
+    private var streets: StreetTiles? = null
+    private var still: android.graphics.Bitmap? = null
+    private lateinit var preview: android.widget.ImageView
+    private lateinit var styleRow: LinearLayout
+    private lateinit var mapRow: LinearLayout
+    private var previewJob = 0
     private var transformer: Transformer? = null
     private var saved: Uri? = null
     private val io = Executors.newSingleThreadExecutor()
@@ -82,20 +93,52 @@ class TripVideoActivity : AppCompatActivity() {
         list = body("")
         root.addView(list)
 
-        val speeds = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, dp(12), 0, 0) }
+        // ── Look (v2.3): style, map, opening/closing cards, live preview
+        loadLook()
+        root.addView(header(getString(R.string.tv_look_title)))
+        preview = android.widget.ImageView(this).apply {
+            adjustViewBounds = true; scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(android.graphics.Color.BLACK); visibility = View.GONE
+        }
+        root.addView(preview, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(320)).apply { topMargin = dp(6) })
+        root.addView(body(getString(R.string.tv_style)))
+        styleRow = chipRow(VideoStyle.values().map { getString(it.labelRes) }) { i -> style = VideoStyle.values()[i]; saveLook(); markLook(); refreshPreview() }
+        root.addView(scrollRow(styleRow))
+        root.addView(body(getString(R.string.tv_map)))
+        mapRow = chipRow(VideoMap.values().map { getString(it.labelRes) }) { i -> mapKind = VideoMap.values()[i]; saveLook(); markLook(); refreshPreview() }
+        root.addView(scrollRow(mapRow))
+        root.addView(com.google.android.material.materialswitch.MaterialSwitch(this).apply {
+            text = getString(R.string.tv_cards); isChecked = cards; setTextColor(color(R.color.text_primary))
+            setOnCheckedChangeListener { _, on -> cards = on; saveLook(); markLook() }
+        })
+        root.addView(com.google.android.material.materialswitch.MaterialSwitch(this).apply {
+            id = View.generateViewId()
+            text = getString(R.string.tv_watermark); isChecked = watermark; setTextColor(color(R.color.text_primary))
+            setOnCheckedChangeListener { _, on -> watermark = on; saveLook() }
+            tag = "wm"
+        })
+
+        // ── Speed
+        root.addView(header(getString(R.string.tv_speed_title)))
+        val speeds = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(0, dp(4), 0, 0) }
         normalBtn = button(getString(R.string.tv_speed_normal)) { speed = 1f; mark() }
         fastBtn = button(getString(R.string.tv_speed_fast)) { speed = 4f; mark() }
         speeds.addView(normalBtn, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
         speeds.addView(fastBtn, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         root.addView(speeds)
-        // Manual nudge if the overlay runs ahead of / behind the picture (applies to every clip).
-        val sync = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL; setPadding(0, dp(8), 0, 0) }
-        offsetLabel = body("").apply { setPadding(0, 0, 0, 0) }
-        sync.addView(button("−5 s") { offsetS -= 5; markOffset() })
-        sync.addView(button("−1 s") { offsetS -= 1; markOffset() })
-        sync.addView(offsetLabel, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(6); marginEnd = dp(6) })
-        sync.addView(button("+1 s") { offsetS += 1; markOffset() })
-        sync.addView(button("+5 s") { offsetS += 5; markOffset() })
+
+        // ── Sync: nudge if the data runs ahead of / behind the picture (applies to every clip).
+        root.addView(header(getString(R.string.tv_sync_title)))
+        root.addView(body(getString(R.string.tv_sync_help)))
+        offsetLabel = TextView(this).apply {
+            textSize = 15f; setTextColor(color(R.color.text_primary)); gravity = android.view.Gravity.CENTER; setPadding(0, dp(8), 0, dp(2))
+        }
+        root.addView(offsetLabel)
+        val sync = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        for ((label, d) in listOf("−5 s" to -5, "−1 s" to -1, "+1 s" to 1, "+5 s" to 5)) {
+            sync.addView(button(label) { offsetS += d; markOffset(); refreshPreview() },
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(3); marginEnd = dp(3) })
+        }
         root.addView(sync)
         markOffset()
         makeBtn = button(getString(R.string.tv_make)) { make() }
@@ -115,6 +158,7 @@ class TripVideoActivity : AppCompatActivity() {
             insets
         }
         mark()
+        markLook()
         if (hasVideoAccess()) scan() else askVideos.launch(videoPermissions())
     }
 
@@ -152,13 +196,13 @@ class TripVideoActivity : AppCompatActivity() {
                 val fmt = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 list.text = found.joinToString("\n") { "• ${fmt.format(Date(it.startMs))} · ${it.durationMs / 1000} s · ${it.name}" }
                 makeBtn.isEnabled = true
+                refreshPreview()
             }
         }
     }
 
     private fun markOffset() {
-        offsetLabel.text = getString(R.string.tv_sync, (if (offsetS > 0) "+" else "") + offsetS)
-        offsetLabel.gravity = android.view.Gravity.CENTER
+        offsetLabel.text = if (offsetS == 0) getString(R.string.tv_sync_zero) else getString(R.string.tv_sync, (if (offsetS > 0) "+" else "") + offsetS)
     }
 
     private fun mark() {
@@ -166,14 +210,29 @@ class TripVideoActivity : AppCompatActivity() {
         fastBtn.alpha = if (speed > 1f) 1f else 0.5f
     }
 
-    private fun make() {
+    private fun make(withCards: Boolean = cards) {
         if (clips.isEmpty() || transformer != null) return
-        val out = TripVideo.outputFile(this).apply { delete() }
         makeBtn.isEnabled = false
         resultRow.visibility = View.GONE
         progress.visibility = View.VISIBLE
         progress.progress = 0
+        if (mapKind == VideoMap.STREETS && streets == null) {
+            status.setText(R.string.tv_map_loading)
+            io.execute {
+                val st = StreetTiles.prepare(this, trip) { d, n -> runOnUiThread { progress.progress = d * 100 / maxOf(1, n) } }
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
+                    streets = st
+                    if (st == null) status.setText(R.string.tv_map_failed)
+                    makeBtn.isEnabled = true
+                    if (st != null) make(withCards)
+                }
+            }
+            return
+        }
+        val out = TripVideo.outputFile(this).apply { delete() }
         status.setText(R.string.tv_making)
+        val look = TripVideo.Look(style, mapKind, cards, watermark)
         val t = Transformer.Builder(this)
             .addListener(object : Transformer.Listener {
                 override fun onCompleted(composition: Composition, exportResult: ExportResult) {
@@ -194,7 +253,14 @@ class TripVideoActivity : AppCompatActivity() {
                 override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) {
                     transformer = null
                     ui.removeCallbacksAndMessages(null)
-                    LogBus.log("[VIDEO] export failed: ${exportException.errorCodeName} ${exportException.message}")
+                    LogBus.log("[VIDEO] export failed (cards=$withCards): ${exportException.errorCodeName} ${exportException.message}")
+                    if (withCards) {
+                        // The opening/closing cards are the newest part: try once more without them.
+                        LogBus.log("[VIDEO] retrying without the opening/closing cards")
+                        makeBtn.isEnabled = true
+                        make(withCards = false)
+                        return
+                    }
                     status.text = getString(R.string.tv_failed, exportException.errorCodeName)
                     progress.visibility = View.GONE
                     makeBtn.isEnabled = true
@@ -202,22 +268,86 @@ class TripVideoActivity : AppCompatActivity() {
             })
             .build()
         transformer = t
-        try {
-            t.start(TripVideo.composition(this, trip, clips, speed, offsetS * 1000L), out.absolutePath)
-        } catch (e: Exception) {
-            transformer = null
-            status.text = getString(R.string.tv_failed, e.javaClass.simpleName)
-            makeBtn.isEnabled = true
-            return
-        }
-        val holder = ProgressHolder()
-        ui.post(object : Runnable {
-            override fun run() {
-                val tr = transformer ?: return
-                if (tr.getProgress(holder) == Transformer.PROGRESS_STATE_AVAILABLE) progress.progress = holder.progress
-                ui.postDelayed(this, 500)
+        io.execute {
+            val comp = try {
+                TripVideo.composition(this, trip, clips, speed, offsetS * 1000L, look, streets, withCards)
+            } catch (e: Exception) { LogBus.log("[VIDEO] composition failed: $e"); null }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                try {
+                    t.start(comp ?: throw IllegalStateException("composition"), out.absolutePath)
+                } catch (e: Exception) {
+                    transformer = null
+                    status.text = getString(R.string.tv_failed, e.javaClass.simpleName)
+                    makeBtn.isEnabled = true
+                    return@runOnUiThread
+                }
+                val holder = ProgressHolder()
+                ui.post(object : Runnable {
+                    override fun run() {
+                        val tr = transformer ?: return
+                        if (tr.getProgress(holder) == Transformer.PROGRESS_STATE_AVAILABLE) progress.progress = holder.progress
+                        ui.postDelayed(this, 500)
+                    }
+                })
             }
-        })
+        }
+    }
+
+    // ── look: chips, persistence, preview
+
+    private fun chipRow(labels: List<String>, onPick: (Int) -> Unit) = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        labels.forEachIndexed { i, l ->
+            addView(button(l) { onPick(i) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(6) })
+        }
+    }
+
+    private fun scrollRow(row: LinearLayout) = android.widget.HorizontalScrollView(this).apply {
+        isHorizontalScrollBarEnabled = false; addView(row)
+    }
+
+    private fun markLook() {
+        for (i in 0 until styleRow.childCount) styleRow.getChildAt(i).alpha = if (i == style.ordinal) 1f else 0.45f
+        for (i in 0 until mapRow.childCount) mapRow.getChildAt(i).alpha = if (i == mapKind.ordinal) 1f else 0.45f
+        (window.decorView.findViewWithTag<View>("wm"))?.isEnabled = cards
+    }
+
+    private fun prefs() = getSharedPreferences("trip_video", MODE_PRIVATE)
+    private fun loadLook() {
+        val p = prefs()
+        style = runCatching { VideoStyle.valueOf(p.getString("style", style.name)!!) }.getOrDefault(VideoStyle.CLASSIC)
+        mapKind = runCatching { VideoMap.valueOf(p.getString("map", mapKind.name)!!) }.getOrDefault(VideoMap.LINE)
+        cards = p.getBoolean("cards", true); watermark = p.getBoolean("wm", true)
+    }
+    private fun saveLook() = prefs().edit().putString("style", style.name).putString("map", mapKind.name)
+        .putBoolean("cards", cards).putBoolean("wm", watermark).apply()
+
+    /** A still from the first clip with the chosen look on top, a second or so after picking. */
+    private fun refreshPreview() {
+        val clip = clips.firstOrNull() ?: return
+        val job = ++previewJob
+        val wantStreets = mapKind == VideoMap.STREETS && streets == null
+        if (wantStreets) status.setText(R.string.tv_map_loading)
+        io.execute {
+            if (job != previewJob) return@execute
+            if (wantStreets) streets = StreetTiles.prepare(this, trip) { _, _ -> }
+            val base = still ?: TripVideo.stillOf(this, clip).also { still = it } ?: return@execute
+            val out = base.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
+            val look = TripLook(this, trip, TripNames.title(this, trip), style, mapKind, streets)
+            look.drawFrame(android.graphics.Canvas(out), out.width, out.height, clip.startMs + offsetS * 1000L + clip.durationMs / 2)
+            runOnUiThread {
+                if (job != previewJob || isFinishing || isDestroyed) return@runOnUiThread
+                preview.setImageBitmap(out); preview.visibility = View.VISIBLE
+                if (wantStreets) status.text = if (streets == null) getString(R.string.tv_map_failed)
+                    else getString(R.string.tv_found, clips.size, clips.sumOf { it.durationMs } / 60000, clips.sumOf { it.durationMs } / 1000 % 60)
+            }
+        }
+    }
+
+    private fun header(s: String) = TextView(this).apply {
+        text = s; textSize = 16f; setTextColor(color(R.color.text_primary))
+        typeface = android.graphics.Typeface.DEFAULT_BOLD; setPadding(0, dp(18), 0, dp(2))
     }
 
     private fun open() {

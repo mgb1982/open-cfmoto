@@ -94,7 +94,7 @@
     <string name="tv_button_clips">🎬 Video · %1$d clip(s)</string>
     <string name="park_cam_hint">Take a photo of where you leave the bike (floor, bay number…)</string>
     <string name="park_photo_failed">Couldn\'t take the photo. Try again.</string>
-    <string name="tv_sync">Sync %1$s s</string>
+    <string name="tv_sync">Shift: %1$s s</string>
     <string name="qr_camera_failed">The camera can\'t start on this phone. Use \"Import QR from photo\" with a screenshot or photo of the dash QR instead.</string>
     <string name="crash_simulate_delayed">In %1$d s (to lock the phone)</string>
     <string name="crash_simulate_delayed_toast">Lock the phone now: the simulated alarm goes off in %1$d s</string>
