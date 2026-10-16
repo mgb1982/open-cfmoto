@@ -52,7 +52,31 @@ object AppHttp {
     /** Called once from [OpenCfMotoApp] so we can reach an internet-capable network while riding. */
     fun init(ctx: Context) {
         appContext = ctx.applicationContext
-        ensureCellularUplink()
+        // v2.3 battery fix: no cellular request at app start any more. Holding it keeps the mobile
+        // radio up next to home Wi-Fi for as long as the process lives — and the low-power bike
+        // watch keeps the process alive for hours after a ride (field report: 36 h → 12 h a charge).
+        // It's requested when a session starts (AndroidAutoService / BikeWifi) and dropped on Stop.
+    }
+
+    /** Session over: let Android park mobile data again. */
+    fun releaseCellularUplink(why: String) {
+        mainHandler.removeCallbacks(idleRelease)
+        val cb = cellularCallback ?: return
+        cellularCallback = null
+        heldCellular = null
+        try {
+            (appContext?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.unregisterNetworkCallback(cb)
+        } catch (_: Exception) {}
+        LogBus.log("[NET] released cellular uplink ($why)")
+        applyMapLibreClientAsync()
+    }
+
+    /** A one-off request outside a ride (route, ETA…) shouldn't pin mobile data for the rest of the day. */
+    private val idleRelease = object : Runnable {
+        override fun run() {
+            if (AndroidAutoService.isRunning) return   // a session started meanwhile: it releases on Stop
+            releaseCellularUplink("no session")
+        }
     }
 
     /**
@@ -62,6 +86,10 @@ object AppHttp {
     fun ensureCellularUplink() {
         val cm = appContext?.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return
+        if (!AndroidAutoService.isRunning) {
+            mainHandler.removeCallbacks(idleRelease)
+            mainHandler.postDelayed(idleRelease, 2 * 60_000L)
+        }
         if (cellularCallback != null) return
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {

@@ -319,7 +319,7 @@ object BikeWifi {
      * throttles active scans, so a stale cache must not be read as "bike gone"). Also fires a
      * best-effort [WifiManager.startScan] to refresh the cache for the next check.
      */
-    fun isSsidInRange(context: Context, ssid: String): Boolean? {
+    fun isSsidInRange(context: Context, ssid: String, refresh: Boolean = true): Boolean? {
         if (ssid.isBlank()) return null
         val wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
             ?: return null
@@ -334,7 +334,7 @@ object BikeWifi {
 
         val results = try { wm.scanResults } catch (_: SecurityException) { null } ?: return null
         // Refresh for next time (throttled/deprecated — failures are fine).
-        try { wm.startScan() } catch (_: Exception) {}
+if (refresh) try { wm.startScan() } catch (_: Exception) {}
         if (results.isEmpty()) return null
 
         // ScanResult.timestamp is microseconds since boot when the AP was last seen.
