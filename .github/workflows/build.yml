@@ -34,7 +34,7 @@ jobs:
           case "$GITHUB_REF" in
             refs/heads/release/v*) V="${GITHUB_REF_NAME#release/v}"; S="" ;;
             refs/tags/v*)          V="${GITHUB_REF_NAME#v}";         S="" ;;
-            *)                     V="1";                            S="-dev" ;;
+            *)                     V="1";                            S="-dev.${GITHUB_RUN_NUMBER}" ;;
           esac
           echo "APP_VERSION=$V" >> "$GITHUB_ENV"
           echo "VERSION_SUFFIX=$S" >> "$GITHUB_ENV"
@@ -119,10 +119,18 @@ jobs:
           files: dist/*.apk
           prerelease: false
           make_latest: true
+      # Test APKs get the build number in the file name: all of them used to be
+      # "app-github-release.apk", and an older copy with the same name got sent/installed instead.
+      - name: Name test APK
+        shell: bash
+        run: |
+          mkdir -p test-apk
+          cp "$(find app/build/outputs/apk/github/release -name '*.apk' | head -1)" \
+            "test-apk/RideScreen-AA-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: RideScreen-AA-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
-          path: app/build/outputs/apk/github/release/*.apk
+          path: test-apk/*.apk
       - uses: actions/upload-artifact@v4
         with:
           name: RideScreen-AA-WearOS-${{ github.ref_name == 'main' && 'main' || 'test' }}-${{ github.run_number }}
