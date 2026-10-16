@@ -171,10 +171,21 @@ class TripLook(
 
     private val tfCondItalic = Typeface.create("sans-serif-condensed", Typeface.BOLD_ITALIC)
     private val tfCond = Typeface.create("sans-serif-condensed", Typeface.BOLD)
-    private val tfLight = Typeface.create("sans-serif-light", Typeface.NORMAL)
+    // Weight 300 from the default sans: some phones resolve "sans-serif-light" to the very same
+    // Typeface object as monospace bold, which sent Minimal/Cinema text through the pixel font.
+    private val tfLight = Typeface.create(Typeface.SANS_SERIF, 300, false)
     private val tfMedium = Typeface.create("sans-serif-medium", Typeface.NORMAL)
     private val tfSerifItalic = Typeface.create(Typeface.SERIF, Typeface.ITALIC)
     private val tfMono = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
+    /** Dot-matrix letters: only the Retro look, never by font identity alone. */
+    private fun pixel(tf: Typeface) = style == VideoStyle.RETRO && tf === tfMono
+
+    /** Width as [text] will draw it (pixel font included). */
+    private fun measure(s: String, tf: Typeface, size: Float): Float {
+        if (pixel(tf)) return PixelFont.width(s, size)
+        p.reset(); p.isAntiAlias = true; p.typeface = tf; p.textSize = size
+        return p.measureText(s)
+    }
     private val tfArchivo = try { ResourcesCompat.getFont(ctx, R.font.archivo_semibold) } catch (_: Exception) { null } ?: Typeface.DEFAULT_BOLD
     private val tfArchivoBlack = try { ResourcesCompat.getFont(ctx, R.font.archivo_black) } catch (_: Exception) { null } ?: Typeface.DEFAULT_BOLD
 
@@ -205,7 +216,7 @@ class TripLook(
 
     private fun text(c: Canvas, s: String, x: Float, y: Float, size: Float, tf: Typeface, color: Int = Color.WHITE,
                       align: Paint.Align = Paint.Align.LEFT, shadow: Boolean = true) {
-        if (tf === tfMono) { PixelFont.draw(c, s, x, y, size, color, align, shadow); return }
+        if (pixel(tf)) { PixelFont.draw(c, s, x, y, size, color, align, shadow); return }
         p.reset(); p.isAntiAlias = true
         p.typeface = tf; p.textSize = size; p.color = color; p.textAlign = align
         if (shadow) p.setShadowLayer(size * 0.12f, 0f, size * 0.04f, Color.argb(170, 0, 0, 0))
@@ -346,8 +357,7 @@ class TripLook(
                 text(c, title, 3 * u, 7 * u, fitSize(title, Typeface.DEFAULT_BOLD, w - 40 * u, 4.2f * u), Typeface.DEFAULT_BOLD)
                 text(c, clock, 3 * u, 12 * u, 3.4f * u, Typeface.DEFAULT)
                 text(c, "$kmh", 3 * u, h - 6 * u, 12 * u, Typeface.DEFAULT_BOLD)
-                p.typeface = Typeface.DEFAULT_BOLD; p.textSize = 12 * u
-                text(c, "km/h", 4.5f * u + p.measureText("$kmh"), h - 6 * u, 4 * u, Typeface.DEFAULT)
+                text(c, "km/h", 4.5f * u + measure("$kmh", Typeface.DEFAULT_BOLD, 12 * u), h - 6 * u, 4 * u, Typeface.DEFAULT)
                 val s = 30 * u
                 minimap(c, RectF(w - s - 3 * u, 3 * u, w - 3 * u, 3 * u + s), false, Color.argb(110, 0, 0, 0), null, yellow, null, idx, u)
             }
@@ -389,8 +399,7 @@ class TripLook(
                 val line = "$clock   ·   ${title.uppercase()}"
                 text(c, line, 4 * u, 6.5f * u, fitSize(line, tfMedium, w - 8 * u, 2.6f * u), tfMedium)
                 text(c, "$kmh", 4 * u, h - 4 * u, 16 * u, tfLight)
-                p.typeface = tfLight; p.textSize = 16 * u
-                text(c, "km/h", 5.5f * u + p.measureText("$kmh"), h - 5 * u, 3.8f * u, tfLight)
+                text(c, "km/h", 5.5f * u + measure("$kmh", tfLight, 16 * u), h - 5 * u, 3.8f * u, tfLight)
                 val s = 20 * u
                 minimap(c, RectF(w - s - 3 * u, h - s - 3 * u, w - 3 * u, h - 3 * u), false, null,
                     if (map == VideoMap.STREETS) Color.WHITE else null, Color.WHITE, null, idx, u)
@@ -400,10 +409,7 @@ class TripLook(
                 c.drawRect(0f, 0f, w.toFloat(), bar, fill(Color.BLACK))
                 c.drawRect(0f, h - bar, w.toFloat(), h.toFloat(), fill(Color.BLACK))
                 val date = DateFormat.getDateInstance(DateFormat.LONG).format(Date(tMs)).uppercase()
-                p.reset(); p.typeface = tfLight; p.textSize = 2.3f * u
-                var rightW = p.measureText("$date · $clock")
-                p.typeface = tfMedium; p.textSize = 2.8f * u
-                rightW = max(rightW, p.measureText("$kmh KM/H"))
+                val rightW = max(measure("$date · $clock", tfLight, 2.3f * u), measure("$kmh KM/H", tfMedium, 2.8f * u))
                 text(c, title, 4.5f * u, h - bar / 2 + 1.8f * u, fitSize(title, tfSerifItalic, w - 9 * u - rightW - 4 * u, 5.2f * u),
                     tfSerifItalic, Color.rgb(240, 232, 214), shadow = false)
                 text(c, "$date · $clock", w - 4.5f * u, h - bar / 2 - 1.2f * u, 2.3f * u, tfLight, Color.rgb(200, 190, 170), Paint.Align.RIGHT, false)
@@ -533,7 +539,7 @@ class TripLook(
     }
 
     private fun fitSize(s: String, tf: Typeface, maxW: Float, start: Float): Float {
-        if (tf === tfMono) { var sz = start; while (sz > 8f && PixelFont.width(s, sz) > maxW) sz *= 0.92f; return sz }
+        if (pixel(tf)) { var sz = start; while (sz > 8f && PixelFont.width(s, sz) > maxW) sz *= 0.92f; return sz }
         p.reset(); p.typeface = tf; var size = start
         while (size > 8f) { p.textSize = size; if (p.measureText(s) <= maxW) break; size *= 0.92f }
         return size
