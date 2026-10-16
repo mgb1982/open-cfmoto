@@ -102,7 +102,11 @@ class TripVideoActivity : AppCompatActivity() {
         }
         root.addView(preview, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(320)).apply { topMargin = dp(6) })
         root.addView(body(getString(R.string.tv_style)))
-        styleRow = chipRow(VideoStyle.values().map { getString(it.labelRes) }) { i -> style = VideoStyle.values()[i]; saveLook(); markLook(); refreshPreview() }
+        styleRow = chipRow(VideoStyle.values().map { getString(it.labelRes) }) { i ->
+            val before = nightStyle(style); style = VideoStyle.values()[i]
+            if (nightStyle(style) != before) streets = null
+            saveLook(); markLook(); refreshPreview()
+        }
         root.addView(scrollRow(styleRow))
         root.addView(body(getString(R.string.tv_map)))
         mapRow = chipRow(VideoMap.values().map { getString(it.labelRes) }) { i -> mapKind = VideoMap.values()[i]; saveLook(); markLook(); refreshPreview() }
@@ -219,7 +223,7 @@ class TripVideoActivity : AppCompatActivity() {
         if (mapKind == VideoMap.STREETS && streets == null) {
             status.setText(R.string.tv_map_loading)
             io.execute {
-                val st = StreetTiles.prepare(this, trip) { d, n -> runOnUiThread { progress.progress = d * 100 / maxOf(1, n) } }
+                val st = StreetTiles.prepare(this, trip, nightStyle(style)) { d, n -> runOnUiThread { progress.progress = d * 100 / maxOf(1, n) } }
                 runOnUiThread {
                     if (isFinishing || isDestroyed) return@runOnUiThread
                     streets = st
@@ -331,7 +335,7 @@ class TripVideoActivity : AppCompatActivity() {
         if (wantStreets) status.setText(R.string.tv_map_loading)
         io.execute {
             if (job != previewJob) return@execute
-            if (wantStreets) streets = StreetTiles.prepare(this, trip) { _, _ -> }
+            if (wantStreets) streets = StreetTiles.prepare(this, trip, nightStyle(style)) { _, _ -> }
             val base = still ?: TripVideo.stillOf(this, clip).also { still = it } ?: return@execute
             val out = base.copy(android.graphics.Bitmap.Config.ARGB_8888, true)
             val look = TripLook(this, trip, TripNames.title(this, trip), style, mapKind, streets)

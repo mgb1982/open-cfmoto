@@ -38,14 +38,17 @@ enum class VideoStyle(val labelRes: Int) {
     CINEMA(R.string.tvs_cinema), RETRO(R.string.tvs_retro), TELEMETRY(R.string.tvs_telemetry),
 }
 
+fun nightStyle(s: VideoStyle) = s == VideoStyle.SPORT || s == VideoStyle.TELEMETRY || s == VideoStyle.RETRO || s == VideoStyle.CINEMA
+
 enum class VideoMap(val labelRes: Int) { LINE(R.string.tvm_line), SPEED(R.string.tvm_speed), STREETS(R.string.tvm_streets) }
 
 /**
- * Real streets for the mini-map: OpenStreetMap tiles along the route (zoom 16, or 15 for long
- * trips), fetched once before rendering and kept on disk; decoded tiles live in a small LRU.
+ * Real streets for the mini-map, rendered by the app's own map engine (MapLibre + OpenFreeMap, the
+ * same as the dash map) into 1024 px blocks along the route, once, and cached on disk. Pixel space
+ * is classic Web Mercator with 256 px tiles at [zoom] (MapLibre zoom = zoom − 1 for 512 px tiles).
  */
 class StreetTiles private constructor(private val dir: File, val zoom: Int) {
-    private val cache = object : LruCache<String, Bitmap>(24) {}
+    private val cache = object : LruCache<String, Bitmap>(8) {}
 
     fun worldPx(lat: Double, lon: Double): PointF {
         val n = 256.0 * (1 shl zoom)
@@ -57,57 +60,76 @@ class StreetTiles private constructor(private val dir: File, val zoom: Int) {
 
     fun metersPerPx(lat: Double) = 156_543.03 * cos(Math.toRadians(lat)) / (1 shl zoom)
 
-    fun tile(x: Int, y: Int): Bitmap? {
-        val key = "$x/$y"
+    fun block(bx: Int, by: Int): Bitmap? {
+        val key = "$bx/$by"
         cache.get(key)?.let { return it }
-        val f = File(dir, "$zoom/$x/$y.png")
+        val f = File(dir, "${bx}_$by.png")
         if (!f.exists()) return null
         return BitmapFactory.decodeFile(f.absolutePath)?.also { cache.put(key, it) }
     }
 
     companion object {
         const val WINDOW_M = 260.0            // map shown = this many metres around you (radius)
-        private const val MAX_TILES = 400
-        private const val TILE_URL = "https://tile.openstreetmap.org/%d/%d/%d.png"
+        const val BLOCK = 1024
+        private const val MAX_BLOCKS = 60
 
-        /** Fetch what the route needs. Null if offline / too many failures (fall back to the line). */
-        fun prepare(ctx: Context, trip: Trip, progress: (Int, Int) -> Unit): StreetTiles? {
-            val dir = File(ctx.cacheDir, "osm-tiles").apply { mkdirs() }
+        private fun latLonOf(x: Double, y: Double, zoom: Int): Pair<Double, Double> {
+            val n = 256.0 * (1 shl zoom)
+            val lon = x / n * 360.0 - 180.0
+            val lat = Math.toDegrees(kotlin.math.atan(kotlin.math.sinh(PI * (1 - 2 * y / n))))
+            return lat to lon
+        }
+
+        /** Render what the route needs (blocking; call off the main thread). Null if it can't. */
+        fun prepare(ctx: Context, trip: Trip, night: Boolean, progress: (Int, Int) -> Unit): StreetTiles? {
+            val style = if (night) MapLibreDashController.STYLE_NIGHT else MapLibreDashController.STYLE_DAY
+            File(ctx.cacheDir, "osm-tiles").deleteRecursively()   // the old raster cache (got "access blocked" tiles)
             for (z in intArrayOf(16, 15, 14)) {
+                val dir = File(ctx.cacheDir, "video-streets/${if (night) "n" else "d"}$z").apply { mkdirs() }
                 val t = StreetTiles(dir, z)
-                val need = HashSet<Long>()
+                val need = LinkedHashSet<Long>()
                 val step = max(1, trip.points.size / 600)
                 for (i in trip.points.indices step step) {
                     val p = trip.points[i]
                     val c = t.worldPx(p.lat, p.lon)
                     val r = (WINDOW_M * 1.5 / t.metersPerPx(p.lat)).toFloat()
-                    for (tx in floor((c.x - r) / 256).toInt()..floor((c.x + r) / 256).toInt())
-                        for (ty in floor((c.y - r) / 256).toInt()..floor((c.y + r) / 256).toInt())
-                            need += (tx.toLong() shl 32) or (ty.toLong() and 0xffffffffL)
+                    for (bx in floor((c.x - r) / BLOCK).toInt()..floor((c.x + r) / BLOCK).toInt())
+                        for (by in floor((c.y - r) / BLOCK).toInt()..floor((c.y + r) / BLOCK).toInt())
+                            need += (bx.toLong() shl 32) or (by.toLong() and 0xffffffffL)
                 }
-                if (need.size > MAX_TILES) continue
+                if (need.size > MAX_BLOCKS) continue
                 var done = 0; var failed = 0
+                val main = android.os.Handler(android.os.Looper.getMainLooper())
                 for (k in need) {
-                    val x = (k shr 32).toInt(); val y = k.toInt()
-                    val f = File(dir, "$z/$x/$y.png")
+                    val bx = (k shr 32).toInt(); val by = k.toInt()
+                    val f = File(dir, "${bx}_$by.png")
                     if (!f.exists()) {
-                        try {
-                            AppHttp.throttle("tile.openstreetmap.org", 40)
-                            val conn = AppHttp.openUrl(String.format(Locale.US, TILE_URL, z, x, y))
-                            conn.connectTimeout = 8000; conn.readTimeout = 8000
-                            if (conn.responseCode == 200) {
-                                f.parentFile?.mkdirs()
-                                conn.inputStream.use { inp -> f.outputStream().use { inp.copyTo(it) } }
-                            } else failed++
-                            conn.disconnect()
-                        } catch (e: Exception) {
-                            failed++
-                            if (failed > 8 && failed > need.size / 3) { LogBus.log("[VIDEO] map tiles unavailable ($e)"); return null }
+                        val (lat, lon) = latLonOf((bx + 0.5) * BLOCK, (by + 0.5) * BLOCK, z)
+                        val latch = java.util.concurrent.CountDownLatch(1)
+                        var bmp: Bitmap? = null
+                        var snap: org.maplibre.android.snapshotter.MapSnapshotter? = null
+                        main.post {
+                            try {
+                                snap = org.maplibre.android.snapshotter.MapSnapshotter(ctx.applicationContext,
+                                    org.maplibre.android.snapshotter.MapSnapshotter.Options(BLOCK, BLOCK)
+                                        .withStyleBuilder(org.maplibre.android.maps.Style.Builder().fromUri(style))
+                                        .withCameraPosition(org.maplibre.android.camera.CameraPosition.Builder()
+                                            .target(org.maplibre.android.geometry.LatLng(lat, lon)).zoom(z - 1.0).build())
+                                        .withPixelRatio(1f)
+                                        .withLogo(false))
+                                snap?.start({ s -> bmp = s.bitmap.copy(Bitmap.Config.ARGB_8888, false); latch.countDown() },
+                                    { e -> LogBus.log("[VIDEO] street block failed: $e"); latch.countDown() })
+                            } catch (e: Exception) { LogBus.log("[VIDEO] snapshotter: $e"); latch.countDown() }
                         }
+                        latch.await(20, java.util.concurrent.TimeUnit.SECONDS)
+                        main.post { try { snap?.cancel() } catch (_: Exception) {} }
+                        val b = bmp
+                        if (b != null) { f.outputStream().use { b.compress(Bitmap.CompressFormat.PNG, 100, it) }; b.recycle() }
+                        else if (++failed > 3 && failed > need.size / 3) { LogBus.log("[VIDEO] street map unavailable"); return null }
                     }
                     progress(++done, need.size)
                 }
-                LogBus.log("[VIDEO] street map z$z: ${need.size} tiles ($failed failed)")
+                LogBus.log("[VIDEO] street map z$z: ${need.size} blocks ($failed failed)")
                 return t
             }
             return null
@@ -159,6 +181,9 @@ class TripLook(
     private val p = Paint(Paint.ANTI_ALIAS_FLAG)
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
 
+    /** Dark map tiles for the dark looks. */
+    fun night() = nightStyle(style)
+
     // ── where we are
 
     private fun indexAt(tMs: Long): Int {
@@ -180,6 +205,7 @@ class TripLook(
 
     private fun text(c: Canvas, s: String, x: Float, y: Float, size: Float, tf: Typeface, color: Int = Color.WHITE,
                       align: Paint.Align = Paint.Align.LEFT, shadow: Boolean = true) {
+        if (tf === tfMono) { PixelFont.draw(c, s, x, y, size, color, align, shadow); return }
         p.reset(); p.isAntiAlias = true
         p.typeface = tf; p.textSize = size; p.color = color; p.textAlign = align
         if (shadow) p.setShadowLayer(size * 0.12f, 0f, size * 0.04f, Color.argb(170, 0, 0, 0))
@@ -248,16 +274,17 @@ class TripLook(
             else addRoundRect(box, box.width() * 0.08f, box.width() * 0.08f, Path.Direction.CW)
         }
         c.clipPath(clip)
-        c.drawColor(Color.rgb(230, 228, 222))
+        c.drawColor(if (night()) Color.rgb(30, 34, 38) else Color.rgb(230, 228, 222))
         c.translate(box.centerX(), box.centerY())
         c.rotate(-bearing(idx))
         c.scale(scale, scale)
         c.translate(-centre.x, -centre.y)
         val reach = radiusPx * 1.5f
         val bp = Paint(Paint.FILTER_BITMAP_FLAG)
-        for (tx in floor((centre.x - reach) / 256).toInt()..floor((centre.x + reach) / 256).toInt())
-            for (ty in floor((centre.y - reach) / 256).toInt()..floor((centre.y + reach) / 256).toInt()) {
-                st.tile(tx, ty)?.let { c.drawBitmap(it, tx * 256f, ty * 256f, bp) }
+        val B = StreetTiles.BLOCK
+        for (bx in floor((centre.x - reach) / B).toInt()..floor((centre.x + reach) / B).toInt())
+            for (by in floor((centre.y - reach) / B).toInt()..floor((centre.y + reach) / B).toInt()) {
+                st.block(bx, by)?.let { c.drawBitmap(it, bx * B.toFloat(), by * B.toFloat(), bp) }
             }
         // The route on top of the streets.
         val path = Path()
@@ -274,7 +301,7 @@ class TripLook(
         // Slight shade so white text around stays readable, then "you are here" and attribution.
         dot(c, box.centerX(), box.centerY(), dotR)
         text(c, "© OpenStreetMap", box.right - box.width() * 0.06f, box.bottom - box.width() * 0.05f, box.width() * 0.055f,
-            Typeface.DEFAULT, Color.argb(200, 40, 40, 40), Paint.Align.RIGHT, shadow = false)
+            Typeface.DEFAULT, if (night()) Color.argb(200, 220, 220, 220) else Color.argb(200, 40, 40, 40), Paint.Align.RIGHT, shadow = false)
         if (circle) {
             stroke.strokeWidth = box.width() * 0.025f; stroke.color = Color.WHITE
             c.drawCircle(box.centerX(), box.centerY(), min(box.width(), box.height()) / 2f, stroke)
@@ -316,7 +343,7 @@ class TripLook(
         val kmDone = cumKm[idx]
         when (style) {
             VideoStyle.CLASSIC -> {
-                text(c, title, 3 * u, 7 * u, 4.2f * u, Typeface.DEFAULT_BOLD)
+                text(c, title, 3 * u, 7 * u, fitSize(title, Typeface.DEFAULT_BOLD, w - 40 * u, 4.2f * u), Typeface.DEFAULT_BOLD)
                 text(c, clock, 3 * u, 12 * u, 3.4f * u, Typeface.DEFAULT)
                 text(c, "$kmh", 3 * u, h - 6 * u, 12 * u, Typeface.DEFAULT_BOLD)
                 p.typeface = Typeface.DEFAULT_BOLD; p.textSize = 12 * u
@@ -326,11 +353,13 @@ class TripLook(
             }
             VideoStyle.SPORT -> {
                 // Title chip + time chip
-                p.typeface = tfCondItalic; p.textSize = 4.6f * u
+                // Room for the chip: everything left of the round map (26u + margins).
+                val ts = fitSize(title.uppercase(), tfCondItalic, w - 3 * u - 26 * u - 3 * u - 4 * u - 5 * u, 4.6f * u)
+                p.typeface = tfCondItalic; p.textSize = ts
                 val tw = p.measureText(title.uppercase())
                 c.drawRoundRect(RectF(3 * u, 3 * u, 3 * u + tw + 5 * u, 10.5f * u), 1.8f * u, 1.8f * u, fill(Color.argb(140, 0, 0, 0)))
                 c.drawPath(Path().apply { moveTo(3 * u, 3 * u); lineTo(4.4f * u, 3 * u); lineTo(3 * u, 10.5f * u); close() }, fill(amber))
-                text(c, title.uppercase(), 5.5f * u, 8.4f * u, 4.6f * u, tfCondItalic, shadow = false)
+                text(c, title.uppercase(), 5.5f * u, 6.75f * u + ts * 0.36f, ts, tfCondItalic, shadow = false)
                 c.drawRoundRect(RectF(3 * u, 11.5f * u, 16 * u, 16 * u), 1.4f * u, 1.4f * u, fill(amber))
                 text(c, clock, 9.5f * u, 15.1f * u, 3.3f * u, tfCond, Color.rgb(20, 20, 20), Paint.Align.CENTER, false)
                 // Gauge
@@ -357,7 +386,8 @@ class TripLook(
                 if (map != VideoMap.STREETS || streets == null) text(c, "N", box.centerX(), box.top + 3.4f * u, 2.6f * u, tfCond, amber, Paint.Align.CENTER, false)
             }
             VideoStyle.MINIMAL -> {
-                text(c, "$clock   ·   ${title.uppercase()}", 4 * u, 6.5f * u, 2.6f * u, tfMedium)
+                val line = "$clock   ·   ${title.uppercase()}"
+                text(c, line, 4 * u, 6.5f * u, fitSize(line, tfMedium, w - 8 * u, 2.6f * u), tfMedium)
                 text(c, "$kmh", 4 * u, h - 4 * u, 16 * u, tfLight)
                 p.typeface = tfLight; p.textSize = 16 * u
                 text(c, "km/h", 5.5f * u + p.measureText("$kmh"), h - 5 * u, 3.8f * u, tfLight)
@@ -369,8 +399,13 @@ class TripLook(
                 val bar = 13 * u
                 c.drawRect(0f, 0f, w.toFloat(), bar, fill(Color.BLACK))
                 c.drawRect(0f, h - bar, w.toFloat(), h.toFloat(), fill(Color.BLACK))
-                text(c, title, 4.5f * u, h - bar / 2 + 1.8f * u, 5.2f * u, tfSerifItalic, Color.rgb(240, 232, 214), shadow = false)
                 val date = DateFormat.getDateInstance(DateFormat.LONG).format(Date(tMs)).uppercase()
+                p.reset(); p.typeface = tfLight; p.textSize = 2.3f * u
+                var rightW = p.measureText("$date · $clock")
+                p.typeface = tfMedium; p.textSize = 2.8f * u
+                rightW = max(rightW, p.measureText("$kmh KM/H"))
+                text(c, title, 4.5f * u, h - bar / 2 + 1.8f * u, fitSize(title, tfSerifItalic, w - 9 * u - rightW - 4 * u, 5.2f * u),
+                    tfSerifItalic, Color.rgb(240, 232, 214), shadow = false)
                 text(c, "$date · $clock", w - 4.5f * u, h - bar / 2 - 1.2f * u, 2.3f * u, tfLight, Color.rgb(200, 190, 170), Paint.Align.RIGHT, false)
                 text(c, "$kmh KM/H", w - 4.5f * u, h - bar / 2 + 3.2f * u, 2.8f * u, tfMedium, Color.rgb(240, 232, 214), Paint.Align.RIGHT, false)
                 val s = bar - 3 * u
@@ -384,7 +419,8 @@ class TripLook(
                 if ((tMs / 500) % 2 == 0L) c.drawCircle(6 * u, 7 * u, 1.7f * u, fill(Color.rgb(255, 40, 40)))
                 text(c, "REC", 9 * u, 8.6f * u, 4.4f * u, tfMono)
                 text(c, "SP ▶", w - 4 * u, 8.6f * u, 4.4f * u, tfMono, align = Paint.Align.RIGHT)
-                text(c, deaccent(title.uppercase()).replace("→", ">"), 4.5f * u, 14 * u, 3.2f * u, tfMono)
+                val rt = deaccent(title.uppercase()).replace("→", ">")
+                text(c, rt, 4.5f * u, 14 * u, fitSize(rt, tfMono, w - 4.5f * u - 18 * u - 8 * u, 3.2f * u), tfMono)
                 text(c, String.format(Locale.US, "%03d KM/H", kmh), 4.5f * u, h - 7 * u, 6 * u, tfMono)
                 val d = SimpleDateFormat("MMM.dd yyyy", Locale.ENGLISH).format(Date(tMs)).uppercase()
                 text(c, d, w - 4.5f * u, h - 12 * u, 4.4f * u, tfMono, align = Paint.Align.RIGHT)
@@ -393,8 +429,9 @@ class TripLook(
                 minimap(c, RectF(w - s - 4 * u, 12 * u, w - 4 * u, 12 * u + s), false, null, null, Color.WHITE, null, idx, u)
             }
             VideoStyle.TELEMETRY -> {
-                text(c, title, 4 * u, 7 * u, 4 * u, tfArchivo)
-                text(c, DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(tMs)) + " · " + clock, 4 * u, 11.5f * u, 2.6f * u, tfArchivo,
+                text(c, title, 4 * u, 7 * u, fitSize(title, tfArchivo, w - 4 * u - 24 * u - 6 * u, 4 * u), tfArchivo)
+                val sub = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(tMs)) + " · " + clock
+                text(c, sub, 4 * u, 11.5f * u, fitSize(sub, tfArchivo, w - 4 * u - 24 * u - 6 * u, 2.6f * u), tfArchivo,
                     Color.argb(220, 255, 255, 255))
                 // Glass panel
                 val panel = RectF(3 * u, h - 22 * u, w - 3 * u, h - 3 * u)
@@ -496,6 +533,7 @@ class TripLook(
     }
 
     private fun fitSize(s: String, tf: Typeface, maxW: Float, start: Float): Float {
+        if (tf === tfMono) { var sz = start; while (sz > 8f && PixelFont.width(s, sz) > maxW) sz *= 0.92f; return sz }
         p.reset(); p.typeface = tf; var size = start
         while (size > 8f) { p.textSize = size; if (p.measureText(s) <= maxW) break; size *= 0.92f }
         return size
@@ -509,5 +547,82 @@ class TripLook(
             val y = Math.toRadians(lat2 - lat1)
             return sqrt(x * x + y * y) * 6_371_000.0
         }
+    }
+}
+
+/** 5×7 dot-matrix letters for the Retro VHS look (camcorder-style), drawn as little squares. */
+object PixelFont {
+    private val G: Map<Char, Array<String>> = mapOf(
+        '0' to arrayOf(".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."),
+        '1' to arrayOf("..#..", ".##..", "..#..", "..#..", "..#..", "..#..", ".###."),
+        '2' to arrayOf(".###.", "#...#", "....#", "...#.", "..#..", ".#...", "#####"),
+        '3' to arrayOf("#####", "...#.", "..#..", "...#.", "....#", "#...#", ".###."),
+        '4' to arrayOf("...#.", "..##.", ".#.#.", "#..#.", "#####", "...#.", "...#."),
+        '5' to arrayOf("#####", "#....", "####.", "....#", "....#", "#...#", ".###."),
+        '6' to arrayOf("..##.", ".#...", "#....", "####.", "#...#", "#...#", ".###."),
+        '7' to arrayOf("#####", "....#", "...#.", "..#..", ".#...", ".#...", ".#..."),
+        '8' to arrayOf(".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###."),
+        '9' to arrayOf(".###.", "#...#", "#...#", ".####", "....#", "...#.", ".##.."),
+        'A' to arrayOf(".###.", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"),
+        'B' to arrayOf("####.", "#...#", "#...#", "####.", "#...#", "#...#", "####."),
+        'C' to arrayOf(".###.", "#...#", "#....", "#....", "#....", "#...#", ".###."),
+        'D' to arrayOf("###..", "#..#.", "#...#", "#...#", "#...#", "#..#.", "###.."),
+        'E' to arrayOf("#####", "#....", "#....", "####.", "#....", "#....", "#####"),
+        'F' to arrayOf("#####", "#....", "#....", "####.", "#....", "#....", "#...."),
+        'G' to arrayOf(".###.", "#...#", "#....", "#.###", "#...#", "#...#", ".####"),
+        'H' to arrayOf("#...#", "#...#", "#...#", "#####", "#...#", "#...#", "#...#"),
+        'I' to arrayOf(".###.", "..#..", "..#..", "..#..", "..#..", "..#..", ".###."),
+        'J' to arrayOf("..###", "...#.", "...#.", "...#.", "...#.", "#..#.", ".##.."),
+        'K' to arrayOf("#...#", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "#...#"),
+        'L' to arrayOf("#....", "#....", "#....", "#....", "#....", "#....", "#####"),
+        'M' to arrayOf("#...#", "##.##", "#.#.#", "#.#.#", "#...#", "#...#", "#...#"),
+        'N' to arrayOf("#...#", "#...#", "##..#", "#.#.#", "#..##", "#...#", "#...#"),
+        'O' to arrayOf(".###.", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."),
+        'P' to arrayOf("####.", "#...#", "#...#", "####.", "#....", "#....", "#...."),
+        'Q' to arrayOf(".###.", "#...#", "#...#", "#...#", "#.#.#", "#..#.", ".##.#"),
+        'R' to arrayOf("####.", "#...#", "#...#", "####.", "#.#..", "#..#.", "#...#"),
+        'S' to arrayOf(".####", "#....", "#....", ".###.", "....#", "....#", "####."),
+        'T' to arrayOf("#####", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."),
+        'U' to arrayOf("#...#", "#...#", "#...#", "#...#", "#...#", "#...#", ".###."),
+        'V' to arrayOf("#...#", "#...#", "#...#", "#...#", "#...#", ".#.#.", "..#.."),
+        'W' to arrayOf("#...#", "#...#", "#...#", "#.#.#", "#.#.#", "#.#.#", ".#.#."),
+        'X' to arrayOf("#...#", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "#...#"),
+        'Y' to arrayOf("#...#", "#...#", ".#.#.", "..#..", "..#..", "..#..", "..#.."),
+        'Z' to arrayOf("#####", "....#", "...#.", "..#..", ".#...", "#....", "#####"),
+        ':' to arrayOf(".....", "..#..", "..#..", ".....", "..#..", "..#..", "....."),
+        '.' to arrayOf(".....", ".....", ".....", ".....", ".....", ".##..", ".##.."),
+        ',' to arrayOf(".....", ".....", ".....", ".....", ".##..", "..#..", ".#..."),
+        '>' to arrayOf(".#...", "..#..", "...#.", "....#", "...#.", "..#..", ".#..."),
+        '-' to arrayOf(".....", ".....", ".....", "#####", ".....", ".....", "....."),
+        '/' to arrayOf("....#", "....#", "...#.", "..#..", ".#...", "#....", "#...."),
+        '▶' to arrayOf("#....", "##...", "###..", "####.", "###..", "##...", "#...."),
+        '·' to arrayOf(".....", ".....", ".....", "..#..", ".....", ".....", "....."),
+    )
+    private val px = Paint().apply { style = Paint.Style.FILL }
+
+    private fun norm(s: String) = java.text.Normalizer.normalize(s.uppercase(), java.text.Normalizer.Form.NFD)
+        .replace(Regex("\\p{Mn}+"), "").replace("→", ">")
+
+    /** [size] = letter height; returns the drawn width. */
+    fun width(s: String, size: Float): Float { val d = size / 7f; return (norm(s).length * 6 - 1) * d }
+
+    fun draw(c: Canvas, s0: String, x: Float, baseline: Float, size: Float, color: Int, align: Paint.Align, shadow: Boolean) {
+        val s = norm(s0)
+        val d = size / 7f
+        val wTot = width(s, size)
+        val x0 = when (align) { Paint.Align.CENTER -> x - wTot / 2; Paint.Align.RIGHT -> x - wTot; else -> x }
+        val top = baseline - size
+        fun pass(dx: Float, dy: Float, col: Int) {
+            px.color = col
+            var cx = x0 + dx
+            for (ch in s) {
+                val g = G[ch]
+                if (g != null) for (r in 0 until 7) for (k in 0 until 5) if (g[r][k] == '#')
+                    c.drawRect(cx + k * d, top + dy + r * d, cx + (k + 1) * d - d * 0.12f, top + dy + (r + 1) * d - d * 0.12f, px)
+                cx += 6 * d
+            }
+        }
+        if (shadow) pass(d * 0.6f, d * 0.6f, Color.argb(200, 0, 0, 0))
+        pass(0f, 0f, color)
     }
 }
