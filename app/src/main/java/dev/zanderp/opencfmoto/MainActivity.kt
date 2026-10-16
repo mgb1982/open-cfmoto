@@ -2178,7 +2178,7 @@ class MainActivity : AppCompatActivity() {
 
             val send = Intent(if (uris.size > 1) Intent.ACTION_SEND_MULTIPLE else Intent.ACTION_SEND).apply {
                 type = if (uris.size > 1) "*/*" else "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, "opencfmoto log $stamp")
+                putExtra(Intent.EXTRA_SUBJECT, "RideScreen AA log $stamp")
                 if (uris.size > 1) putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
                 else putExtra(Intent.EXTRA_STREAM, uris[0])
                 // Some apps (Claude among them) only read the shared file through ClipData; without it
@@ -2302,7 +2302,7 @@ class MainActivity : AppCompatActivity() {
                 log = LogBus.snapshot(),
             )
             val dir = File(cacheDir, "logs").apply { mkdirs() }
-            val file = File(dir, "opencfmoto-report.txt")
+            val file = File(dir, "ridescreen-report.txt")
             file.writeText(text)
             val uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
             val send = Intent(Intent.ACTION_SEND).apply {
