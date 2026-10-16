@@ -1702,7 +1702,16 @@ class MainActivity : AppCompatActivity() {
                 val pollRounds = 30 // ~45s at 1.5s
                 for (i in 0 until pollRounds) {
                     if (ConnectionState.phase == Phase.STOPPED) return@Thread
-                    subnets = PhoneHotspotScan.tetheringSubnets()
+                    // Addresses the phone has as a CLIENT (mobile data, home Wi‑Fi…) are never the
+                    // hotspot: the 125M log (15 Oct) "found" rmnet_data3 / home wlan0 and then
+                    // claimed the hotspot was on. Tethering interfaces aren't client networks.
+                    val clientAddrs = try {
+                        val cm = getSystemService(android.net.ConnectivityManager::class.java)
+                        @Suppress("DEPRECATION")
+                        cm.allNetworks.flatMap { n -> cm.getLinkProperties(n)?.linkAddresses?.map { it.address }.orEmpty() }.toSet()
+                    } catch (_: Exception) { emptySet() }
+                    subnets = PhoneHotspotScan.tetheringSubnets(excluding = clientAddrs)
+                        .filterNot { sn -> listOf("rmnet", "ccmni", "v4-", "clat", "tun", "ppp", "dummy").any { sn.interfaceName.lowercase().startsWith(it) } }
                     if (subnets.isNotEmpty()) break
                     if (i == 0 || i % 5 == 0) {
                         LogBus.log(
