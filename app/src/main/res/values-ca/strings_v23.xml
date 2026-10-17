@@ -128,4 +128,25 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="tv_made_title">Vídeos que has creat d\'aquest viatge</string>
     <string name="tv_button_made">🎬 Vídeo · %1$d creat(s)</string>
     <string name="conn_detail_hus_wedged">Android Auto s\'ha quedat penjat al mòbil: accepta la connexió però no respon. Reinicia\'n el servidor (botó de sota: ⋮ → Stop head unit server i després Start head unit server) i torna a Connectar.</string>
+    <string name="tv_saving">Desant a la galeria…</string>
+    <string name="tv_cancel">Cancel·la</string>
+    <string name="tv_cancelled">Vídeo cancel·lat.</string>
+    <string name="tv_busy">Ja s\'està creant un altre vídeo; espera que acabi.</string>
+    <string name="tv_notif_channel">Vídeo de viatge en curs</string>
+    <string name="tv_notif_channel_done">Vídeo de viatge llest</string>
+    <string name="tv_notif_title">Creant el vídeo del viatge</string>
+    <string name="tv_notif_title_best">Creant «El millor del viatge»</string>
+    <string name="tv_notif_making">%1$d%% fet</string>
+    <string name="tv_notif_done_title">🎬 Vídeo llest</string>
+    <string name="tv_notif_failed">No s\'ha pogut crear el vídeo</string>
+    <string name="tv_music_title">Música</string>
+    <string name="tv_music_pick">Tria una cançó…</string>
+    <string name="tv_music_none">Sense música</string>
+    <string name="tv_music_remove">Treu</string>
+    <string name="tv_music_duck">Abaixa el so original dels clips</string>
+    <string name="tv_highlights">✨ El millor del viatge (vertical, ~45 s)</string>
+    <string name="tv_highlights_help">Un vídeo curt en vertical per a stories i reels amb els trams més moguts: arrencades, revolts, la velocitat màxima i l\'arribada.</string>
+    <string name="tv_sync_remembered">(recordat per a aquesta càmera)</string>
+    <string name="tv_delete">Esborra</string>
+    <string name="tv_delete_confirm">Vols esborrar aquest vídeo de la galeria?</string>
 </resources>

@@ -76,7 +76,7 @@
     <string name="tv_speed_normal">Normal speed</string>
     <string name="tv_speed_fast">Fast ×4 (no sound)</string>
     <string name="tv_make">Make the video</string>
-    <string name="tv_making">Making the video… keep this screen open.</string>
+    <string name="tv_making">Making the video… you can leave this screen, a notification tells you when it\'s ready.</string>
     <string name="tv_done">Done: saved in Movies/RideScreen AA</string>
     <string name="tv_save_failed">The video was made but couldn\'t be saved to the gallery.</string>
     <string name="tv_failed">Couldn\'t make the video (%1$s).</string>

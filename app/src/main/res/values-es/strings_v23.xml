@@ -128,4 +128,25 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="tv_made_title">Vídeos que has creado de este viaje</string>
     <string name="tv_button_made">🎬 Vídeo · %1$d creado(s)</string>
     <string name="conn_detail_hus_wedged">Android Auto se ha quedado colgado en el móvil: acepta la conexión pero no responde. Reinicia su servidor (botón de abajo: ⋮ → Stop head unit server y luego Start head unit server) y vuelve a Conectar.</string>
+    <string name="tv_saving">Guardando en la galería…</string>
+    <string name="tv_cancel">Cancelar</string>
+    <string name="tv_cancelled">Vídeo cancelado.</string>
+    <string name="tv_busy">Ya se está creando otro vídeo; espera a que termine.</string>
+    <string name="tv_notif_channel">Vídeo de viaje en curso</string>
+    <string name="tv_notif_channel_done">Vídeo de viaje listo</string>
+    <string name="tv_notif_title">Creando el vídeo del viaje</string>
+    <string name="tv_notif_title_best">Creando «Lo mejor del viaje»</string>
+    <string name="tv_notif_making">%1$d%% hecho</string>
+    <string name="tv_notif_done_title">🎬 Vídeo listo</string>
+    <string name="tv_notif_failed">No se ha podido crear el vídeo</string>
+    <string name="tv_music_title">Música</string>
+    <string name="tv_music_pick">Elegir canción…</string>
+    <string name="tv_music_none">Sin música</string>
+    <string name="tv_music_remove">Quitar</string>
+    <string name="tv_music_duck">Bajar el sonido original de los clips</string>
+    <string name="tv_highlights">✨ Lo mejor del viaje (vertical, ~45 s)</string>
+    <string name="tv_highlights_help">Un vídeo corto en vertical para stories y reels con los tramos más movidos: arrancadas, curvas, la velocidad máxima y la llegada.</string>
+    <string name="tv_sync_remembered">(recordado para esta cámara)</string>
+    <string name="tv_delete">Borrar</string>
+    <string name="tv_delete_confirm">¿Borrar este vídeo de la galería?</string>
 </resources>

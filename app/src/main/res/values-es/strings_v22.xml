@@ -76,7 +76,7 @@
     <string name="tv_speed_normal">Velocidad normal</string>
     <string name="tv_speed_fast">Rápido ×4 (sin sonido)</string>
     <string name="tv_make">Crear el vídeo</string>
-    <string name="tv_making">Creando el vídeo… deja esta pantalla abierta.</string>
+    <string name="tv_making">Creando el vídeo… puedes salir de esta pantalla: te aviso con una notificación cuando esté listo.</string>
     <string name="tv_done">Listo: guardado en Películas/RideScreen AA</string>
     <string name="tv_save_failed">El vídeo se ha creado pero no se ha podido guardar en la galería.</string>
     <string name="tv_failed">No se ha podido crear el vídeo (%1$s).</string>

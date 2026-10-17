@@ -128,4 +128,25 @@ Today: %2$d min door to door · usual: %3$d min.</string>
     <string name="tv_made_title">Videos you\'ve made of this trip</string>
     <string name="tv_button_made">🎬 Video · %1$d made</string>
     <string name="conn_detail_hus_wedged">Android Auto on the phone got stuck: it took the connection but doesn\'t answer. Restart its head unit server (button below: ⋮ → Stop head unit server, then Start head unit server) and tap Connect again.</string>
+    <string name="tv_saving">Saving to the gallery…</string>
+    <string name="tv_cancel">Cancel</string>
+    <string name="tv_cancelled">Video cancelled.</string>
+    <string name="tv_busy">Another video is still being made; wait until it finishes.</string>
+    <string name="tv_notif_channel">Trip video in progress</string>
+    <string name="tv_notif_channel_done">Trip video ready</string>
+    <string name="tv_notif_title">Making the trip video</string>
+    <string name="tv_notif_title_best">Making the best-of reel</string>
+    <string name="tv_notif_making">%1$d%% done</string>
+    <string name="tv_notif_done_title">🎬 Video ready</string>
+    <string name="tv_notif_failed">Couldn\'t make the video</string>
+    <string name="tv_music_title">Music</string>
+    <string name="tv_music_pick">Choose a song…</string>
+    <string name="tv_music_none">No music</string>
+    <string name="tv_music_remove">Remove</string>
+    <string name="tv_music_duck">Lower the clips\' own sound</string>
+    <string name="tv_highlights">✨ Best of the ride (vertical, ~45 s)</string>
+    <string name="tv_highlights_help">A short vertical video for stories and reels with the liveliest bits: take-offs, bends, top speed and the arrival.</string>
+    <string name="tv_sync_remembered">(remembered for this camera)</string>
+    <string name="tv_delete">Delete</string>
+    <string name="tv_delete_confirm">Delete this video from the gallery?</string>
 </resources>

@@ -26,11 +26,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.transformer.Composition
-import androidx.media3.transformer.ExportException
-import androidx.media3.transformer.ExportResult
-import androidx.media3.transformer.ProgressHolder
-import androidx.media3.transformer.Transformer
 import com.google.android.material.button.MaterialButton
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -64,14 +59,33 @@ class TripVideoActivity : AppCompatActivity() {
     private lateinit var styleRow: LinearLayout
     private lateinit var mapRow: LinearLayout
     private var previewJob = 0
-    private var transformer: Transformer? = null
     private var saved: Uri? = null
+    private lateinit var bestBtn: MaterialButton
+    private lateinit var cancelBtn: MaterialButton
+    private lateinit var musicLabel: TextView
+    private lateinit var musicRemove: MaterialButton
+    private lateinit var duckSwitch: com.google.android.material.materialswitch.MaterialSwitch
+    private var music: Uri? = null
+    private var duck = true
+    private var offsetRemembered = false
     private lateinit var madeHeader: TextView
     private lateinit var madeBox: LinearLayout
     private val io = Executors.newSingleThreadExecutor()
     private val ui = Handler(Looper.getMainLooper())
 
     private val askVideos = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { scan() }
+
+    // v2.3 · 🎵 a song from the phone (kept readable across restarts)
+    private val pickMusic = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        try { contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) {}
+        music = uri; saveLook(); markMusic()
+    }
+
+    // v2.3 · 🗑 deleting a made video goes through Android's own confirmation
+    private val confirmDelete = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { refreshMade() }
+
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,15 +162,39 @@ class TripVideoActivity : AppCompatActivity() {
         root.addView(offsetLabel)
         val sync = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         for ((label, d) in listOf("−5 s" to -5, "−1 s" to -1, "+1 s" to 1, "+5 s" to 5)) {
-            sync.addView(button(label) { offsetS += d; markOffset(); refreshPreview() },
+            sync.addView(button(label) { offsetS += d; offsetRemembered = false; rememberOffset(); markOffset(); refreshPreview() },
                 LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(3); marginEnd = dp(3) })
         }
         root.addView(sync)
         markOffset()
+
+        // ── Music (v2.3)
+        root.addView(header(getString(R.string.tv_music_title)))
+        musicLabel = body("")
+        root.addView(musicLabel)
+        val mrow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        mrow.addView(button(getString(R.string.tv_music_pick)) { pickMusic.launch(arrayOf("audio/*")) },
+            LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
+        musicRemove = button(getString(R.string.tv_music_remove)) { music = null; saveLook(); markMusic() }
+        mrow.addView(musicRemove, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        root.addView(mrow)
+        duckSwitch = com.google.android.material.materialswitch.MaterialSwitch(this).apply {
+            text = getString(R.string.tv_music_duck); isChecked = duck; setTextColor(color(R.color.text_primary))
+            setOnCheckedChangeListener { _, on -> duck = on; saveLook() }
+        }
+        root.addView(duckSwitch)
+        markMusic()
+
         makeBtn = button(getString(R.string.tv_make)) { make() }
         root.addView(makeBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
         progress = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 100; visibility = View.GONE }
+        // ✨ Best of the ride: short vertical reel (v2.3)
+        bestBtn = button(getString(R.string.tv_highlights)) { make(highlights = true) }
+        root.addView(bestBtn, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
+        root.addView(body(getString(R.string.tv_highlights_help)))
         root.addView(progress, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
+        cancelBtn = button(getString(R.string.tv_cancel)) { TripVideoJob.cancel(this) }.apply { visibility = View.GONE }
+        root.addView(cancelBtn)
         resultRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; visibility = View.GONE }
         resultRow.addView(button(getString(R.string.tv_open)) { open() }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(6) })
         resultRow.addView(button(getString(R.string.share_button)) { share() }, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
@@ -177,6 +215,67 @@ class TripVideoActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         refreshMade()   // also catches videos deleted from the gallery meanwhile
+        TripVideoJob.listener = { renderJob() }
+        renderJob()
+    }
+
+    override fun onPause() {
+        TripVideoJob.listener = null
+        super.onPause()
+    }
+
+    /** The background job's state, when it's about this trip. */
+    private fun renderJob() {
+        if (TripVideoJob.tripId != trip.id) { cancelBtn.visibility = View.GONE; return }
+        val busy = TripVideoJob.busy
+        makeBtn.isEnabled = !busy && clips.isNotEmpty(); bestBtn.isEnabled = makeBtn.isEnabled
+        cancelBtn.visibility = if (busy) View.VISIBLE else View.GONE
+        when (TripVideoJob.stage) {
+            TripVideoJob.Stage.MAP -> { progress.visibility = View.VISIBLE; progress.progress = TripVideoJob.progress; status.setText(R.string.tv_map_loading) }
+            TripVideoJob.Stage.EXPORT -> { progress.visibility = View.VISIBLE; progress.progress = TripVideoJob.progress; status.setText(R.string.tv_making) }
+            TripVideoJob.Stage.SAVING -> { progress.visibility = View.VISIBLE; progress.progress = 100; status.setText(R.string.tv_saving) }
+            TripVideoJob.Stage.DONE -> {
+                progress.visibility = View.GONE
+                if (saved != TripVideoJob.result) { saved = TripVideoJob.result; refreshMade() }
+                status.setText(R.string.tv_done); resultRow.visibility = View.VISIBLE
+            }
+            TripVideoJob.Stage.FAILED -> {
+                progress.visibility = View.GONE
+                status.text = if (TripVideoJob.error == getString(R.string.tv_cancelled)) getString(R.string.tv_cancelled)
+                    else getString(R.string.tv_failed, TripVideoJob.error.orEmpty())
+            }
+            TripVideoJob.Stage.IDLE -> {}
+        }
+    }
+
+    private fun markMusic() {
+        val m = music
+        musicLabel.text = if (m == null) getString(R.string.tv_music_none) else "🎵 " + displayName(m)
+        musicRemove.visibility = if (m == null) View.GONE else View.VISIBLE
+        duckSwitch.visibility = if (m == null) View.GONE else View.VISIBLE
+    }
+
+    private fun displayName(u: Uri): String = try {
+        contentResolver.query(u, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+            if (c.moveToFirst()) c.getString(0) else null
+        } ?: u.lastPathSegment.orEmpty()
+    } catch (_: Exception) { u.lastPathSegment.orEmpty() }
+
+    private fun delete(m: TripVideo.Made) {
+        try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                val pi = android.provider.MediaStore.createDeleteRequest(contentResolver, listOf(m.uri))
+                confirmDelete.launch(androidx.activity.result.IntentSenderRequest.Builder(pi.intentSender).build())
+            } else {
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                    .setMessage(R.string.tv_delete_confirm)
+                    .setPositiveButton(R.string.tv_delete) { _, _ ->
+                        try { contentResolver.delete(m.uri, null, null) } catch (e: Exception) { LogBus.log("[VIDEO] delete failed: $e") }
+                        refreshMade()
+                    }
+                    .setNegativeButton(android.R.string.cancel, null).show()
+            }
+        } catch (e: Exception) { LogBus.log("[VIDEO] delete failed: $e") }
     }
 
     private fun refreshMade() {
@@ -216,14 +315,15 @@ class TripVideoActivity : AppCompatActivity() {
         val btns = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         btns.addView(button(getString(R.string.tv_open)) { open(m.uri) },
             LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(6) })
-        btns.addView(button(getString(R.string.share_button)) { share(m.uri) })
+        btns.addView(button(getString(R.string.share_button)) { share(m.uri) },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(6) })
+        btns.addView(button("🗑") { delete(m) }.apply { contentDescription = getString(R.string.tv_delete) })
         col.addView(btns)
         row.addView(col, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         return row
     }
 
     override fun onDestroy() {
-        transformer?.cancel()
         io.shutdownNow()
         super.onDestroy()
     }
@@ -240,7 +340,7 @@ class TripVideoActivity : AppCompatActivity() {
 
     private fun scan() {
         status.setText(R.string.tv_searching)
-        makeBtn.isEnabled = false
+        makeBtn.isEnabled = false; bestBtn.isEnabled = false
         io.execute {
             val found = TripVideo.findClips(this, trip)
             runOnUiThread {
@@ -255,14 +355,41 @@ class TripVideoActivity : AppCompatActivity() {
                 status.text = getString(R.string.tv_found, found.size, total / 60, total % 60)
                 val fmt = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
                 list.text = found.joinToString("\n") { "• ${fmt.format(Date(it.startMs))} · ${it.durationMs / 1000} s · ${it.name}" }
-                makeBtn.isEnabled = true
+                makeBtn.isEnabled = true; bestBtn.isEnabled = true
+                recallOffset()
+                renderJob()
                 refreshPreview()
             }
         }
     }
 
     private fun markOffset() {
-        offsetLabel.text = if (offsetS == 0) getString(R.string.tv_sync_zero) else getString(R.string.tv_sync, (if (offsetS > 0) "+" else "") + offsetS)
+        offsetLabel.text = (if (offsetS == 0) getString(R.string.tv_sync_zero) else getString(R.string.tv_sync, (if (offsetS > 0) "+" else "") + offsetS)) +
+            if (offsetRemembered) "\n" + getString(R.string.tv_sync_remembered) else ""
+    }
+
+    // ── v2.3: the data/picture offset depends on each camera's clock, so it's remembered per camera.
+    // A camera is told apart by how it names its files (digits blanked out) and its frame size.
+    private fun cameraKey(c: TripVideo.Clip): String =
+        c.name.lowercase().replace(Regex("[0-9a-f]{6,}"), "*").replace(Regex("[0-9]"), "9") + "|" + c.width + "x" + c.height
+
+    private fun syncPrefs() = getSharedPreferences("trip_video_sync", MODE_PRIVATE)
+
+    private fun rememberOffset() {
+        val e = syncPrefs().edit()
+        clips.map { cameraKey(it) }.distinct().forEach { e.putInt(it, offsetS) }
+        e.apply()
+    }
+
+    private fun recallOffset() {
+        if (offsetS != 0 || clips.isEmpty()) return
+        val key = cameraKey(clips.first())
+        val p = syncPrefs()
+        if (!p.contains(key)) return
+        offsetS = p.getInt(key, 0)
+        offsetRemembered = offsetS != 0
+        LogBus.log("[VIDEO] sync offset ${offsetS}s remembered for camera $key")
+        markOffset()
     }
 
     private fun mark() {
@@ -270,89 +397,21 @@ class TripVideoActivity : AppCompatActivity() {
         fastBtn.alpha = if (speed > 1f) 1f else 0.5f
     }
 
-    private fun make(withCards: Boolean = cards) {
-        if (clips.isEmpty() || transformer != null) return
-        makeBtn.isEnabled = false
+    /** Hands the job to [TripVideoService]: the rider can leave the screen meanwhile. */
+    private fun make(highlights: Boolean = false) {
+        if (clips.isEmpty()) return
+        if (Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        val req = TripVideoJob.Request(trip.id, clips, speed, offsetS * 1000L, TripVideo.Look(style, mapKind, cards, watermark),
+            music, duck, highlights)
         resultRow.visibility = View.GONE
-        progress.visibility = View.VISIBLE
-        progress.progress = 0
-        if (mapKind == VideoMap.STREETS && streets == null) {
-            status.setText(R.string.tv_map_loading)
-            io.execute {
-                val st = StreetTiles.prepare(this, trip, nightStyle(style)) { d, n -> runOnUiThread { progress.progress = d * 100 / maxOf(1, n) } }
-                runOnUiThread {
-                    if (isFinishing || isDestroyed) return@runOnUiThread
-                    streets = st
-                    if (st == null) status.setText(R.string.tv_map_failed)
-                    makeBtn.isEnabled = true
-                    if (st != null) make(withCards)
-                }
-            }
-            return
+        if (!TripVideoJob.start(this, req)) {
+            android.widget.Toast.makeText(this, R.string.tv_busy, android.widget.Toast.LENGTH_LONG).show(); return
         }
-        val out = TripVideo.outputFile(this).apply { delete() }
-        status.setText(R.string.tv_making)
-        val look = TripVideo.Look(style, mapKind, cards, watermark)
-        val t = Transformer.Builder(this)
-            .addListener(object : Transformer.Listener {
-                override fun onCompleted(composition: Composition, exportResult: ExportResult) {
-                    transformer = null
-                    ui.removeCallbacksAndMessages(null)
-                    progress.progress = 100
-                    io.execute {
-                        val uri = TripVideo.publish(this@TripVideoActivity, trip, out)
-                        runOnUiThread {
-                            saved = uri
-                            status.setText(if (uri != null) R.string.tv_done else R.string.tv_save_failed)
-                            resultRow.visibility = if (uri != null) View.VISIBLE else View.GONE
-                            makeBtn.isEnabled = true
-                            if (uri != null) refreshMade()
-                        }
-                    }
-                }
-
-                override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) {
-                    transformer = null
-                    ui.removeCallbacksAndMessages(null)
-                    LogBus.log("[VIDEO] export failed (cards=$withCards): ${exportException.errorCodeName} ${exportException.message}")
-                    if (withCards) {
-                        // The opening/closing cards are the newest part: try once more without them.
-                        LogBus.log("[VIDEO] retrying without the opening/closing cards")
-                        makeBtn.isEnabled = true
-                        make(withCards = false)
-                        return
-                    }
-                    status.text = getString(R.string.tv_failed, exportException.errorCodeName)
-                    progress.visibility = View.GONE
-                    makeBtn.isEnabled = true
-                }
-            })
-            .build()
-        transformer = t
-        io.execute {
-            val comp = try {
-                TripVideo.composition(this, trip, clips, speed, offsetS * 1000L, look, streets, withCards)
-            } catch (e: Exception) { LogBus.log("[VIDEO] composition failed: $e"); null }
-            runOnUiThread {
-                if (isFinishing || isDestroyed) return@runOnUiThread
-                try {
-                    t.start(comp ?: throw IllegalStateException("composition"), out.absolutePath)
-                } catch (e: Exception) {
-                    transformer = null
-                    status.text = getString(R.string.tv_failed, e.javaClass.simpleName)
-                    makeBtn.isEnabled = true
-                    return@runOnUiThread
-                }
-                val holder = ProgressHolder()
-                ui.post(object : Runnable {
-                    override fun run() {
-                        val tr = transformer ?: return
-                        if (tr.getProgress(holder) == Transformer.PROGRESS_STATE_AVAILABLE) progress.progress = holder.progress
-                        ui.postDelayed(this, 500)
-                    }
-                })
-            }
-        }
+        LogBus.log("[VIDEO] started in the background (best=$highlights, music=${music != null}, style=$style, map=$mapKind)")
+        renderJob()
     }
 
     // ── look: chips, persistence, preview
@@ -380,9 +439,14 @@ class TripVideoActivity : AppCompatActivity() {
         style = runCatching { VideoStyle.valueOf(p.getString("style", style.name)!!) }.getOrDefault(VideoStyle.CLASSIC)
         mapKind = runCatching { VideoMap.valueOf(p.getString("map", mapKind.name)!!) }.getOrDefault(VideoMap.LINE)
         cards = p.getBoolean("cards", true); watermark = p.getBoolean("wm", true)
+        music = p.getString("music", null)?.let { Uri.parse(it) }?.takeIf { u ->
+            contentResolver.persistedUriPermissions.any { it.uri == u && it.isReadPermission }
+        }
+        duck = p.getBoolean("duck", true)
     }
     private fun saveLook() = prefs().edit().putString("style", style.name).putString("map", mapKind.name)
-        .putBoolean("cards", cards).putBoolean("wm", watermark).apply()
+        .putBoolean("cards", cards).putBoolean("wm", watermark)
+        .putString("music", music?.toString()).putBoolean("duck", duck).apply()
 
     /** A still from the first clip with the chosen look on top, a second or so after picking. */
     private fun refreshPreview() {
@@ -444,6 +508,7 @@ class TripVideoActivity : AppCompatActivity() {
 
     companion object {
         private const val EXTRA_ID = "trip_id"
-        fun start(ctx: Context, id: String) = ctx.startActivity(Intent(ctx, TripVideoActivity::class.java).putExtra(EXTRA_ID, id))
+        fun intent(ctx: Context, id: String) = Intent(ctx, TripVideoActivity::class.java).putExtra(EXTRA_ID, id)
+        fun start(ctx: Context, id: String) = ctx.startActivity(intent(ctx, id))
     }
 }

@@ -210,35 +210,74 @@ object TripVideo {
         return f
     }
 
-    /** The edit: [intro card] + clips in order with the overlay (optionally ×[speed], no sound) + [closing card]. */
+    /** Size of the "best of" reel: vertical, for stories / reels. */
+    const val REEL_W = 1080
+    const val REEL_H = 1920
+
+    /**
+     * The edit: [intro card] + clips in order with the overlay (optionally ×[speed], no sound) + [closing card].
+     * v2.3: optional [music] (looped under everything; the clips' own sound lowered when [duck]) and
+     * [highlights]: only the liveliest pieces ([TripHighlights]), cropped to a vertical reel.
+     */
     fun composition(
-        ctx: Context, trip: Trip, clips: List<Clip>, speed: Float, offsetMs: Long, look: Look, streets: StreetTiles?, withCards: Boolean = look.cards,
+        ctx: Context, trip: Trip, clips: List<Clip>, speed: Float, offsetMs: Long, look: Look, streets: StreetTiles?,
+        withCards: Boolean = look.cards, music: Uri? = null, duck: Boolean = true, highlights: Boolean = false,
     ): Composition {
         val title = TripNames.title(ctx, trip)
-        val (w, h) = frameSize(clips.first())
+        val (w, h) = if (highlights) REEL_W to REEL_H else frameSize(clips.first())
+        val sp = if (highlights) 1f else speed
         val items = ArrayList<EditedMediaItem>()
         val firstStill = if (withCards) stillOf(ctx, clips.first(), 0L) else null
         val lastStill = if (withCards) stillOf(ctx, clips.last(), clips.last().durationMs - 500) else null
         val cardLook = TripLook(ctx, trip, title, look.style, look.map, streets)
-        if (withCards) items += imageItem(card(ctx, cardLook, w, h, firstStill, outro = false, watermark = false), 2500)
-        for (clip in clips) {
+        if (withCards) items += imageItem(card(ctx, cardLook, w, h, firstStill, outro = false, watermark = false), if (highlights) 1500 else 2500)
+
+        // The pieces to use: whole clips, or the best bits.
+        val pieces: List<TripHighlights.Piece> = if (highlights) {
+            TripHighlights.pick(trip.points, clips.map { TripHighlights.Source(it.startMs + offsetMs, it.durationMs) })
+                .also { LogBus.log("[VIDEO] best-of: ${it.size} piece(s), ${it.sumOf { p -> p.lengthMs } / 1000} s") }
+        } else clips.indices.map { TripHighlights.Piece(it, 0L, clips[it].durationMs) }
+
+        val audio = ArrayList<androidx.media3.common.audio.AudioProcessor>()
+        if (music != null && duck) {
+            // The clips' own sound at a quarter, under the song.
+            val mix = androidx.media3.common.audio.ChannelMixingAudioProcessor()
+            for (n in 1..2) mix.putChannelMixingMatrix(androidx.media3.common.audio.ChannelMixingMatrix.create(n, n).scaleBy(0.25f))
+            audio += mix
+        }
+        for (piece in pieces) {
+            val clip = clips[piece.clip]
             val effects = ArrayList<androidx.media3.common.Effect>()
+            if (highlights) effects += androidx.media3.effect.Presentation.createForWidthAndHeight(
+                w, h, androidx.media3.effect.Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
             val overlayLook = TripLook(ctx, trip, title, look.style, look.map, streets)
-            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(TripOverlay(overlayLook, clip.copy(startMs = clip.startMs + offsetMs))))
-            if (speed > 1f) effects += SpeedChangeEffect(speed)
-            items += EditedMediaItem.Builder(MediaItem.fromUri(clip.uri))
-                .setRemoveAudio(speed > 1f)
-                .setEffects(Effects(ImmutableList.of<androidx.media3.common.audio.AudioProcessor>(), ImmutableList.copyOf(effects)))
+            val shown = clip.copy(startMs = clip.startMs + offsetMs + piece.fromMs)
+            effects += OverlayEffect(ImmutableList.of<androidx.media3.effect.TextureOverlay>(
+                TripOverlay(overlayLook, shown, if (highlights) w to h else null)))
+            if (sp > 1f) effects += SpeedChangeEffect(sp)
+            val whole = piece.fromMs == 0L && piece.toMs >= clip.durationMs
+            val item = if (whole) MediaItem.fromUri(clip.uri) else MediaItem.Builder().setUri(clip.uri)
+                .setClippingConfiguration(MediaItem.ClippingConfiguration.Builder()
+                    .setStartPositionMs(piece.fromMs).setEndPositionMs(piece.toMs).build()).build()
+            items += EditedMediaItem.Builder(item)
+                .setRemoveAudio(sp > 1f)
+                .setEffects(Effects(ImmutableList.copyOf(audio), ImmutableList.copyOf(effects)))
                 .build()
         }
-        if (withCards) items += imageItem(card(ctx, cardLook, w, h, lastStill, outro = true, watermark = look.watermark), 3500)
+        if (withCards) items += imageItem(card(ctx, cardLook, w, h, lastStill, outro = true, watermark = look.watermark), if (highlights) 2500 else 3500)
         firstStill?.recycle(); lastStill?.recycle()
         // Phones often record HDR (HLG/HDR10) while glasses and action cams record SDR; one
         // sequence mixing both fails with VIDEO_FRAME_PROCESSING_FAILED. Bring everything to SDR.
         @Suppress("DEPRECATION")
-        return Composition.Builder(EditedMediaItemSequence(items))
+        val sequences = arrayListOf(EditedMediaItemSequence(items))
+        if (music != null) {
+            @Suppress("DEPRECATION")
+            sequences += EditedMediaItemSequence(ImmutableList.of(EditedMediaItem.Builder(MediaItem.fromUri(music)).build()), /* isLooping = */ true)
+        }
+        @Suppress("DEPRECATION")
+        return Composition.Builder(sequences)
             .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
-            .experimentalSetForceAudioTrack(withCards && speed <= 1f)
+            .experimentalSetForceAudioTrack(music == null && withCards && sp <= 1f)
             .build()
     }
 
@@ -251,8 +290,8 @@ object TripVideo {
     fun outputFile(ctx: Context) = File(File(ctx.cacheDir, "share").apply { mkdirs() }, "ridescreen-trip.mp4")
 
     /** Copy the finished file into Movies/RideScreen AA. @return its gallery uri. */
-    fun publish(ctx: Context, trip: Trip, f: File): Uri? = try {
-        val name = madeName(trip) + ".mp4"
+    fun publish(ctx: Context, trip: Trip, f: File, suffix: String = ""): Uri? = try {
+        val name = madeName(trip) + suffix + ".mp4"
         val values = ContentValues().apply {
             put(MediaStore.Video.Media.DISPLAY_NAME, name)
             put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")
@@ -271,14 +310,14 @@ object TripVideo {
     }
 
     /** Full-frame transparent overlay drawn by [TripLook], redrawn every ~0.5 s of video. */
-    private class TripOverlay(private val look: TripLook, private val clip: Clip) : BitmapOverlay() {
+    private class TripOverlay(private val look: TripLook, private val clip: Clip, private val size: Pair<Int, Int>? = null) : BitmapOverlay() {
         private val w: Int
         private val h: Int
         private var bmp: Bitmap? = null
         private var lastBucket = -1L
         private var baseUs = -1L
 
-        init { val (a, b) = frameSize(clip); w = a; h = b }
+        init { val (a, b) = size ?: frameSize(clip); w = a; h = b }
 
         override fun getBitmap(presentationTimeUs: Long): Bitmap {
             if (baseUs < 0) baseUs = presentationTimeUs

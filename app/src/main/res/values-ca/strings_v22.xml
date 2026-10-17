@@ -76,7 +76,7 @@
     <string name="tv_speed_normal">Velocitat normal</string>
     <string name="tv_speed_fast">Ràpid ×4 (sense so)</string>
     <string name="tv_make">Crea el vídeo</string>
-    <string name="tv_making">Creant el vídeo… deixa aquesta pantalla oberta.</string>
+    <string name="tv_making">Creant el vídeo… pots sortir d\'aquesta pantalla: t\'avisaré amb una notificació quan estigui llest.</string>
     <string name="tv_done">Fet: desat a Pel·lícules/RideScreen AA</string>
     <string name="tv_save_failed">El vídeo s\'ha creat però no s\'ha pogut desar a la galeria.</string>
     <string name="tv_failed">No s\'ha pogut crear el vídeo (%1$s).</string>

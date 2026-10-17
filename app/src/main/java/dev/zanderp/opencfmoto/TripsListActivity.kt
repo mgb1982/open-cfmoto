@@ -296,8 +296,29 @@ class TripsListActivity : AppCompatActivity() {
         ).apply { topMargin = dp(4) }
         // Videos already made of this trip are our own files: listed even without video access.
         clipCounter.execute {
-            val made = TripVideo.madeFor(this, trip).size
+            val madeList = TripVideo.madeFor(this, trip)
+            val made = madeList.size
+            // v2.3: a frame of the newest video on the card, tap to watch it.
+            val thumb = madeList.firstOrNull()?.let { TripVideo.thumbnail(this, it.uri) }
             if (made > 0) runOnUiThread {
+                if (thumb != null && videoBtn.parent is ViewGroup) {
+                    val parent = videoBtn.parent as ViewGroup
+                    parent.addView(android.widget.ImageView(this).apply {
+                        setImageBitmap(thumb)
+                        scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+                        contentDescription = getString(R.string.tv_open)
+                        clipToOutline = true
+                        outlineProvider = object : android.view.ViewOutlineProvider() {
+                            override fun getOutline(v: View, o: android.graphics.Outline) { o.setRoundRect(0, 0, v.width, v.height, dp(10).toFloat()) }
+                        }
+                        setOnClickListener {
+                            try {
+                                startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(madeList.first().uri, "video/mp4")
+                                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                            } catch (_: Exception) {}
+                        }
+                    }, parent.indexOfChild(videoBtn), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(140)).apply { topMargin = dp(6) })
+                }
                 videoBtn.text = getString(R.string.tv_button_made, made)
                 videoBtn.strokeColor = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_gold))
                 videoBtn.setTextColor(ContextCompat.getColor(this, R.color.brand_gold))
