@@ -20,6 +20,14 @@ object AaVideoBridge {
     /** True if an AAP session came up at least once this Connect (even if it later dropped). */
     @Volatile var aaSessionSeen: Boolean = false
 
+    /**
+     * v2.3: Android Auto's head unit server (:5277) took the connection but never answered the
+     * version request. Field logs (125M, 16 Oct) show it stays like that until the rider restarts it
+     * in Android Auto's settings, and then works first time; so we say exactly that instead of the
+     * generic "attached then dropped".
+     */
+    @Volatile var husWedged: Boolean = false
+
     /** True once we have decoded at least one AA video fps sample this session. */
     @Volatile var aaDecoding: Boolean = false
 

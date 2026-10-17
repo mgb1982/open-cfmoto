@@ -127,4 +127,5 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="tvl_watermark">Fet amb RideScreen AA</string>
     <string name="tv_made_title">Vídeos que has creat d\'aquest viatge</string>
     <string name="tv_button_made">🎬 Vídeo · %1$d creat(s)</string>
+    <string name="conn_detail_hus_wedged">Android Auto s\'ha quedat penjat al mòbil: accepta la connexió però no respon. Reinicia\'n el servidor (botó de sota: ⋮ → Stop head unit server i després Start head unit server) i torna a Connectar.</string>
 </resources>

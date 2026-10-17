@@ -127,4 +127,5 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="tvl_watermark">Hecho con RideScreen AA</string>
     <string name="tv_made_title">Vídeos que has creado de este viaje</string>
     <string name="tv_button_made">🎬 Vídeo · %1$d creado(s)</string>
+    <string name="conn_detail_hus_wedged">Android Auto se ha quedado colgado en el móvil: acepta la conexión pero no responde. Reinicia su servidor (botón de abajo: ⋮ → Stop head unit server y luego Start head unit server) y vuelve a Conectar.</string>
 </resources>

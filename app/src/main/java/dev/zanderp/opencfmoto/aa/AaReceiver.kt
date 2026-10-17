@@ -260,6 +260,7 @@ class AaReceiver(
             log("[AA] handshake FAILED")
             if (client.port == HEADUNIT_SERVER_PORT) {
                 // TCP accepted but no VERSION_RESPONSE: Android Auto's head unit server is wedged.
+                dev.zanderp.opencfmoto.AaVideoBridge.husWedged = true
                 log(
                     "[AA] → Android Auto's head unit server accepted the connection but didn't answer. " +
                         "Restart it: Android Auto settings → ⋮ → Stop head unit server, then Start head unit server " +
@@ -272,6 +273,7 @@ class AaReceiver(
             connection = null
             return
         }
+        dev.zanderp.opencfmoto.AaVideoBridge.husWedged = false
         log("[AA] handshake OK — pointing decoder at encoder surface and starting read loop")
         videoDecoder.setSurface(encoderSurface)
         t.startReading()

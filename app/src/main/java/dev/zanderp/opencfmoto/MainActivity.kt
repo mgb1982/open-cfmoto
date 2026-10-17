@@ -256,7 +256,9 @@ class MainActivity : AppCompatActivity() {
                 if (AaVideoBridge.aaSessionLive || AaVideoBridge.aaDecoding) return@postDelayed
                 // Still no AA after retries — stop thrashing (bike SoftAP may already be up).
                 log("[AA] Android Auto never attached — stopping silent retry")
-                val detail = if (AaVideoBridge.aaSessionSeen) {
+                val detail = if (AaVideoBridge.husWedged) {
+                    getString(R.string.conn_detail_hus_wedged)
+                } else if (AaVideoBridge.aaSessionSeen) {
                     getString(R.string.conn_detail_aa_dropped)
                 } else {
                     getString(R.string.conn_detail_aa_not_started)
@@ -1517,6 +1519,7 @@ class MainActivity : AppCompatActivity() {
         val aaFailed = phase == Phase.ERROR && (
             ConnectionState.detail == getString(R.string.conn_detail_aa_not_started) ||
                 ConnectionState.detail == getString(R.string.conn_detail_aa_dropped) ||
+                ConnectionState.detail == getString(R.string.conn_detail_hus_wedged) ||
                 isHusConnectNoise(ConnectionState.detail))
         findViewById<View?>(R.id.hus_banner)?.let { banner ->
             if (aaFailed) {
