@@ -150,4 +150,5 @@ Today: %2$d min door to door · usual: %3$d min.</string>
     <string name="tv_delete">Delete</string>
     <string name="tv_delete_confirm">Delete this video from the gallery?</string>
     <string name="tvl_made_with">Made with</string>
+    <string name="tv_music_dropped">The song couldn\'t be mixed in, so the video was made without it. Please send me the log.</string>
 </resources>

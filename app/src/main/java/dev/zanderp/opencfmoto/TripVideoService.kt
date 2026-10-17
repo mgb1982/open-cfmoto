@@ -45,6 +45,8 @@ object TripVideoJob {
     @Volatile var highlights = false; internal set
     @Volatile var result: Uri? = null; internal set
     @Volatile var error: String? = null; internal set
+    /** Made, but without the chosen song (it couldn't be mixed). */
+    @Volatile var musicDropped = false; internal set
     @Volatile internal var pending: Request? = null
 
     /** Main thread. Set by the open screen. */
@@ -58,7 +60,7 @@ object TripVideoJob {
     fun start(ctx: Context, r: Request): Boolean {
         if (busy) return false
         pending = r; tripId = r.tripId; highlights = r.highlights
-        stage = Stage.MAP; progress = 0; result = null; error = null
+        stage = Stage.MAP; progress = 0; result = null; error = null; musicDropped = false
         changed()
         androidx.core.content.ContextCompat.startForegroundService(ctx, Intent(ctx, TripVideoService::class.java))
         return true
@@ -117,6 +119,7 @@ class TripVideoService : Service() {
         // Attempts, simplest last: everything → without music → without the cards.
         val attempts = ArrayList<Pair<Uri?, Boolean>>()
         attempts += req.music to req.look.cards
+        if (req.music != null && req.look.cards) attempts += req.music to false   // keep the song if the cards are the problem
         if (req.music != null) attempts += null to req.look.cards
         if (req.look.cards) attempts += null to false
         run(req, trip, streets, attempts, 0)
@@ -135,6 +138,9 @@ class TripVideoService : Service() {
             val t = Transformer.Builder(this).addListener(object : Transformer.Listener {
                 override fun onCompleted(composition: Composition, exportResult: ExportResult) {
                     transformer = null
+                    TripVideoJob.musicDropped = req.music != null && music == null
+                    LogBus.log("[VIDEO] export done (music=${music != null}, cards=$cards, best=${req.highlights}) · " +
+                        "${exportResult.durationMs / 1000} s, ${exportResult.fileSizeBytes / 1_000_000} MB, audio=${exportResult.audioEncoderName ?: exportResult.audioMimeType ?: "none"}")
                     TripVideoJob.stage = TripVideoJob.Stage.SAVING; TripVideoJob.progress = 100; TripVideoJob.changed()
                     io.execute {
                         val uri = TripVideo.publish(this@TripVideoService, trip, out, if (req.highlights) "_best" else "")
@@ -147,7 +153,9 @@ class TripVideoService : Service() {
 
                 override fun onError(composition: Composition, exportResult: ExportResult, e: ExportException) {
                     transformer = null
-                    LogBus.log("[VIDEO] export failed (music=${music != null}, cards=$cards): ${e.errorCodeName} ${e.message}")
+                    val causes = generateSequence(e.cause) { it.cause }.take(4).joinToString(" ← ") { "${it.javaClass.simpleName}: ${it.message}" }
+                    LogBus.log("[VIDEO] export failed (music=${music != null}, cards=$cards): ${e.errorCodeName} ${e.message}" +
+                        if (causes.isNotEmpty()) " · $causes" else "")
                     if (i + 1 < attempts.size) {
                         LogBus.log("[VIDEO] retrying more simply (attempt ${i + 2}/${attempts.size})")
                         io.execute { run(req, trip, streets, attempts, i + 1) }

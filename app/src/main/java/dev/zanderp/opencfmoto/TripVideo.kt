@@ -274,10 +274,12 @@ object TripVideo {
             @Suppress("DEPRECATION")
             sequences += EditedMediaItemSequence(ImmutableList.of(EditedMediaItem.Builder(MediaItem.fromUri(music)).build()), /* isLooping = */ true)
         }
+        // With a song, every piece of the main sequence needs an audio track to mix with (the cards
+        // and the ×4 clips have none): field log 17 Oct, "Asset loader error" until it's forced.
         @Suppress("DEPRECATION")
         return Composition.Builder(sequences)
             .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
-            .experimentalSetForceAudioTrack(music == null && withCards && sp <= 1f)
+            .experimentalSetForceAudioTrack(music != null || (withCards && sp <= 1f))
             .build()
     }
 

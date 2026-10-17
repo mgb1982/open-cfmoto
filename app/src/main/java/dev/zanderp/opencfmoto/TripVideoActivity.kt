@@ -237,7 +237,8 @@ class TripVideoActivity : AppCompatActivity() {
             TripVideoJob.Stage.DONE -> {
                 progress.visibility = View.GONE
                 if (saved != TripVideoJob.result) { saved = TripVideoJob.result; refreshMade() }
-                status.setText(R.string.tv_done); resultRow.visibility = View.VISIBLE
+                status.text = getString(R.string.tv_done) + if (TripVideoJob.musicDropped) "\n" + getString(R.string.tv_music_dropped) else ""
+                resultRow.visibility = View.VISIBLE
             }
             TripVideoJob.Stage.FAILED -> {
                 progress.visibility = View.GONE

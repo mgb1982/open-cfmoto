@@ -150,4 +150,5 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="tv_delete">Borrar</string>
     <string name="tv_delete_confirm">¿Borrar este vídeo de la galería?</string>
     <string name="tvl_made_with">Hecho con</string>
+    <string name="tv_music_dropped">No se ha podido mezclar la canción y el vídeo se ha creado sin ella. Mándame el log, porfa.</string>
 </resources>

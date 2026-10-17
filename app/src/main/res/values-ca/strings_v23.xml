@@ -150,4 +150,5 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="tv_delete">Esborra</string>
     <string name="tv_delete_confirm">Vols esborrar aquest vídeo de la galeria?</string>
     <string name="tvl_made_with">Fet amb</string>
+    <string name="tv_music_dropped">No s\'ha pogut barrejar la cançó i el vídeo s\'ha creat sense. Envia\'m el log, si us plau.</string>
 </resources>
