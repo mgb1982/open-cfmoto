@@ -294,8 +294,15 @@ class TripsListActivity : AppCompatActivity() {
         videoBtn.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
         ).apply { topMargin = dp(4) }
-        if (TripVideo.hasVideoAccess(this)) {
-            clipCounter.execute {
+        // Videos already made of this trip are our own files: listed even without video access.
+        clipCounter.execute {
+            val made = TripVideo.madeFor(this, trip).size
+            if (made > 0) runOnUiThread {
+                videoBtn.text = getString(R.string.tv_button_made, made)
+                videoBtn.strokeColor = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.brand_gold))
+                videoBtn.setTextColor(ContextCompat.getColor(this, R.color.brand_gold))
+            }
+            else if (TripVideo.hasVideoAccess(this)) {
                 val n = TripVideo.quickClipCount(this, trip)
                 if (n > 0) runOnUiThread {
                     videoBtn.text = getString(R.string.tv_button_clips, n)

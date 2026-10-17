@@ -56,10 +56,46 @@ object TripVideo {
     fun quickClipCount(ctx: Context, trip: Trip): Int = try {
         ctx.contentResolver.query(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI, arrayOf(MediaStore.Video.Media._ID),
-            "${MediaStore.Video.Media.DATE_TAKEN} BETWEEN ? AND ?",
-            arrayOf((trip.start - MARGIN_MS).toString(), (trip.end + MARGIN_MS).toString()), null,
+            "${MediaStore.Video.Media.DATE_TAKEN} BETWEEN ? AND ? AND ${MediaStore.Video.Media.DISPLAY_NAME} NOT LIKE ?",
+            arrayOf((trip.start - MARGIN_MS).toString(), (trip.end + MARGIN_MS).toString(), "$MADE_PREFIX%"), null,
         )?.use { it.count } ?: 0
     } catch (_: Exception) { 0 }
+
+    // ── v2.3: videos already made for a trip. They're found by their file name, which carries the
+    // trip's start (RideScreen_yyyyMMdd_HHmm.mp4, Android adds " (1)" to repeats), so the ones made
+    // before this existed show up too. Our own files are visible without any permission.
+    const val MADE_PREFIX = "RideScreen_"
+
+    data class Made(val uri: Uri, val name: String, val durationMs: Long, val sizeBytes: Long, val addedMs: Long)
+
+    fun madeName(trip: Trip) = MADE_PREFIX + SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date(trip.start))
+
+    /** Blocking, one gallery query. Newest first. */
+    fun madeFor(ctx: Context, trip: Trip): List<Made> = try {
+        val out = ArrayList<Made>()
+        ctx.contentResolver.query(
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+            arrayOf(MediaStore.Video.Media._ID, MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.DURATION,
+                MediaStore.Video.Media.SIZE, MediaStore.Video.Media.DATE_ADDED),
+            "${MediaStore.Video.Media.DISPLAY_NAME} LIKE ?", arrayOf(madeName(trip) + "%"),
+            "${MediaStore.Video.Media.DATE_ADDED} DESC",
+        )?.use { c ->
+            while (c.moveToNext()) {
+                out += Made(
+                    ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, c.getLong(0)),
+                    c.getString(1).orEmpty(), c.getLong(2), c.getLong(3), c.getLong(4) * 1000L,
+                )
+            }
+        }
+        out
+    } catch (e: Exception) {
+        LogBus.log("[VIDEO] listing made videos failed: $e")
+        emptyList()
+    }
+
+    fun thumbnail(ctx: Context, uri: Uri): Bitmap? = try {
+        ctx.contentResolver.loadThumbnail(uri, android.util.Size(480, 270), null)
+    } catch (_: Exception) { null }
 
     /** Blocking. Gallery videos recorded during [trip] (container date first, gallery date as fallback). */
     fun findClips(ctx: Context, trip: Trip): List<Clip> {
@@ -216,7 +252,7 @@ object TripVideo {
 
     /** Copy the finished file into Movies/RideScreen AA. @return its gallery uri. */
     fun publish(ctx: Context, trip: Trip, f: File): Uri? = try {
-        val name = "RideScreen_" + SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date(trip.start)) + ".mp4"
+        val name = madeName(trip) + ".mp4"
         val values = ContentValues().apply {
             put(MediaStore.Video.Media.DISPLAY_NAME, name)
             put(MediaStore.Video.Media.MIME_TYPE, "video/mp4")

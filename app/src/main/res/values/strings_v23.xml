@@ -125,4 +125,6 @@ Today: %2$d min door to door · usual: %3$d min.</string>
     <string name="tvl_avg">AVERAGE</string>
     <string name="tvl_max">TOP SPEED</string>
     <string name="tvl_watermark">Made with RideScreen AA</string>
+    <string name="tv_made_title">Videos you\'ve made of this trip</string>
+    <string name="tv_button_made">🎬 Video · %1$d made</string>
 </resources>

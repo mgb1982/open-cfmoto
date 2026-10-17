@@ -125,4 +125,6 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="tvl_avg">MEDIA</string>
     <string name="tvl_max">MÁXIMA</string>
     <string name="tvl_watermark">Hecho con RideScreen AA</string>
+    <string name="tv_made_title">Vídeos que has creado de este viaje</string>
+    <string name="tv_button_made">🎬 Vídeo · %1$d creado(s)</string>
 </resources>

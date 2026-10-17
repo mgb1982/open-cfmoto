@@ -50,6 +50,7 @@ class TripMapActivity : AppCompatActivity() {
     private var period = Period.ALL
     private var framed = false
     private var renderGen = 0
+    private var shownTrip: Trip? = null
 
     enum class Period { MONTH, YEAR, ALL }
 
@@ -82,6 +83,7 @@ class TripMapActivity : AppCompatActivity() {
             finish()
             return
         }
+        shownTrip = trip
 
         findViewById<TextView>(R.id.map_title).text = TripNames.title(this, trip)
         findViewById<TextView>(R.id.map_stats).text =
@@ -95,6 +97,19 @@ class TripMapActivity : AppCompatActivity() {
             visibility = View.VISIBLE
             setOnClickListener { TripVideoActivity.start(this@TripMapActivity, trip.id) }
         }
+    }
+
+    /** "🎬 Vídeo · 2 creado(s)" once this trip has videos made (refreshed when coming back). */
+    private fun showMadeCount() {
+        val trip = shownTrip ?: return
+        Thread {
+            val n = TripVideo.madeFor(this, trip).size
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                findViewById<TextView>(R.id.map_video)?.text =
+                    if (n > 0) getString(R.string.tv_button_made, n) else getString(R.string.tv_button)
+            }
+        }.start()
     }
 
     /**
@@ -368,6 +383,7 @@ class TripMapActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (this::map.isInitialized) map.onResume()
+        showMadeCount()
     }
 
     override fun onPause() {

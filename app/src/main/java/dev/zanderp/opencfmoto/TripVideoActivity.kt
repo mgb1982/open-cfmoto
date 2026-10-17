@@ -66,6 +66,8 @@ class TripVideoActivity : AppCompatActivity() {
     private var previewJob = 0
     private var transformer: Transformer? = null
     private var saved: Uri? = null
+    private lateinit var madeHeader: TextView
+    private lateinit var madeBox: LinearLayout
     private val io = Executors.newSingleThreadExecutor()
     private val ui = Handler(Looper.getMainLooper())
 
@@ -92,6 +94,12 @@ class TripVideoActivity : AppCompatActivity() {
         root.addView(status)
         list = body("")
         root.addView(list)
+
+        // ── v2.3: the videos already made of this trip (they live in the gallery; found by name)
+        madeHeader = header(getString(R.string.tv_made_title)).apply { visibility = View.GONE }
+        root.addView(madeHeader)
+        madeBox = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        root.addView(madeBox)
 
         // ── Look (v2.3): style, map, opening/closing cards, live preview
         loadLook()
@@ -164,6 +172,54 @@ class TripVideoActivity : AppCompatActivity() {
         mark()
         markLook()
         if (hasVideoAccess()) scan() else askVideos.launch(videoPermissions())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshMade()   // also catches videos deleted from the gallery meanwhile
+    }
+
+    private fun refreshMade() {
+        if (io.isShutdown) return
+        io.execute {
+            val made = TripVideo.madeFor(this, trip)
+            val thumbs = made.map { TripVideo.thumbnail(this, it.uri) }
+            runOnUiThread {
+                if (isFinishing || isDestroyed) return@runOnUiThread
+                madeBox.removeAllViews()
+                made.forEachIndexed { i, m -> madeBox.addView(madeRow(m, thumbs[i])) }
+                madeHeader.visibility = if (made.isEmpty()) View.GONE else View.VISIBLE
+            }
+        }
+    }
+
+    private fun madeRow(m: TripVideo.Made, thumb: android.graphics.Bitmap?): View {
+        val row = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(0, dp(6), 0, dp(6))
+        }
+        row.addView(android.widget.ImageView(this).apply {
+            scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+            setBackgroundColor(android.graphics.Color.BLACK)
+            thumb?.let { setImageBitmap(it) }
+            contentDescription = getString(R.string.tv_open)
+            setOnClickListener { open(m.uri) }
+        }, LinearLayout.LayoutParams(dp(112), dp(63)).apply { marginEnd = dp(10) })
+        val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val when_ = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT).format(java.util.Date(m.addedMs))
+        val secs = m.durationMs / 1000
+        col.addView(TextView(this).apply {
+            text = "$when_ · ${secs / 60}:${String.format(Locale.US, "%02d", secs % 60)} · " +
+                android.text.format.Formatter.formatShortFileSize(context, m.sizeBytes)
+            textSize = 13f; setTextColor(color(R.color.text_primary))
+        })
+        val btns = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        btns.addView(button(getString(R.string.tv_open)) { open(m.uri) },
+            LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginEnd = dp(6) })
+        btns.addView(button(getString(R.string.share_button)) { share(m.uri) })
+        col.addView(btns)
+        row.addView(col, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        return row
     }
 
     override fun onDestroy() {
@@ -250,6 +306,7 @@ class TripVideoActivity : AppCompatActivity() {
                             status.setText(if (uri != null) R.string.tv_done else R.string.tv_save_failed)
                             resultRow.visibility = if (uri != null) View.VISIBLE else View.GONE
                             makeBtn.isEnabled = true
+                            if (uri != null) refreshMade()
                         }
                     }
                 }
@@ -354,15 +411,15 @@ class TripVideoActivity : AppCompatActivity() {
         typeface = android.graphics.Typeface.DEFAULT_BOLD; setPadding(0, dp(18), 0, dp(2))
     }
 
-    private fun open() {
-        val uri = saved ?: return
+    private fun open(uri: Uri? = saved) {
+        if (uri == null) return
         try {
             startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, "video/mp4").addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
         } catch (_: Exception) {}
     }
 
-    private fun share() {
-        val uri = saved ?: return
+    private fun share(uri: Uri? = saved) {
+        if (uri == null) return
         startActivity(Intent.createChooser(
             Intent(Intent.ACTION_SEND).setType("video/mp4").putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION),
             null,
