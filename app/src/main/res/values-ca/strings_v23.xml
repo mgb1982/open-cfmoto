@@ -149,4 +149,5 @@ Avui: %2$d min de porta a porta · l\'habitual: %3$d min.</string>
     <string name="tv_sync_remembered">(recordat per a aquesta càmera)</string>
     <string name="tv_delete">Esborra</string>
     <string name="tv_delete_confirm">Vols esborrar aquest vídeo de la galeria?</string>
+    <string name="tvl_made_with">Fet amb</string>
 </resources>

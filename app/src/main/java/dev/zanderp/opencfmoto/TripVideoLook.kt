@@ -534,8 +534,35 @@ class TripLook(
             text(c, v, x0, y + 5.2f * u, 4.6f * u, headline())
             y += 10 * u
         }
-        if (watermark) text(c, ctx.getString(R.string.tvl_watermark), w / 2f, h - 4 * u, 2.4f * u, tfMedium,
-            Color.argb(190, 255, 255, 255), Paint.Align.CENTER)
+        if (watermark) brand(c, w, h, u, portrait, x0)
+    }
+
+    /**
+     * v2.3 · "Made with" + the app icon + RideScreen AA, big enough to read on a phone (it used to be
+     * one small line), and the project's address under it once [BRAND_LINK] is set.
+     */
+    private fun brand(c: Canvas, w: Int, h: Int, u: Float, portrait: Boolean, x0: Float) {
+        val icon = 9 * u
+        val nameSize = 4.6f * u
+        val name = "RideScreen AA"
+        p.reset(); p.isAntiAlias = true; p.typeface = tfArchivoBlack; p.textSize = nameSize
+        val nameW = p.measureText(name)
+        val blockW = icon + 2.2f * u + nameW
+        val left = if (portrait) (w - blockW) / 2f else x0
+        val linkH = if (BRAND_LINK.isNotEmpty()) 4 * u else 0f
+        val top = h - 5 * u - linkH - icon
+        try {
+            androidx.core.content.res.ResourcesCompat.getDrawable(ctx.resources, R.mipmap.ic_launcher_round, null)?.let { d ->
+                d.setBounds(left.toInt(), top.toInt(), (left + icon).toInt(), (top + icon).toInt()); d.draw(c)
+            }
+        } catch (_: Exception) {}
+        val tx = left + icon + 2.2f * u
+        text(c, ctx.getString(R.string.tvl_made_with), tx, top + 3.2f * u, 2.3f * u, tfMedium, Color.argb(200, 255, 255, 255))
+        text(c, name, tx, top + icon - 0.6f * u, nameSize, tfArchivoBlack)
+        if (BRAND_LINK.isNotEmpty()) {
+            text(c, BRAND_LINK, if (portrait) w / 2f else left, h - 4.5f * u, 2.6f * u, tfMedium, accent(),
+                if (portrait) Paint.Align.CENTER else Paint.Align.LEFT)
+        }
     }
 
     private fun fitSize(s: String, tf: Typeface, maxW: Float, start: Float): Float {
@@ -557,6 +584,9 @@ class TripLook(
 }
 
 /** 5×7 dot-matrix letters for the Retro VHS look (camcorder-style), drawn as little squares. */
+/** Shown under the logo at the end of trip videos (web / Instagram); empty = nothing. */
+const val BRAND_LINK = ""
+
 object PixelFont {
     private val G: Map<Char, Array<String>> = mapOf(
         '0' to arrayOf(".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."),

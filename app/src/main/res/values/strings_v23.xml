@@ -149,4 +149,5 @@ Today: %2$d min door to door · usual: %3$d min.</string>
     <string name="tv_sync_remembered">(remembered for this camera)</string>
     <string name="tv_delete">Delete</string>
     <string name="tv_delete_confirm">Delete this video from the gallery?</string>
+    <string name="tvl_made_with">Made with</string>
 </resources>

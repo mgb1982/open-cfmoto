@@ -149,4 +149,5 @@ Hoy: %2$d min de puerta a puerta · lo habitual: %3$d min.</string>
     <string name="tv_sync_remembered">(recordado para esta cámara)</string>
     <string name="tv_delete">Borrar</string>
     <string name="tv_delete_confirm">¿Borrar este vídeo de la galería?</string>
+    <string name="tvl_made_with">Hecho con</string>
 </resources>
